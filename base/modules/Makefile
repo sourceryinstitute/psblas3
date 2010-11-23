@@ -2,7 +2,7 @@ include ../../Make.inc
 
 BASIC_MODS= psb_const_mod.o psb_error_mod.o psb_realloc_mod.o
 UTIL_MODS = psb_string_mod.o psb_desc_const_mod.o psb_indx_map_mod.o\
-        psb_gen_block_map_mod.o \
+        psb_gen_block_map_mod.o psb_repl_map_mod.o\
 	psb_desc_type.o psb_sort_mod.o psb_serial_mod.o \
 	psb_base_tools_mod.o psb_s_tools_mod.o  psb_d_tools_mod.o\
 	psb_c_tools_mod.o  psb_z_tools_mod.o  psb_tools_mod.o \
@@ -65,7 +65,7 @@ psi_mod.o: psb_penv_mod.o psb_error_mod.o psb_desc_type.o psb_const_mod.o psi_se
 psb_desc_type.o: psb_const_mod.o psb_error_mod.o psb_penv_mod.o psb_realloc_mod.o  psb_hash_mod.o\
            psb_desc_const_mod.o psb_indx_map_mod.o
 psb_indx_map_mod.o: psb_desc_const_mod.o psb_const_mod.o
-psb_gen_block_map_mod.o: psb_indx_map_mod.o psb_desc_const_mod.o psb_const_mod.o psb_realloc_mod.o \
+psb_repl_map_mod.o psb_gen_block_map_mod.o: psb_indx_map_mod.o psb_desc_const_mod.o psb_const_mod.o psb_realloc_mod.o \
     psb_sort_mod.o psb_penv_mod.o psb_error_mod.o
 psb_linmap_mod.o: psb_s_linmap_mod.o psb_d_linmap_mod.o psb_c_linmap_mod.o psb_z_linmap_mod.o 
  psb_s_linmap_mod.o psb_d_linmap_mod.o psb_c_linmap_mod.o psb_z_linmap_mod.o: psb_linmap_type_mod.o psb_mat_mod.o 
