@@ -88,7 +88,7 @@ program ppde
 
   ! solver parameters
   integer            :: iter, itmax,itrace, istopc, irst
-  integer(psb_long_int_k_) :: amatsize, precsize, descsize
+  integer(psb_long_int_k_) :: amatsize, precsize, descsize, d2size
   real(psb_dpk_)   :: err, eps
 
   ! other variables
@@ -180,6 +180,10 @@ program ppde
   call psb_sum(ictxt,descsize)
   call psb_sum(ictxt,precsize)
 
+  d2size = 0
+  if (allocated(desc_a%indxmap)) d2size=desc_a%indxmap%sizeof()
+  call psb_sum(ictxt,d2size)
+
   if (iam == psb_root_) then
     write(psb_out_unit,'(" ")')
     write(psb_out_unit,'("Time to solve matrix          : ",es12.5)')t2
@@ -190,6 +194,7 @@ program ppde
     write(psb_out_unit,'("Total memory occupation for A:      ",i12)')amatsize
     write(psb_out_unit,'("Total memory occupation for DESC_A: ",i12)')descsize
     write(psb_out_unit,'("Total memory occupation for PREC:   ",i12)')precsize
+    write(psb_out_unit,'("Total memory occupation for D%IDXM: ",i12)')d2size
   end if
 
   !  

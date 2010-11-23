@@ -138,6 +138,7 @@ function psb_issrch(key,n,v) result(ipos)
       return
     end if
   enddo
+  
   return
 end function psb_issrch
 

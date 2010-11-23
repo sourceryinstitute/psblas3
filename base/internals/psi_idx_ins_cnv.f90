@@ -65,6 +65,7 @@ subroutine psi_idx_ins_cnv1(nv,idxin,desc,info,mask)
   integer                :: np, me
   integer                :: nrow,ncol, err_act
   integer                :: pnt_halo, nh, ip, lip,nxt,lipf,i,k,isize
+  integer, allocatable   :: itmp(:)
   logical                :: pnt_h_ok
   integer, parameter     :: relocsz=200
   character(len=20)      :: name,ch_err
@@ -109,6 +110,12 @@ subroutine psi_idx_ins_cnv1(nv,idxin,desc,info,mask)
       goto 9999
     end if
   endif
+
+  if (allocated(desc%indxmap)) then 
+    allocate(itmp(nv),stat=info)
+    itmp(1:nv) = idxin(1:nv)
+    call desc%indxmap%g2l_ins(itmp(1:nv),info,mask)
+  end if
 
   if (psb_is_large_desc(desc)) then 
 

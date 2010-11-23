@@ -38,88 +38,90 @@
 module psb_descriptor_type
   use psb_const_mod
   use psb_hash_mod 
+  use psb_desc_const_mod
+  use psb_indx_map_mod
 
   implicit none
 
-  !
-  !     Communication, prolongation & restriction
-  !
-  integer, parameter :: psb_nohalo_=0,  psb_halo_=1
-  ! For overlap update. 
-  integer, parameter :: psb_none_=0,  psb_sum_=1
-  integer, parameter :: psb_avg_=2,  psb_square_root_=3
-  integer, parameter :: psb_setzero_=4
-
-  ! The following are bit fields. 
-  integer, parameter :: psb_swap_send_=1, psb_swap_recv_=2
-  integer, parameter :: psb_swap_sync_=4, psb_swap_mpi_=8
-  ! Choice among lists on which to base data exchange
-  integer, parameter :: psb_no_comm_=-1
-  integer, parameter :: psb_comm_halo_=1, psb_comm_ovr_=2
-  integer, parameter :: psb_comm_ext_=3,  psb_comm_mov_=4
-  ! Types of mapping between descriptors.
-  integer, parameter :: psb_map_xhal_        = 123
-  integer, parameter :: psb_map_asov_        = psb_map_xhal_+1
-  integer, parameter :: psb_map_aggr_        = psb_map_asov_+1 
-  integer, parameter :: psb_map_gen_linear_  = psb_map_aggr_+1 
-
-  integer, parameter :: psb_ovt_xhal_ = psb_map_xhal_, psb_ovt_asov_=psb_map_asov_
-  !
-  ! Entries and values in desc%matrix_data
-  !
-  integer, parameter :: psb_dec_type_  =  1
-  integer, parameter :: psb_m_         =  2
-  integer, parameter :: psb_n_         =  3
-  integer, parameter :: psb_n_row_     =  4
-  integer, parameter :: psb_n_col_     =  5
-  integer, parameter :: psb_ctxt_      =  6
-  integer, parameter :: psb_desc_size_ =  7
-  integer, parameter :: psb_mpi_c_     =  9
-  integer, parameter :: psb_pnt_h_     = 10
-  integer, parameter :: psb_thal_xch_  = 11
-  integer, parameter :: psb_thal_snd_  = 12
-  integer, parameter :: psb_thal_rcv_  = 13
-  integer, parameter :: psb_tovr_xch_  = 14
-  integer, parameter :: psb_tovr_snd_  = 15
-  integer, parameter :: psb_tovr_rcv_  = 16
-  integer, parameter :: psb_text_xch_  = 17
-  integer, parameter :: psb_text_snd_  = 18
-  integer, parameter :: psb_text_rcv_  = 19
-  integer, parameter :: psb_tmov_xch_  = 20
-  integer, parameter :: psb_tmov_snd_  = 21
-  integer, parameter :: psb_tmov_rcv_  = 22
-  integer, parameter :: psb_mdata_size_= 24
-  integer, parameter :: psb_desc_asb_=3099
-  integer, parameter :: psb_desc_bld_=psb_desc_asb_+1
-  integer, parameter :: psb_desc_repl_=3199
-  integer, parameter :: psb_desc_upd_=psb_desc_bld_+1
-  ! these two are reserved for descriptors which are
-  ! "overlap-extensions" of base descriptors. 
-  integer, parameter :: psb_cd_ovl_bld_=3399
-  integer, parameter :: psb_cd_ovl_asb_=psb_cd_ovl_bld_+1
-  integer, parameter :: psb_desc_normal_=3299
-  integer, parameter :: psb_desc_large_=psb_desc_normal_+1
-  !
-  ! Constants for hashing into desc%hashv(:) and desc%glb_lc(:,:)
-  !
-  integer, parameter :: psb_hash_bits=16
-  integer, parameter :: psb_max_hash_bits=22
-  integer, parameter :: psb_hash_size=2**psb_hash_bits, psb_hash_mask=psb_hash_size-1
-  integer, parameter :: psb_default_large_threshold=1*1024*1024   
-  integer, parameter :: psb_hpnt_nentries_=7
-
-  !
-  !     Constants for desc_a handling
-  !
-
-  integer, parameter :: psb_upd_glbnum_=998
-  integer, parameter :: psb_upd_locnum_=997
-  integer, parameter :: psb_proc_id_=0, psb_n_elem_recv_=1
-  integer, parameter :: psb_elem_recv_=2, psb_n_elem_send_=2
-  integer, parameter :: psb_elem_send_=3, psb_n_ovrlp_elem_=1
-  integer, parameter :: psb_ovrlp_elem_to_=2, psb_ovrlp_elem_=0
-  integer, parameter :: psb_n_dom_ovr_=1
-
+!!$  !
+!!$  !     Communication, prolongation & restriction
+!!$  !
+!!$  integer, parameter :: psb_nohalo_=0,  psb_halo_=1
+!!$  ! For overlap update. 
+!!$  integer, parameter :: psb_none_=0,  psb_sum_=1
+!!$  integer, parameter :: psb_avg_=2,  psb_square_root_=3
+!!$  integer, parameter :: psb_setzero_=4
+!!$
+!!$  ! The following are bit fields. 
+!!$  integer, parameter :: psb_swap_send_=1, psb_swap_recv_=2
+!!$  integer, parameter :: psb_swap_sync_=4, psb_swap_mpi_=8
+!!$  ! Choice among lists on which to base data exchange
+!!$  integer, parameter :: psb_no_comm_=-1
+!!$  integer, parameter :: psb_comm_halo_=1, psb_comm_ovr_=2
+!!$  integer, parameter :: psb_comm_ext_=3,  psb_comm_mov_=4
+!!$  ! Types of mapping between descriptors.
+!!$  integer, parameter :: psb_map_xhal_        = 123
+!!$  integer, parameter :: psb_map_asov_        = psb_map_xhal_+1
+!!$  integer, parameter :: psb_map_aggr_        = psb_map_asov_+1 
+!!$  integer, parameter :: psb_map_gen_linear_  = psb_map_aggr_+1 
+!!$
+!!$  integer, parameter :: psb_ovt_xhal_ = psb_map_xhal_, psb_ovt_asov_=psb_map_asov_
+!!$  !
+!!$  ! Entries and values in desc%matrix_data
+!!$  !
+!!$  integer, parameter :: psb_dec_type_  =  1
+!!$  integer, parameter :: psb_m_         =  2
+!!$  integer, parameter :: psb_n_         =  3
+!!$  integer, parameter :: psb_n_row_     =  4
+!!$  integer, parameter :: psb_n_col_     =  5
+!!$  integer, parameter :: psb_ctxt_      =  6
+!!$  integer, parameter :: psb_desc_size_ =  7
+!!$  integer, parameter :: psb_mpi_c_     =  9
+!!$  integer, parameter :: psb_pnt_h_     = 10
+!!$  integer, parameter :: psb_thal_xch_  = 11
+!!$  integer, parameter :: psb_thal_snd_  = 12
+!!$  integer, parameter :: psb_thal_rcv_  = 13
+!!$  integer, parameter :: psb_tovr_xch_  = 14
+!!$  integer, parameter :: psb_tovr_snd_  = 15
+!!$  integer, parameter :: psb_tovr_rcv_  = 16
+!!$  integer, parameter :: psb_text_xch_  = 17
+!!$  integer, parameter :: psb_text_snd_  = 18
+!!$  integer, parameter :: psb_text_rcv_  = 19
+!!$  integer, parameter :: psb_tmov_xch_  = 20
+!!$  integer, parameter :: psb_tmov_snd_  = 21
+!!$  integer, parameter :: psb_tmov_rcv_  = 22
+!!$  integer, parameter :: psb_mdata_size_= 24
+!!$  integer, parameter :: psb_desc_asb_=3099
+!!$  integer, parameter :: psb_desc_bld_=psb_desc_asb_+1
+!!$  integer, parameter :: psb_desc_repl_=3199
+!!$  integer, parameter :: psb_desc_upd_=psb_desc_bld_+1
+!!$  ! these two are reserved for descriptors which are
+!!$  ! "overlap-extensions" of base descriptors. 
+!!$  integer, parameter :: psb_cd_ovl_bld_=3399
+!!$  integer, parameter :: psb_cd_ovl_asb_=psb_cd_ovl_bld_+1
+!!$  integer, parameter :: psb_desc_normal_=3299
+!!$  integer, parameter :: psb_desc_large_=psb_desc_normal_+1
+!!$  !
+!!$  ! Constants for hashing into desc%hashv(:) and desc%glb_lc(:,:)
+!!$  !
+!!$  integer, parameter :: psb_hash_bits=16
+!!$  integer, parameter :: psb_max_hash_bits=22
+!!$  integer, parameter :: psb_hash_size=2**psb_hash_bits, psb_hash_mask=psb_hash_size-1
+!!$  integer, parameter :: psb_default_large_threshold=1*1024*1024   
+!!$  integer, parameter :: psb_hpnt_nentries_=7
+!!$
+!!$  !
+!!$  !     Constants for desc_a handling
+!!$  !
+!!$
+!!$  integer, parameter :: psb_upd_glbnum_=998
+!!$  integer, parameter :: psb_upd_locnum_=997
+!!$  integer, parameter :: psb_proc_id_=0, psb_n_elem_recv_=1
+!!$  integer, parameter :: psb_elem_recv_=2, psb_n_elem_send_=2
+!!$  integer, parameter :: psb_elem_send_=3, psb_n_ovrlp_elem_=1
+!!$  integer, parameter :: psb_ovrlp_elem_to_=2, psb_ovrlp_elem_=0
+!!$  integer, parameter :: psb_n_dom_ovr_=1
+!!$
 
   !
   !  type: psb_desc_type
@@ -307,6 +309,8 @@ module psb_descriptor_type
   !
   !
   !
+
+
   type psb_idxmap_type
     integer              :: state 
     integer, allocatable :: loc_to_glob(:)
@@ -325,53 +329,54 @@ module psb_descriptor_type
     integer, allocatable  :: ovr_mst_idx(:)
     integer, allocatable  :: bnd_elem(:)
     type(psb_idxmap_type) :: idxmap 
+    class(psb_indx_map), allocatable :: indxmap
     integer, allocatable  :: lprm(:)
     type(psb_desc_type), pointer     :: base_desc => null()
-    integer, allocatable :: idx_space(:)
+    integer, allocatable  :: idx_space(:)
   end type psb_desc_type
 
   interface psb_sizeof
     module procedure psb_cd_sizeof, psb_idxmap_sizeof
-  end interface
+  end interface psb_sizeof
 
   interface psb_is_ok_desc
     module procedure psb_is_ok_desc
-  end interface
+  end interface psb_is_ok_desc
 
   interface psb_is_asb_desc
     module procedure psb_is_asb_desc
-  end interface
+  end interface psb_is_asb_desc
 
   interface psb_is_upd_desc
     module procedure psb_is_upd_desc
-  end interface
+  end interface psb_is_upd_desc
 
   interface psb_is_ovl_desc
     module procedure psb_is_ovl_desc
-  end interface
+  end interface psb_is_ovl_desc
 
   interface psb_is_bld_desc
     module procedure psb_is_bld_desc
-  end interface
+  end interface psb_is_bld_desc
 
   interface psb_is_large_desc
     module procedure psb_is_large_desc
-  end interface
+  end interface psb_is_large_desc
 
 
   interface psb_move_alloc
     module procedure psb_cdtransfer, psb_idxmap_transfer
-  end interface
+  end interface psb_move_alloc
 
 
   interface psb_free
     module procedure psb_cdfree, psb_idxmap_free
-  end interface
+  end interface psb_free
 
   interface psb_map_l2g
     module procedure psb_map_l2g_s1, psb_map_l2g_s2,&
          & psb_map_l2g_v1, psb_map_l2g_v2
-  end interface
+  end interface psb_map_l2g
 
   integer, private, save :: cd_large_threshold=psb_default_large_threshold 
 
@@ -393,7 +398,7 @@ contains
     val = val + psb_sizeof(map%hash) 
 
   end function psb_idxmap_sizeof
-    
+
 
   function psb_cd_sizeof(desc)  result(val)
     implicit none
@@ -620,7 +625,7 @@ contains
       call psb_errpush(psb_err_invalid_cd_state_,'psb_cd_get_dectype')
       call psb_error()
     end if
-      
+
   end function psb_cd_get_dectype
 
   integer function psb_cd_get_size(desc)
@@ -799,7 +804,7 @@ contains
       call psb_errpush(info,name)
       goto 9999
     end if
-    
+
 
     call psb_erractionrestore(err_act)
     return
@@ -1079,7 +1084,7 @@ contains
          & call psb_move_alloc( map_in%glb_lc      ,    map_out%glb_lc       , info)
     if (info == psb_success_)  &
          & call psb_move_alloc( map_in%hash        ,    map_out%hash        , info)
-    
+
     if (info /= psb_success_) then
       info = psb_err_from_subroutine_
       call psb_errpush(info,name)
@@ -1140,7 +1145,7 @@ contains
          & call psb_safe_ab_cpy( map_in%glb_lc      ,    map_out%glb_lc       , info)
     if (info == psb_success_)  &
          & call psb_hash_copy( map_in%hash        ,    map_out%hash        , info)
-    
+
     if (info /= psb_success_) then
       info = psb_err_from_subroutine_
       call psb_errpush(info,name)
@@ -1182,7 +1187,7 @@ contains
       return
     end if
     idx = map%loc_to_glob(idx) 
-    
+
   end subroutine psb_map_l2g_s1
 
   subroutine psb_map_l2g_s2(idx,gidx,map,info)
@@ -1205,7 +1210,7 @@ contains
       return
     end if
     gidx = map%loc_to_glob(idx) 
-    
+
   end subroutine psb_map_l2g_s2
 
   subroutine psb_map_l2g_v1(idx,map,info)
@@ -1232,7 +1237,7 @@ contains
         idx(i) = map%loc_to_glob(ix) 
       end if
     end do
-    
+
   end subroutine psb_map_l2g_v1
 
   subroutine psb_map_l2g_v2(idx,gidx,map,info)
@@ -1250,7 +1255,7 @@ contains
       gidx = -1 
       return
     end if
-      
+
     nc = size(map%loc_to_glob) 
     do i=1, size(idx) 
       ix = idx(i)
@@ -1261,7 +1266,7 @@ contains
         gidx(i) = map%loc_to_glob(ix) 
       end if
     end do
-    
+
   end subroutine psb_map_l2g_v2
 
 
@@ -1292,7 +1297,7 @@ contains
 
     ictxt = psb_cd_get_context(desc)
     call psb_info(ictxt, me, np)
-    
+
     select case(data)
     case(psb_comm_halo_)
       idxlist => desc%halo_index
@@ -1308,7 +1313,7 @@ contains
       call psb_errpush(info,name,a_err='wrong Data selector')
       goto 9999
     end select
-    
+
     l_tmp = 3*size(idxlist)
 
     allocate(tmp(l_tmp),stat=info)
@@ -1317,7 +1322,7 @@ contains
       call psb_errpush(psb_err_from_subroutine_,name,a_err='Allocate')
       goto 9999      
     end if
-      
+
     incnt  = 1
     outcnt = 1
     tmp(:) = -1
@@ -1355,7 +1360,7 @@ contains
       end Do
       incnt = incnt+n_elem_recv+n_elem_send+3
     end Do
-    
+
     call psb_erractionrestore(err_act)
     return
 

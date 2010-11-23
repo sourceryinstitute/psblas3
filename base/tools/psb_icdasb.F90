@@ -113,6 +113,14 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
   if (debug_level >= psb_debug_ext_) &
        & write(debug_unit, *) me,' ',trim(name),': start'
 
+  if (allocated(desc_a%indxmap)) then 
+    call desc_a%indxmap%asb(info)
+    if (info /= psb_success_) then 
+      write(0,*) 'Error from internal indxmap asb ',info
+      info = psb_success_
+    end if
+  end if
+
   if (psb_is_bld_desc(desc_a)) then 
     
     if (debug_level >= psb_debug_ext_) &
