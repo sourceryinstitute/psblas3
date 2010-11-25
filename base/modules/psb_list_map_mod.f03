@@ -1,11 +1,11 @@
-module psb_full_list_map_mod
+module psb_list_map_mod
   use psb_const_mod
   use psb_desc_const_mod
   use psb_indx_map_mod
   
-  type, extends(psb_indx_map) :: psb_full_list_map
+  type, extends(psb_indx_map) :: psb_list_map
     integer :: pnt_h          = -1 
-    integer, allocatable :: loc_to_glob(:), glob_to_loc(:), vgp(:)
+    integer, allocatable :: loc_to_glob(:), glob_to_loc(:)
   contains
     procedure, pass(idxmap)  :: initvl    => list_initvl
     procedure, pass(idxmap)  :: initvg    => list_initvg
@@ -31,7 +31,7 @@ module psb_full_list_map_mod
     procedure, pass(idxmap)  :: g2lv1_ins => list_g2lv1_ins
     procedure, pass(idxmap)  :: g2lv2_ins => list_g2lv2_ins
 
-  end type psb_full_list_map
+  end type psb_list_map
 
   integer, parameter :: psb_flag_global_list = 1
   integer, parameter :: psb_flag_local_list  = 2
@@ -41,7 +41,7 @@ contains
     
   function list_sizeof(idxmap) result(val)
     implicit none 
-    class(psb_full_list_map), intent(in) :: idxmap
+    class(psb_list_map), intent(in) :: idxmap
     integer(psb_long_int_k_) :: val
     
     val = idxmap%psb_indx_map%sizeof()
@@ -56,7 +56,7 @@ contains
 
   subroutine list_free(idxmap)
     implicit none 
-    class(psb_full_list_map), intent(inout) :: idxmap
+    class(psb_list_map), intent(inout) :: idxmap
     
     if (allocated(idxmap%loc_to_glob)) &
          & deallocate(idxmap%loc_to_glob)
@@ -68,7 +68,7 @@ contains
 
   subroutine list_l2gs1(idx,idxmap,info,mask,owned)
     implicit none 
-    class(psb_full_list_map), intent(in) :: idxmap
+    class(psb_list_map), intent(in) :: idxmap
     integer, intent(inout) :: idx
     integer, intent(out)   :: info 
     logical, intent(in), optional :: mask
@@ -87,7 +87,7 @@ contains
 
   subroutine list_l2gs2(idxin,idxout,idxmap,info,mask,owned)
     implicit none 
-    class(psb_full_list_map), intent(in) :: idxmap
+    class(psb_list_map), intent(in) :: idxmap
     integer, intent(in)    :: idxin
     integer, intent(out)   :: idxout
     integer, intent(out)   :: info 
@@ -102,7 +102,7 @@ contains
 
   subroutine list_l2gv1(idx,idxmap,info,mask,owned)
     implicit none 
-    class(psb_full_list_map), intent(in) :: idxmap
+    class(psb_list_map), intent(in) :: idxmap
     integer, intent(inout) :: idx(:)
     integer, intent(out)   :: info 
     logical, intent(in), optional :: mask(:)
@@ -159,7 +159,7 @@ contains
 
   subroutine list_l2gv2(idxin,idxout,idxmap,info,mask,owned)
     implicit none 
-    class(psb_full_list_map), intent(in) :: idxmap
+    class(psb_list_map), intent(in) :: idxmap
     integer, intent(in)    :: idxin(:)
     integer, intent(out)   :: idxout(:)
     integer, intent(out)   :: info 
@@ -178,7 +178,7 @@ contains
 
   subroutine list_g2ls1(idx,idxmap,info,mask,owned)
     implicit none 
-    class(psb_full_list_map), intent(in) :: idxmap
+    class(psb_list_map), intent(in) :: idxmap
     integer, intent(inout) :: idx
     integer, intent(out)   :: info 
     logical, intent(in), optional :: mask
@@ -198,7 +198,7 @@ contains
 
   subroutine list_g2ls2(idxin,idxout,idxmap,info,mask,owned)
     implicit none 
-    class(psb_full_list_map), intent(in) :: idxmap
+    class(psb_list_map), intent(in) :: idxmap
     integer, intent(in)    :: idxin
     integer, intent(out)   :: idxout
     integer, intent(out)   :: info 
@@ -214,7 +214,7 @@ contains
   subroutine list_g2lv1(idx,idxmap,info,mask,owned)
     use psb_sort_mod
     implicit none 
-    class(psb_full_list_map), intent(in) :: idxmap
+    class(psb_list_map), intent(in) :: idxmap
     integer, intent(inout) :: idx(:)
     integer, intent(out)   :: info 
     logical, intent(in), optional :: mask(:)
@@ -281,7 +281,7 @@ contains
 
   subroutine list_g2lv2(idxin,idxout,idxmap,info,mask,owned)
     implicit none 
-    class(psb_full_list_map), intent(in) :: idxmap
+    class(psb_list_map), intent(in) :: idxmap
     integer, intent(in)    :: idxin(:)
     integer, intent(out)   :: idxout(:)
     integer, intent(out)   :: info 
@@ -304,7 +304,7 @@ contains
     use psb_realloc_mod
     use psb_sort_mod
     implicit none 
-    class(psb_full_list_map), intent(inout) :: idxmap
+    class(psb_list_map), intent(inout) :: idxmap
     integer, intent(inout) :: idx
     integer, intent(out)   :: info 
     logical, intent(in), optional :: mask
@@ -323,7 +323,7 @@ contains
 
   subroutine list_g2ls2_ins(idxin,idxout,idxmap,info,mask)
     implicit none 
-    class(psb_full_list_map), intent(inout) :: idxmap
+    class(psb_list_map), intent(inout) :: idxmap
     integer, intent(in)    :: idxin
     integer, intent(out)   :: idxout
     integer, intent(out)   :: info 
@@ -339,7 +339,7 @@ contains
     use psb_realloc_mod
     use psb_sort_mod
     implicit none 
-    class(psb_full_list_map), intent(inout) :: idxmap
+    class(psb_list_map), intent(inout) :: idxmap
     integer, intent(inout) :: idx(:)
     integer, intent(out)   :: info 
     logical, intent(in), optional :: mask(:)
@@ -420,7 +420,7 @@ contains
 
   subroutine list_g2lv2_ins(idxin,idxout,idxmap,info,mask)
     implicit none 
-    class(psb_full_list_map), intent(inout) :: idxmap
+    class(psb_list_map), intent(inout) :: idxmap
     integer, intent(in)    :: idxin(:)
     integer, intent(out)   :: idxout(:)
     integer, intent(out)   :: info 
@@ -442,7 +442,7 @@ contains
     use psb_penv_mod
     use psb_error_mod
     implicit none 
-    class(psb_full_list_map), intent(inout) :: idxmap
+    class(psb_list_map), intent(inout) :: idxmap
     integer, intent(in)  :: ictxt, vg(:)
     integer, intent(out) :: info
     !  To be implemented
@@ -462,7 +462,7 @@ contains
     idxmap%global_cols  = n
 
     allocate(idxmap%loc_to_glob(n),idxmap%glob_to_loc(n),&
-         & idxmap%vgp(n),stat=info) 
+         & stat=info) 
     if (info /= 0)  then
       info = -2
       return
@@ -478,7 +478,6 @@ contains
         info=psb_err_partfunc_wrong_pid_
         exit
       end if
-      idxmap%vgp(i) = vg(i)
       if (vg(i) == iam) then
         ! this point belongs to me
         nl = nl + 1
@@ -499,7 +498,7 @@ contains
     use psb_penv_mod
     use psb_error_mod
     implicit none 
-    class(psb_full_list_map), intent(inout) :: idxmap
+    class(psb_list_map), intent(inout) :: idxmap
     integer, intent(in)  :: ictxt, n, v(:)
     integer, intent(out) :: info
     !  To be implemented
@@ -554,7 +553,7 @@ contains
     use psb_realloc_mod
     use psb_sort_mod
     implicit none 
-    class(psb_full_list_map), intent(inout) :: idxmap
+    class(psb_list_map), intent(inout) :: idxmap
     integer, intent(out) :: info
     
     integer :: nhal, ictxt, iam, np 
@@ -571,10 +570,10 @@ contains
 
   function list_get_fmt(idxmap) result(res)
     implicit none 
-    class(psb_full_list_map), intent(in) :: idxmap
+    class(psb_list_map), intent(in) :: idxmap
     character(len=5) :: res
     res = 'LIST'
   end function list_get_fmt
 
 
-end module psb_full_list_map_mod
+end module psb_list_map_mod
