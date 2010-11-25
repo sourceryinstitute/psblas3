@@ -4,29 +4,15 @@ module psb_repl_map_mod
   use psb_indx_map_mod
   
   type, extends(psb_indx_map) :: psb_repl_map
-    private 
-    integer :: ictxt          = -1
-    integer :: mpic           = -1
-    integer :: state          = -1 
-    integer :: global_rows    = -1
-    integer :: global_cols    = -1
-    integer :: local_rows     = -1
-    integer :: local_cols     = -1
 
   contains
 
     procedure, pass(idxmap)  :: init      => repl_init
 
-    procedure, pass(idxmap)  :: get_state => repl_get_state
-    procedure, pass(idxmap)  :: set_state => repl_set_state
     procedure, pass(idxmap)  :: is_repl   => repl_is_repl
-    procedure, pass(idxmap)  :: is_bld    => repl_is_bld
-    procedure, pass(idxmap)  :: is_upd    => repl_is_upd
-    procedure, pass(idxmap)  :: is_asb    => repl_is_asb
-    procedure, pass(idxmap)  :: is_valid  => repl_is_valid
-    procedure, pass(idxmap)  :: sizeof    => repl_sizeof
     procedure, pass(idxmap)  :: asb       => repl_asb
     procedure, pass(idxmap)  :: free      => repl_free
+    procedure, pass(idxmap)  :: get_fmt   => repl_get_fmt
 
     procedure, pass(idxmap)  :: l2gs1 => repl_l2gs1
     procedure, pass(idxmap)  :: l2gs2 => repl_l2gs2
@@ -43,151 +29,10 @@ module psb_repl_map_mod
     procedure, pass(idxmap)  :: g2lv1_ins => repl_g2lv1_ins
     procedure, pass(idxmap)  :: g2lv2_ins => repl_g2lv2_ins
 
-    procedure, pass(idxmap)  :: get_gr   => repl_get_gr
-    procedure, pass(idxmap)  :: get_gc   => repl_get_gc
-    procedure, pass(idxmap)  :: get_lr   => repl_get_lr
-    procedure, pass(idxmap)  :: get_lc   => repl_get_lc
-    procedure, pass(idxmap)  :: get_ctxt => repl_get_ctxt
-    procedure, pass(idxmap)  :: get_mpic => repl_get_mpic
-
-    procedure, pass(idxmap)  :: set_gr    => repl_set_gr
-    procedure, pass(idxmap)  :: set_gc    => repl_set_gc
-    procedure, pass(idxmap)  :: set_lr    => repl_set_lr
-    procedure, pass(idxmap)  :: set_lc    => repl_set_lc
-    procedure, pass(idxmap)  :: set_ctxt  => repl_set_ctxt
-    procedure, pass(idxmap)  :: set_mpic  => repl_set_mpic
-
   end type psb_repl_map
 
 contains
 
-  function repl_get_state(idxmap) result(val)
-    implicit none 
-    class(psb_repl_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%state
-
-  end function repl_get_state
-  
-
-  function repl_get_gr(idxmap) result(val)
-    implicit none 
-    class(psb_repl_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%global_rows
-
-  end function repl_get_gr
-  
-
-  function repl_get_gc(idxmap) result(val)
-    implicit none 
-    class(psb_repl_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%global_cols
-
-  end function repl_get_gc
-  
-
-  function repl_get_lr(idxmap) result(val)
-    implicit none 
-    class(psb_repl_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%local_rows
-
-  end function repl_get_lr
-  
-
-  function repl_get_lc(idxmap) result(val)
-    implicit none 
-    class(psb_repl_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%local_cols
-
-  end function repl_get_lc
-  
-
-  function repl_get_ctxt(idxmap) result(val)
-    implicit none 
-    class(psb_repl_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%ictxt
-
-  end function repl_get_ctxt
-  
-
-  function repl_get_mpic(idxmap) result(val)
-    implicit none 
-    class(psb_repl_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%mpic
-
-  end function repl_get_mpic
-  
-
-  subroutine repl_set_state(idxmap,val)
-    implicit none 
-    class(psb_repl_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%state = val
-  end subroutine repl_set_state
-
-  subroutine repl_set_ctxt(idxmap,val)
-    implicit none 
-    class(psb_repl_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%ictxt = val
-  end subroutine repl_set_ctxt
-  
-  subroutine repl_set_gr(idxmap,val)
-    implicit none 
-    class(psb_repl_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%global_rows = val
-  end subroutine repl_set_gr
-
-  subroutine repl_set_gc(idxmap,val)
-    implicit none 
-    class(psb_repl_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%global_cols = val
-  end subroutine repl_set_gc
-
-  subroutine repl_set_lr(idxmap,val)
-    implicit none 
-    class(psb_repl_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%local_rows = val
-  end subroutine repl_set_lr
-
-  subroutine repl_set_lc(idxmap,val)
-    implicit none 
-    class(psb_repl_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%local_rows = val
-  end subroutine repl_set_lc
-
-  subroutine repl_set_mpic(idxmap,val)
-    implicit none 
-    class(psb_repl_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%mpic = val
-  end subroutine repl_set_mpic
-
-  
   function repl_is_repl(idxmap) result(val)
     implicit none 
     class(psb_repl_map), intent(in) :: idxmap
@@ -195,50 +40,16 @@ contains
     val = .true.
   end function repl_is_repl
     
-  
-  function repl_is_bld(idxmap) result(val)
-    implicit none 
-    class(psb_repl_map), intent(in) :: idxmap
-    logical :: val
-    val = (idxmap%state == psb_desc_bld_)
-  end function repl_is_bld
-    
-  function repl_is_upd(idxmap) result(val)
-    implicit none 
-    class(psb_repl_map), intent(in) :: idxmap
-    logical :: val
-    val = (idxmap%state == psb_desc_upd_)
-  end function repl_is_upd
-    
-  function repl_is_asb(idxmap) result(val)
-    implicit none 
-    class(psb_repl_map), intent(in) :: idxmap
-    logical :: val
-    val = (idxmap%state == psb_desc_asb_)
-  end function repl_is_asb
-    
-  function repl_is_valid(idxmap) result(val)
-    implicit none 
-    class(psb_repl_map), intent(in) :: idxmap
-    logical :: val
-    val = idxmap%is_bld().or.idxmap%is_upd().or.idxmap%is_asb()
-  end function repl_is_valid
     
   function repl_sizeof(idxmap) result(val)
     implicit none 
     class(psb_repl_map), intent(in) :: idxmap
     integer(psb_long_int_k_) :: val
     
-    val = 8 * psb_sizeof_int
+    val = idxmap%psb_indx_map%sizeof()
 
   end function repl_sizeof
 
-
-  subroutine repl_free(idxmap)
-    implicit none 
-    class(psb_repl_map), intent(inout) :: idxmap
-    
-  end subroutine repl_free
 
 
   subroutine repl_l2gs1(idx,idxmap,info,mask,owned)
@@ -600,7 +411,6 @@ contains
 
 
 
-
   subroutine repl_init(idxmap,ictxt,nl,info)
     use psb_penv_mod
     use psb_error_mod
@@ -648,5 +458,21 @@ contains
     idxmap%state = psb_desc_asb_
     
   end subroutine repl_asb
+
+  subroutine repl_free(idxmap)
+    implicit none 
+    class(psb_repl_map), intent(inout) :: idxmap
+    
+    call idxmap%set_null()
+    
+  end subroutine repl_free
+
+
+  function repl_get_fmt(idxmap) result(res)
+    implicit none 
+    class(psb_repl_map), intent(in) :: idxmap
+    character(len=5) :: res
+    res = 'REPL'
+  end function repl_get_fmt
 
 end module psb_repl_map_mod

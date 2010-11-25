@@ -4,30 +4,16 @@ module psb_gen_block_map_mod
   use psb_indx_map_mod
   
   type, extends(psb_indx_map) :: psb_gen_block_map
-    private 
-    integer :: ictxt          = -1
-    integer :: mpic           = -1
-    integer :: state          = -1 
-    integer :: global_rows    = -1
-    integer :: global_cols    = -1
-    integer :: local_rows     = -1
-    integer :: local_cols     = -1
     integer :: min_glob_row   = -1
     integer :: max_glob_row   = -1
     integer, allocatable :: loc_to_glob(:), srt_l2g(:,:) 
   contains
     procedure, pass(idxmap)  :: init      => block_init
 
-    procedure, pass(idxmap)  :: get_state => block_get_state
-    procedure, pass(idxmap)  :: set_state => block_set_state
-    procedure, pass(idxmap)  :: is_repl   => block_is_repl
-    procedure, pass(idxmap)  :: is_bld    => block_is_bld
-    procedure, pass(idxmap)  :: is_upd    => block_is_upd
-    procedure, pass(idxmap)  :: is_asb    => block_is_asb
-    procedure, pass(idxmap)  :: is_valid  => block_is_valid
     procedure, pass(idxmap)  :: sizeof    => block_sizeof
     procedure, pass(idxmap)  :: asb       => block_asb
     procedure, pass(idxmap)  :: free      => block_free
+    procedure, pass(idxmap)  :: get_fmt   => block_get_fmt
 
     procedure, pass(idxmap)  :: l2gs1 => block_l2gs1
     procedure, pass(idxmap)  :: l2gs2 => block_l2gs2
@@ -44,193 +30,19 @@ module psb_gen_block_map_mod
     procedure, pass(idxmap)  :: g2lv1_ins => block_g2lv1_ins
     procedure, pass(idxmap)  :: g2lv2_ins => block_g2lv2_ins
 
-    procedure, pass(idxmap)  :: get_gr   => block_get_gr
-    procedure, pass(idxmap)  :: get_gc   => block_get_gc
-    procedure, pass(idxmap)  :: get_lr   => block_get_lr
-    procedure, pass(idxmap)  :: get_lc   => block_get_lc
-    procedure, pass(idxmap)  :: get_ctxt => block_get_ctxt
-    procedure, pass(idxmap)  :: get_mpic => block_get_mpic
-
-    procedure, pass(idxmap)  :: set_gr    => block_set_gr
-    procedure, pass(idxmap)  :: set_gc    => block_set_gc
-    procedure, pass(idxmap)  :: set_lr    => block_set_lr
-    procedure, pass(idxmap)  :: set_lc    => block_set_lc
-    procedure, pass(idxmap)  :: set_ctxt  => block_set_ctxt
-    procedure, pass(idxmap)  :: set_mpic  => block_set_mpic
 
   end type psb_gen_block_map
 
 contains
 
-  function block_get_state(idxmap) result(val)
-    implicit none 
-    class(psb_gen_block_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%state
-
-  end function block_get_state
   
-
-  function block_get_gr(idxmap) result(val)
-    implicit none 
-    class(psb_gen_block_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%global_rows
-
-  end function block_get_gr
-  
-
-  function block_get_gc(idxmap) result(val)
-    implicit none 
-    class(psb_gen_block_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%global_cols
-
-  end function block_get_gc
-  
-
-  function block_get_lr(idxmap) result(val)
-    implicit none 
-    class(psb_gen_block_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%local_rows
-
-  end function block_get_lr
-  
-
-  function block_get_lc(idxmap) result(val)
-    implicit none 
-    class(psb_gen_block_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%local_cols
-
-  end function block_get_lc
-  
-
-  function block_get_ctxt(idxmap) result(val)
-    implicit none 
-    class(psb_gen_block_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%ictxt
-
-  end function block_get_ctxt
-  
-
-  function block_get_mpic(idxmap) result(val)
-    implicit none 
-    class(psb_gen_block_map), intent(in) :: idxmap
-    integer :: val
-    
-    val = idxmap%mpic
-
-  end function block_get_mpic
-  
-
-  subroutine block_set_state(idxmap,val)
-    implicit none 
-    class(psb_gen_block_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%state = val
-  end subroutine block_set_state
-
-  subroutine block_set_ctxt(idxmap,val)
-    implicit none 
-    class(psb_gen_block_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%ictxt = val
-  end subroutine block_set_ctxt
-  
-  subroutine block_set_gr(idxmap,val)
-    implicit none 
-    class(psb_gen_block_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%global_rows = val
-  end subroutine block_set_gr
-
-  subroutine block_set_gc(idxmap,val)
-    implicit none 
-    class(psb_gen_block_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%global_cols = val
-  end subroutine block_set_gc
-
-  subroutine block_set_lr(idxmap,val)
-    implicit none 
-    class(psb_gen_block_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%local_rows = val
-  end subroutine block_set_lr
-
-  subroutine block_set_lc(idxmap,val)
-    implicit none 
-    class(psb_gen_block_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%local_rows = val
-  end subroutine block_set_lc
-
-  subroutine block_set_mpic(idxmap,val)
-    implicit none 
-    class(psb_gen_block_map), intent(inout) :: idxmap
-    integer, intent(in)  :: val
-    
-    idxmap%mpic = val
-  end subroutine block_set_mpic
-
-  
-  function block_is_repl(idxmap) result(val)
-    implicit none 
-    class(psb_gen_block_map), intent(in) :: idxmap
-    logical :: val
-    val = .false.
-  end function block_is_repl
-    
-  
-  function block_is_bld(idxmap) result(val)
-    implicit none 
-    class(psb_gen_block_map), intent(in) :: idxmap
-    logical :: val
-    val = (idxmap%state == psb_desc_bld_)
-  end function block_is_bld
-    
-  function block_is_upd(idxmap) result(val)
-    implicit none 
-    class(psb_gen_block_map), intent(in) :: idxmap
-    logical :: val
-    val = (idxmap%state == psb_desc_upd_)
-  end function block_is_upd
-    
-  function block_is_asb(idxmap) result(val)
-    implicit none 
-    class(psb_gen_block_map), intent(in) :: idxmap
-    logical :: val
-    val = (idxmap%state == psb_desc_asb_)
-  end function block_is_asb
-    
-  function block_is_valid(idxmap) result(val)
-    implicit none 
-    class(psb_gen_block_map), intent(in) :: idxmap
-    logical :: val
-    val = idxmap%is_bld().or.idxmap%is_upd().or.idxmap%is_asb()
-  end function block_is_valid
-    
   function block_sizeof(idxmap) result(val)
     implicit none 
     class(psb_gen_block_map), intent(in) :: idxmap
     integer(psb_long_int_k_) :: val
     
-    val = 8 * psb_sizeof_int
+    val = idxmap%psb_indx_map%sizeof() 
+    val = val + 2 * psb_sizeof_int
     if (allocated(idxmap%loc_to_glob)) &
          & val = val + size(idxmap%loc_to_glob)*psb_sizeof_int
     if (allocated(idxmap%srt_l2g)) &
@@ -662,10 +474,6 @@ contains
 
   end subroutine block_g2lv2_ins
 
-
-
-
-
   subroutine block_init(idxmap,ictxt,nl,info)
     use psb_penv_mod
     use psb_error_mod
@@ -747,5 +555,12 @@ contains
     idxmap%state = psb_desc_asb_
     
   end subroutine block_asb
+
+  function block_get_fmt(idxmap) result(res)
+    implicit none 
+    class(psb_gen_block_map), intent(in) :: idxmap
+    character(len=5) :: res
+    res = 'BLOCK'
+  end function block_get_fmt
 
 end module psb_gen_block_map_mod
