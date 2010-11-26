@@ -8,8 +8,7 @@ module psb_list_map_mod
     integer, allocatable :: loc_to_glob(:), glob_to_loc(:)
   contains
     procedure, pass(idxmap)  :: initvl    => list_initvl
-    procedure, pass(idxmap)  :: initvg    => list_initvg
-    generic, public          :: init      => initvl, initvg
+    generic, public          :: init      => initvl
 
     procedure, pass(idxmap)  :: sizeof    => list_sizeof
     procedure, pass(idxmap)  :: asb       => list_asb
@@ -33,11 +32,7 @@ module psb_list_map_mod
 
   end type psb_list_map
 
-  integer, parameter :: psb_flag_global_list = 1
-  integer, parameter :: psb_flag_local_list  = 2
-
 contains
-
     
   function list_sizeof(idxmap) result(val)
     implicit none 
@@ -62,6 +57,8 @@ contains
          & deallocate(idxmap%loc_to_glob)
     if (allocated(idxmap%glob_to_loc)) &
          & deallocate(idxmap%glob_to_loc)
+
+    call idxmap%psb_indx_map%free()
 
   end subroutine list_free
 
@@ -437,62 +434,62 @@ contains
 
 
 
-
-  subroutine list_initvg(idxmap,vg,ictxt,info)
-    use psb_penv_mod
-    use psb_error_mod
-    implicit none 
-    class(psb_list_map), intent(inout) :: idxmap
-    integer, intent(in)  :: ictxt, vg(:)
-    integer, intent(out) :: info
-    !  To be implemented
-    integer :: iam, np, i, j, n, nl
-    
-
-    info = 0
-    call psb_info(ictxt,iam,np) 
-    if (np < 0) then 
-      write(psb_err_unit,*) 'Invalid ictxt:',ictxt
-      info = -1
-      return
-    end if
-    n = size(vg) 
-    
-    idxmap%global_rows  = n
-    idxmap%global_cols  = n
-
-    allocate(idxmap%loc_to_glob(n),idxmap%glob_to_loc(n),&
-         & stat=info) 
-    if (info /= 0)  then
-      info = -2
-      return
-    end if
-
-    idxmap%ictxt        = ictxt
-    idxmap%state        = psb_desc_bld_
-    call psb_get_mpicomm(ictxt,idxmap%mpic)
-
-    nl = 0 
-    do i=1, n 
-      if ((vg(i)  > np-1).or.(vg(i) < 0)) then
-        info=psb_err_partfunc_wrong_pid_
-        exit
-      end if
-      if (vg(i) == iam) then
-        ! this point belongs to me
-        nl = nl + 1
-        idxmap%glob_to_loc(i)  = nl
-        idxmap%loc_to_glob(nl) = i
-      else
-        idxmap%glob_to_loc(i) = -(np+vg(i)+1)
-      end if
-    end do
-    
-    call idxmap%set_lr(nl)
-    call idxmap%set_lc(nl)
-   
-  end subroutine list_initvg
-
+!!$
+!!$  subroutine list_initvg(idxmap,vg,ictxt,info)
+!!$    use psb_penv_mod
+!!$    use psb_error_mod
+!!$    implicit none 
+!!$    class(psb_list_map), intent(inout) :: idxmap
+!!$    integer, intent(in)  :: ictxt, vg(:)
+!!$    integer, intent(out) :: info
+!!$    !  To be implemented
+!!$    integer :: iam, np, i, j, n, nl
+!!$    
+!!$
+!!$    info = 0
+!!$    call psb_info(ictxt,iam,np) 
+!!$    if (np < 0) then 
+!!$      write(psb_err_unit,*) 'Invalid ictxt:',ictxt
+!!$      info = -1
+!!$      return
+!!$    end if
+!!$    n = size(vg) 
+!!$    
+!!$    idxmap%global_rows  = n
+!!$    idxmap%global_cols  = n
+!!$
+!!$    allocate(idxmap%loc_to_glob(n),idxmap%glob_to_loc(n),&
+!!$         & stat=info) 
+!!$    if (info /= 0)  then
+!!$      info = -2
+!!$      return
+!!$    end if
+!!$
+!!$    idxmap%ictxt        = ictxt
+!!$    idxmap%state        = psb_desc_bld_
+!!$    call psb_get_mpicomm(ictxt,idxmap%mpic)
+!!$
+!!$    nl = 0 
+!!$    do i=1, n 
+!!$      if ((vg(i)  > np-1).or.(vg(i) < 0)) then
+!!$        info=psb_err_partfunc_wrong_pid_
+!!$        exit
+!!$      end if
+!!$      if (vg(i) == iam) then
+!!$        ! this point belongs to me
+!!$        nl = nl + 1
+!!$        idxmap%glob_to_loc(i)  = nl
+!!$        idxmap%loc_to_glob(nl) = i
+!!$      else
+!!$        idxmap%glob_to_loc(i) = -(np+vg(i)+1)
+!!$      end if
+!!$    end do
+!!$    
+!!$    call idxmap%set_lr(nl)
+!!$    call idxmap%set_lc(nl)
+!!$   
+!!$  end subroutine list_initvg
+!!$
 
   subroutine list_initvl(idxmap,n,v,ictxt,info)
     use psb_penv_mod

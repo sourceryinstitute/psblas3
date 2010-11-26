@@ -61,138 +61,6 @@ module psb_indx_map_mod
 
   end type psb_indx_map
 
-  abstract interface 
-    function idx_get_int(idxmap) result(val)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(in) :: idxmap
-      integer :: val
-    end function idx_get_int
-  end interface
-
-  abstract interface 
-    subroutine idx_set_int(idxmap,val)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(inout) :: idxmap
-      integer, intent(in)  :: val
-    end subroutine idx_set_int
-  end interface
-
-
-  abstract interface 
-    function idx_get_logical(idxmap) result(val)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(in) :: idxmap
-      logical :: val
-    end function idx_get_logical
-  end interface
-
-  abstract interface 
-    function idx_get_long_int(idxmap) result(val)
-      import :: psb_indx_map, psb_long_int_k_
-      class(psb_indx_map), intent(in) :: idxmap
-      integer(psb_long_int_k_) :: val
-    end function idx_get_long_int
-  end interface
-
-  abstract interface 
-    subroutine idx_fix(idxmap,info)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(inout) :: idxmap
-      integer, intent(out) :: info
-    end subroutine idx_fix
-  end interface
-
-  abstract interface 
-    subroutine idx_free(idxmap)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(inout) :: idxmap
-    end subroutine idx_free
-  end interface
-
-  abstract interface 
-    subroutine idx_i2is1(idx,idxmap,info,mask,owned)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(in) :: idxmap
-      integer, intent(inout) :: idx
-      integer, intent(out)   :: info 
-      logical, intent(in), optional :: mask
-      logical, intent(in), optional :: owned
-    end subroutine idx_i2is1
-  end interface
-
-  abstract interface   
-    subroutine idx_i2is2(idxin,idxout,idxmap,info,mask,owned)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(in) :: idxmap
-      integer, intent(in)   :: idxin
-      integer, intent(out)  :: idxout, info 
-      logical, intent(in), optional :: mask
-      logical, intent(in), optional :: owned
-    end subroutine idx_i2is2
-  end interface
-
-  abstract interface 
-    subroutine idx_i2iv1(idx,idxmap,info,mask,owned)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(in) :: idxmap
-      integer, intent(inout) :: idx(:)
-      integer, intent(out)   :: info 
-      logical, intent(in), optional :: mask(:)
-      logical, intent(in), optional :: owned
-    end subroutine idx_i2iv1
-  end interface
-
-  abstract interface   
-    subroutine idx_i2iv2(idxin,idxout,idxmap,info,mask,owned)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(in) :: idxmap
-      integer, intent(in)   :: idxin(:)
-      integer, intent(out)  :: idxout(:), info 
-      logical, intent(in), optional :: mask(:)
-      logical, intent(in), optional :: owned
-    end subroutine idx_i2iv2
-  end interface
-
-  abstract interface 
-    subroutine idx_i2is1_ins(idx,idxmap,info,mask)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(inout) :: idxmap
-      integer, intent(inout) :: idx
-      integer, intent(out)   :: info 
-      logical, intent(in), optional :: mask
-    end subroutine idx_i2is1_ins
-  end interface
-
-  abstract interface   
-    subroutine idx_i2is2_ins(idxin,idxout,idxmap,info,mask)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(inout) :: idxmap
-      integer, intent(in)   :: idxin
-      integer, intent(out)  :: idxout, info 
-      logical, intent(in), optional :: mask
-    end subroutine idx_i2is2_ins
-  end interface
-
-  abstract interface 
-    subroutine idx_i2iv1_ins(idx,idxmap,info,mask)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(inout) :: idxmap
-      integer, intent(inout) :: idx(:)
-      integer, intent(out)   :: info 
-      logical, intent(in), optional :: mask(:)
-    end subroutine idx_i2iv1_ins
-  end interface
-
-  abstract interface   
-    subroutine idx_i2iv2_ins(idxin,idxout,idxmap,info,mask)
-      import :: psb_indx_map
-      class(psb_indx_map), intent(inout) :: idxmap
-      integer, intent(in)   :: idxin(:)
-      integer, intent(out)  :: idxout(:), info 
-      logical, intent(in), optional :: mask(:)
-    end subroutine idx_i2iv2_ins
-  end interface
-
 contains
 
   function base_get_state(idxmap) result(val)
@@ -729,16 +597,15 @@ contains
     character(len=20)  :: name='base_free'
     logical, parameter :: debug=.false.
 
-    call psb_get_erraction(err_act)
-    ! This is the base version. If we get here
-    ! it means the derived class is incomplete,
-    ! so we throw an error.
-    call psb_errpush(psb_err_missing_override_method_,&
-         & name,a_err=idxmap%get_fmt())
+    ! almost nothing to be done here
+    idxmap%state          = -1 
+    idxmap%ictxt          = -1
+    idxmap%mpic           = -1
+    idxmap%global_rows    = -1
+    idxmap%global_cols    = -1
+    idxmap%local_rows     = -1
+    idxmap%local_cols     = -1
 
-    if (err_act /= psb_act_ret_) then
-      call psb_error()
-    end if
     return
 
   end subroutine base_free

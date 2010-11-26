@@ -38,7 +38,7 @@ contains
     if (allocated(idxmap%vgp)) &
          & deallocate(idxmap%vgp)
     
-    call idxmap%psb_indx_map%free()
+    call idxmap%psb_list_map%free()
     
   end subroutine glist_free
 

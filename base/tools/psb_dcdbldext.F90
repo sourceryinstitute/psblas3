@@ -715,7 +715,8 @@ Subroutine psb_dcdbldext(a,desc_a,novr,desc_ov,info, extype)
     if (allocated(irow)) deallocate(irow,stat=info)
     if ((info == psb_success_).and.allocated(icol)) deallocate(icol,stat=info)
     if (info /= psb_success_) then
-      call psb_errpush(psb_err_from_subroutine_ai_,name,a_err='deallocate',i_err=(/info,0,0,0,0/))
+      call psb_errpush(psb_err_from_subroutine_ai_,name,&
+           & a_err='deallocate',i_err=(/info,0,0,0,0/))
       goto 9999
     end if
   end if

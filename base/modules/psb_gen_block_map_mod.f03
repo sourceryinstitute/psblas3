@@ -6,7 +6,7 @@ module psb_gen_block_map_mod
   type, extends(psb_indx_map) :: psb_gen_block_map
     integer :: min_glob_row   = -1
     integer :: max_glob_row   = -1
-    integer, allocatable :: loc_to_glob(:), srt_l2g(:,:) 
+    integer, allocatable :: loc_to_glob(:), srt_l2g(:,:), vnl(:)
   contains
     procedure, pass(idxmap)  :: init      => block_init
 
@@ -47,6 +47,8 @@ contains
          & val = val + size(idxmap%loc_to_glob)*psb_sizeof_int
     if (allocated(idxmap%srt_l2g)) &
          & val = val + size(idxmap%srt_l2g)*psb_sizeof_int
+    if (allocated(idxmap%vnl)) &
+         & val = val + size(idxmap%vnl)*psb_sizeof_int
 
   end function block_sizeof
 
@@ -59,6 +61,11 @@ contains
          & deallocate(idxmap%loc_to_glob)
     if (allocated(idxmap%srt_l2g)) &
          & deallocate(idxmap%srt_l2g)
+
+    if (allocated(idxmap%srt_l2g)) &
+         & deallocate(idxmap%vnl)
+
+    call idxmap%psb_indx_map%free()
 
   end subroutine block_free
 
@@ -520,6 +527,7 @@ contains
     call psb_get_mpicomm(ictxt,idxmap%mpic)
     idxmap%min_glob_row = vnl(iam)+1
     idxmap%max_glob_row = vnl(iam+1) 
+    call move_alloc(vnl,idxmap%vnl)
     allocate(idxmap%loc_to_glob(nl),stat=info) 
     if (info /= 0)  then
       info = -2

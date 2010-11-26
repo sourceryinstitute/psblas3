@@ -463,7 +463,7 @@ contains
     implicit none 
     class(psb_repl_map), intent(inout) :: idxmap
     
-    call idxmap%set_null()
+    call idxmap%psb_indx_map%free()
     
   end subroutine repl_free
 
