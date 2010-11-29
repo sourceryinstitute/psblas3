@@ -31,6 +31,13 @@ module psb_repl_map_mod
 
   end type psb_repl_map
 
+  private :: repl_init, repl_is_repl, repl_asb, repl_free,&
+       & repl_get_fmt, repl_l2gs1, repl_l2gs2, repl_l2gv1,&
+       & repl_l2gv2, repl_g2ls1, repl_g2ls2, repl_g2lv1,&
+       & repl_g2lv2, repl_g2ls1_ins, repl_g2ls2_ins,&
+       & repl_g2lv1_ins, repl_g2lv2_ins
+
+
 contains
 
   function repl_is_repl(idxmap) result(val)

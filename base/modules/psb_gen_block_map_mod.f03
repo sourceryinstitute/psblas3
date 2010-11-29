@@ -8,6 +8,7 @@ module psb_gen_block_map_mod
     integer :: max_glob_row   = -1
     integer, allocatable :: loc_to_glob(:), srt_l2g(:,:), vnl(:)
   contains
+
     procedure, pass(idxmap)  :: init      => block_init
 
     procedure, pass(idxmap)  :: sizeof    => block_sizeof
@@ -32,6 +33,13 @@ module psb_gen_block_map_mod
 
 
   end type psb_gen_block_map
+
+  private ::  block_init, block_sizeof, block_asb, block_free,&
+       & block_get_fmt, block_l2gs1, block_l2gs2, block_l2gv1,&
+       & block_l2gv2, block_g2ls1, block_g2ls2, block_g2lv1,&
+       & block_g2lv2, block_g2ls1_ins, block_g2ls2_ins,&
+       & block_g2lv1_ins, block_g2lv2_ins
+
 
 contains
 

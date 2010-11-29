@@ -32,6 +32,12 @@ module psb_list_map_mod
 
   end type psb_list_map
 
+  private :: list_initvl, list_sizeof, list_asb, list_free,&
+       & list_get_fmt, list_l2gs1, list_l2gs2, list_l2gv1,&
+       & list_l2gv2, list_g2ls1, list_g2ls2, list_g2lv1,&
+       & list_g2lv2, list_g2ls1_ins, list_g2ls2_ins,&
+       & list_g2lv1_ins, list_g2lv2_ins
+
 contains
     
   function list_sizeof(idxmap) result(val)

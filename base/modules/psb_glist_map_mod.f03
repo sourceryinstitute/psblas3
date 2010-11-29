@@ -14,6 +14,8 @@ module psb_glist_map_mod
 
   end type psb_glist_map
 
+  private :: glist_initvg, glist_sizeof, glist_free, glist_get_fmt
+
 
 contains
 

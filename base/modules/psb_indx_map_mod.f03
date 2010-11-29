@@ -61,6 +61,18 @@ module psb_indx_map_mod
 
   end type psb_indx_map
 
+  private :: base_get_state, base_set_state, base_is_repl, base_is_bld,&
+       & base_is_upd, base_is_asb, base_is_valid, base_get_gr,&
+       & base_get_gc, base_get_lr, base_get_lc, base_get_ctxt,&
+       & base_get_mpic, base_sizeof, base_set_null, base_set_gr,&
+       & base_set_gc, base_set_lr, base_set_lc, base_set_ctxt,&
+       & base_set_mpic, base_get_fmt, base_asb, base_free,&
+       & base_l2gs1, base_l2gs2, base_l2gv1, base_l2gv2,&
+       & base_g2ls1, base_g2ls2, base_g2lv1, base_g2lv2,&
+       & base_g2ls1_ins, base_g2ls2_ins, base_g2lv1_ins,&
+       & base_g2lv2_ins
+
+
 contains
 
   function base_get_state(idxmap) result(val)
