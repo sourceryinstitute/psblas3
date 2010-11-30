@@ -7,7 +7,7 @@ module psb_hash_map_mod
   type, extends(psb_indx_map) :: psb_hash_map
 
     integer              :: hashvsize, hashvmask
-    integer, allocatable :: hashv(:), glb_lc(:,:)
+    integer, allocatable :: hashv(:), glb_lc(:,:), loc_to_glob(:)
     type(psb_hash_type), allocatable  :: hash
   contains
     procedure, pass(idxmap)  :: initvl    => hash_init_vl
@@ -497,13 +497,17 @@ contains
   subroutine hash_init_vl(idxmap,ictxt,vl,info)
     use psb_penv_mod
     use psb_error_mod
+    use psb_sort_mod
+    use psb_realloc_mod
     implicit none 
     class(psb_hash_map), intent(inout) :: idxmap
     integer, intent(in)  :: ictxt, vl(:)
     integer, intent(out) :: info
     !  To be implemented
-    integer :: iam, np, i, j, ntot, nl
-    integer, allocatable :: vnl(:)
+    integer :: iam, np, i, j, ntot, lc2, nl, nlu, m, nrt,int_err(5)
+    integer :: key, ih, ik, nh, idx, nbits, hsize, hmask
+    integer, allocatable :: vlu(:)
+    character(len=20), parameter :: name='hash_map_init_vl'
 
     info = 0
     call psb_info(ictxt,iam,np) 
@@ -512,27 +516,45 @@ contains
       info = -1
       return
     end if
-    allocate(vnl(0:np),stat=info)
-    if (info /= 0)  then
-      info = -2
+
+    nl = size(vl)
+    m  = maxval(vl)
+    nrt = nl
+    call psb_sum(ictxt,nrt)
+    call psb_max(ictxt,m)
+
+    allocate(vlu(nl), stat=info) 
+    if (info /= 0) then 
+      info = -1
       return
     end if
 
-    nl = size(vl)
-    vnl(:)   = 0
-    vnl(iam) = nl
-    call psb_sum(ictxt,vnl)
-    ntot = sum(vnl)
-    vnl(1:np) = vnl(0:np-1)
-    vnl(0) = 0
-    do i=1,np
-      vnl(i) = vnl(i) + vnl(i-1)
+    do i=1,nl
+      if ((vl(i)<1).or.(vl(i)>m)) then 
+        info = psb_err_entry_out_of_bounds_
+        int_err(1) = i
+        int_err(2) = vl(i)
+        int_err(3) = nl
+        int_err(4) = m
+        exit
+      endif
+      vlu(i) = vl(i) 
     end do
-    if (ntot /= vnl(np)) then 
-      write(0,*) ' Mismatch in hash_init ',ntot,vnl(np)
+
+    if ((m /= nrt).and.(iam == psb_root_))  then 
+      write(psb_err_unit,*) trim(name),' Warning: globalcheck=.false., but there is a mismatch'
+      write(psb_err_unit,*) trim(name),'        : in the global sizes!',m,nrt
+    end if
+    !
+    ! Now sort the input items, and check for  duplicates
+    ! (unlikely, but possible)
+    !
+    call psb_msort_unique(vlu,nlu)
+    if (nlu /= nl) then 
+      write(0,*) 'Warning: duplicates in input'
+      nl = nlu
     end if
 
-    
     idxmap%global_rows  = ntot
     idxmap%global_cols  = ntot
     idxmap%local_rows   = nl
@@ -540,16 +562,86 @@ contains
     idxmap%ictxt        = ictxt
     idxmap%state        = psb_desc_bld_
     call psb_get_mpicomm(ictxt,idxmap%mpic)
-!!$    idxmap%min_glob_row = vnl(iam)+1
-!!$    idxmap%max_glob_row = vnl(iam+1) 
-!!$    call move_alloc(vnl,idxmap%vnl)
-!!$    allocate(idxmap%loc_to_glob(nl),stat=info) 
+
+    lc2 = int(1.5*nl) 
+    allocate(idxmap%hash,idxmap%loc_to_glob(lc2),stat=info) 
     if (info /= 0)  then
       info = -2
       return
     end if
-    
-    
+
+    call psb_hash_init(nl,idxmap%hash,info)
+    if (info /= 0) then 
+      info = -3
+      return 
+    endif
+
+    call psb_realloc(nl,2,idxmap%glb_lc,info) 
+
+    nbits = psb_hash_bits
+    hsize = 2**nbits
+    do 
+      if (hsize < 0) then 
+        ! This should never happen for sane values
+        ! of psb_max_hash_bits.
+        write(psb_err_unit,*) 'Error: hash size overflow ',hsize,nbits
+        info = -2 
+        return
+      end if
+      if (hsize > nl) exit
+      if (nbits >= psb_max_hash_bits) exit
+      nbits = nbits + 1
+      hsize = hsize * 2 
+    end do
+    hmask = hsize - 1 
+    idxmap%hashvsize = hsize
+    idxmap%hashvmask = hmask
+    if (info == psb_success_) call psb_realloc(hsize+1,idxmap%hashv,info,lb=0)
+    if (info /= psb_success_) then 
+!!$      ch_err='psb_realloc'
+!!$      call psb_errpush(info,name,a_err=ch_err)
+!!$      goto 9999
+      info = -4 
+      return
+    end if
+    idxmap%hashv(:) = 0
+    do i=1, nl
+      key = vlu(i) 
+      idxmap%loc_to_glob(i) = key 
+      ih  = iand(key,hmask) 
+      idxmap%hashv(ih) = idxmap%hashv(ih) + 1
+    end do
+    nh = idxmap%hashv(0) 
+    idx = 1
+    do i=1, hsize
+      idxmap%hashv(i-1) = idx
+      idx = idx + nh
+      nh = idxmap%hashv(i)
+    end do
+    do i=1, nl
+      key                  = idxmap%loc_to_glob(i)
+      ih                   = iand(key,hmask)
+      idx                  = idxmap%hashv(ih) 
+      idxmap%glb_lc(idx,1) = key
+      idxmap%glb_lc(idx,2) = i
+      idxmap%hashv(ih)     = idxmap%hashv(ih) + 1
+    end do
+    do i = hsize, 1, -1 
+      idxmap%hashv(i) = idxmap%hashv(i-1)
+    end do
+    idxmap%hashv(0) = 1
+    do i=0, hsize-1 
+      idx = idxmap%hashv(i)
+      nh  = idxmap%hashv(i+1) - idxmap%hashv(i) 
+      if (nh > 1) then 
+        call psb_msort(idxmap%glb_lc(idx:idx+nh-1,1),&
+             & ix=idxmap%glb_lc(idx:idx+nh-1,2),&
+             & flag=psb_sort_keep_idx_)
+      end if
+    end do
+
+    call idxmap%set_state(psb_desc_bld_)
+
   end subroutine hash_init_vl
 
   subroutine hash_init_vg(idxmap,ictxt,n,vg,info)
@@ -586,6 +678,7 @@ contains
     idxmap%ictxt        = ictxt
     idxmap%state        = psb_desc_bld_
     call psb_get_mpicomm(ictxt,idxmap%mpic)
+    allocate(idxmap%hash,stat=info) 
 !!$    idxmap%min_glob_row = vnl(iam)+1
 !!$    idxmap%max_glob_row = vnl(iam+1) 
 !!$    call move_alloc(vnl,idxmap%vnl)
