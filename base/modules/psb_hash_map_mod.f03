@@ -9,10 +9,12 @@ module psb_hash_map_mod
     integer              :: hashvsize, hashvmask
     integer, allocatable :: hashv(:), glb_lc(:,:), loc_to_glob(:)
     type(psb_hash_type), allocatable  :: hash
+
   contains
+
     procedure, pass(idxmap)  :: initvl    => hash_init_vl
     procedure, pass(idxmap)  :: initvg    => hash_init_vg
-    generic, public          :: init      => initvl, initvg
+    generic,   public        :: init      => initvl, initvg
 
     procedure, pass(idxmap)  :: sizeof    => hash_sizeof
     procedure, pass(idxmap)  :: asb       => hash_asb
@@ -34,13 +36,16 @@ module psb_hash_map_mod
     procedure, pass(idxmap)  :: g2lv1_ins => hash_g2lv1_ins
     procedure, pass(idxmap)  :: g2lv2_ins => hash_g2lv2_ins
 
+    procedure, pass(idxmap)  :: bld_g2l_map => hash_bld_g2l_map
+
   end type psb_hash_map
 
-  private :: hash_initvl, hash_initvg, hash_sizeof, hash_asb,&
-       & hash_free, hash_get_fmt, hash_l2gs1, hash_l2gs2,&
-       & hash_l2gv1, hash_l2gv2, hash_g2ls1, hash_g2ls2,&
-       & hash_g2lv1, hash_g2lv2, hash_g2ls1_ins, hash_g2ls2_ins,&
-       & hash_g2lv1_ins, hash_g2lv2_ins
+  private :: hash_initvl, hash_initvg, hash_sizeof, hash_asb, &
+       & hash_free, hash_get_fmt, hash_l2gs1, hash_l2gs2, &
+       & hash_l2gv1, hash_l2gv2, hash_g2ls1, hash_g2ls2, &
+       & hash_g2lv1, hash_g2lv2, hash_g2ls1_ins, hash_g2ls2_ins, &
+       & hash_g2lv1_ins, hash_g2lv2_ins, hash_init_vlu, &
+       & hash_bld_g2l_map
 
 
 contains
@@ -494,18 +499,17 @@ contains
 
   end subroutine hash_g2lv2_ins
 
-  subroutine hash_init_vl(idxmap,ictxt,vl,info)
+  subroutine hash_init_vl(idxmap,ictxt,nl,vl,info)
     use psb_penv_mod
     use psb_error_mod
     use psb_sort_mod
     use psb_realloc_mod
     implicit none 
     class(psb_hash_map), intent(inout) :: idxmap
-    integer, intent(in)  :: ictxt, vl(:)
+    integer, intent(in)  :: ictxt, vl(:), nl
     integer, intent(out) :: info
     !  To be implemented
-    integer :: iam, np, i, j, ntot, lc2, nl, nlu, m, nrt,int_err(5)
-    integer :: key, ih, ik, nh, idx, nbits, hsize, hmask
+    integer :: iam, np, i, j, ntot, nlu, m, nrt,int_err(5)
     integer, allocatable :: vlu(:)
     character(len=20), parameter :: name='hash_map_init_vl'
 
@@ -517,8 +521,14 @@ contains
       return
     end if
 
-    nl = size(vl)
-    m  = maxval(vl)
+    if (nl > size(vl)) then 
+      write(psb_err_unit,*) 'Invalid nl:',&
+           & nl, size(vl)
+      info = -1
+      return
+    end if
+      
+    m   = maxval(vl(1:nl))
     nrt = nl
     call psb_sum(ictxt,nrt)
     call psb_max(ictxt,m)
@@ -542,8 +552,10 @@ contains
     end do
 
     if ((m /= nrt).and.(iam == psb_root_))  then 
-      write(psb_err_unit,*) trim(name),' Warning: globalcheck=.false., but there is a mismatch'
-      write(psb_err_unit,*) trim(name),'        : in the global sizes!',m,nrt
+      write(psb_err_unit,*) trim(name),&
+           & ' Warning: globalcheck=.false., but there is a mismatch'
+      write(psb_err_unit,*) trim(name),&
+           & '        : in the global sizes!',m,nrt
     end if
     !
     ! Now sort the input items, and check for  duplicates
@@ -552,7 +564,87 @@ contains
     call psb_msort_unique(vlu,nlu)
     if (nlu /= nl) then 
       write(0,*) 'Warning: duplicates in input'
-      nl = nlu
+    end if
+   
+    call hash_init_vlu(idxmap,ictxt,ntot,nlu,vlu,info)    
+
+  end subroutine hash_init_vl
+
+  subroutine hash_init_vg(idxmap,ictxt,vg,info)
+    use psb_penv_mod
+    use psb_error_mod
+    implicit none 
+    class(psb_hash_map), intent(inout) :: idxmap
+    integer, intent(in)  :: ictxt, vg(:)
+    integer, intent(out) :: info
+    !  To be implemented
+    integer :: iam, np, i, j, ntot, lc2, nl, nlu, n, nrt,int_err(5)
+    integer :: key, ih, ik, nh, idx, nbits, hsize, hmask
+    integer, allocatable :: vlu(:)
+
+    info = 0
+    call psb_info(ictxt,iam,np) 
+    if (np < 0) then 
+      write(psb_err_unit,*) 'Invalid ictxt:',ictxt
+      info = -1
+      return
+    end if
+
+    n    = size(vg)
+    ntot = n
+    nl   = 0
+    do i=1, n
+      if ((vg(i)<0).or.(vg(i)>=np)) then 
+        info = psb_err_partfunc_wrong_pid_
+        int_err(1) = 3
+        int_err(2) = vg(i)
+        int_err(3) = i
+        exit
+      endif
+      if (vg(i) == iam) nl = nl + 1 
+    end do
+    
+    allocate(vlu(nl), stat=info) 
+    if (info /= 0) then 
+      info = -1
+      return
+    end if
+
+    j = 0
+    do i=1, n
+      if (vg(i) == iam) then 
+        j      = j + 1 
+        vlu(j) = i
+      end if
+    end do
+    
+    
+    call hash_init_vlu(idxmap,ictxt,ntot,nl,vlu,info)    
+
+    
+  end subroutine hash_init_vg
+
+
+  subroutine hash_init_vlu(idxmap,ictxt,ntot,nl,vlu,info)
+    use psb_penv_mod
+    use psb_error_mod
+    use psb_sort_mod
+    use psb_realloc_mod
+    implicit none 
+    class(psb_hash_map), intent(inout) :: idxmap
+    integer, intent(in)  :: ictxt, vlu(:), nl, ntot
+    integer, intent(out) :: info
+    !  To be implemented
+    integer :: iam, np, i, j, lc2, nlu, m, nrt,int_err(5)
+    integer :: key, ih, ik, nh, idx, nbits, hsize, hmask
+    character(len=20), parameter :: name='hash_map_init_vlu'
+
+    info = 0
+    call psb_info(ictxt,iam,np) 
+    if (np < 0) then 
+      write(psb_err_unit,*) 'Invalid ictxt:',ictxt
+      info = -1
+      return
     end if
 
     idxmap%global_rows  = ntot
@@ -576,6 +668,41 @@ contains
       return 
     endif
 
+    do i=1, nl
+      idxmap%loc_to_glob(i) = vlu(i) 
+    end do
+
+    call hash_bld_g2l_map(idxmap,ictxt,info)
+
+  end subroutine hash_init_vlu
+
+
+
+  subroutine hash_bld_g2l_map(idxmap,info)
+    use psb_penv_mod
+    use psb_error_mod
+    use psb_sort_mod
+    use psb_realloc_mod
+    implicit none 
+    class(psb_hash_map), intent(inout) :: idxmap
+    integer, intent(out) :: info
+    !  To be implemented
+    integer :: ictxt, iam, np, i, j, lc2, nlu, m, nrt,int_err(5), nl
+    integer :: key, ih, ik, nh, idx, nbits, hsize, hmask
+    character(len=20), parameter :: name='hash_map_init_vlu'
+
+    info = 0
+    ictxt = idxmap%get_ctxt()
+
+    call psb_info(ictxt,iam,np) 
+    if (np < 0) then 
+      write(psb_err_unit,*) 'Invalid ictxt:',ictxt
+      info = -1
+      return
+    end if
+
+    nl = idxmap%get_lc()
+
     call psb_realloc(nl,2,idxmap%glb_lc,info) 
 
     nbits = psb_hash_bits
@@ -584,7 +711,8 @@ contains
       if (hsize < 0) then 
         ! This should never happen for sane values
         ! of psb_max_hash_bits.
-        write(psb_err_unit,*) 'Error: hash size overflow ',hsize,nbits
+        write(psb_err_unit,*) &
+             & 'Error: hash size overflow ',hsize,nbits
         info = -2 
         return
       end if
@@ -593,31 +721,38 @@ contains
       nbits = nbits + 1
       hsize = hsize * 2 
     end do
+
     hmask = hsize - 1 
     idxmap%hashvsize = hsize
     idxmap%hashvmask = hmask
-    if (info == psb_success_) call psb_realloc(hsize+1,idxmap%hashv,info,lb=0)
+
+    if (info == psb_success_) &
+         & call psb_realloc(hsize+1,idxmap%hashv,info,lb=0)
     if (info /= psb_success_) then 
-!!$      ch_err='psb_realloc'
-!!$      call psb_errpush(info,name,a_err=ch_err)
-!!$      goto 9999
+! !$      ch_err='psb_realloc'
+! !$      call psb_errpush(info,name,a_err=ch_err)
+! !$      goto 9999
       info = -4 
       return
     end if
+
     idxmap%hashv(:) = 0
+
     do i=1, nl
-      key = vlu(i) 
-      idxmap%loc_to_glob(i) = key 
+      key = idxmap%loc_to_glob(i) 
       ih  = iand(key,hmask) 
       idxmap%hashv(ih) = idxmap%hashv(ih) + 1
     end do
+
     nh = idxmap%hashv(0) 
     idx = 1
+
     do i=1, hsize
       idxmap%hashv(i-1) = idx
       idx = idx + nh
       nh = idxmap%hashv(i)
     end do
+
     do i=1, nl
       key                  = idxmap%loc_to_glob(i)
       ih                   = iand(key,hmask)
@@ -626,9 +761,11 @@ contains
       idxmap%glb_lc(idx,2) = i
       idxmap%hashv(ih)     = idxmap%hashv(ih) + 1
     end do
+
     do i = hsize, 1, -1 
       idxmap%hashv(i) = idxmap%hashv(i-1)
     end do
+
     idxmap%hashv(0) = 1
     do i=0, hsize-1 
       idx = idxmap%hashv(i)
@@ -639,57 +776,8 @@ contains
              & flag=psb_sort_keep_idx_)
       end if
     end do
-
-    call idxmap%set_state(psb_desc_bld_)
-
-  end subroutine hash_init_vl
-
-  subroutine hash_init_vg(idxmap,ictxt,n,vg,info)
-    use psb_penv_mod
-    use psb_error_mod
-    implicit none 
-    class(psb_hash_map), intent(inout) :: idxmap
-    integer, intent(in)  :: ictxt, n,vg(:)
-    integer, intent(out) :: info
-    !  To be implemented
-    integer :: iam, np, i, j, ntot, nl
-    integer, allocatable :: vnl(:)
-
-    info = 0
-    call psb_info(ictxt,iam,np) 
-    if (np < 0) then 
-      write(psb_err_unit,*) 'Invalid ictxt:',ictxt
-      info = -1
-      return
-    end if
-    allocate(vnl(0:np),stat=info)
-    if (info /= 0)  then
-      info = -2
-      return
-    end if
     
-    ntot = n
-    nl = 0
-    
-    idxmap%global_rows  = ntot
-    idxmap%global_cols  = ntot
-    idxmap%local_rows   = nl
-    idxmap%local_cols   = nl
-    idxmap%ictxt        = ictxt
-    idxmap%state        = psb_desc_bld_
-    call psb_get_mpicomm(ictxt,idxmap%mpic)
-    allocate(idxmap%hash,stat=info) 
-!!$    idxmap%min_glob_row = vnl(iam)+1
-!!$    idxmap%max_glob_row = vnl(iam+1) 
-!!$    call move_alloc(vnl,idxmap%vnl)
-!!$    allocate(idxmap%loc_to_glob(nl),stat=info) 
-    if (info /= 0)  then
-      info = -2
-      return
-    end if
-    
-    
-  end subroutine hash_init_vg
+  end subroutine hash_bld_g2l_map
 
 
   subroutine hash_asb(idxmap,info)
@@ -709,12 +797,9 @@ contains
 
     nhal = idxmap%local_cols-idxmap%local_rows
 
-!!$    call psb_realloc(nhal,idxmap%loc_to_glob,info)
-!!$    call psb_realloc(nhal,2,idxmap%srt_l2g,info)
-!!$    idxmap%srt_l2g(1:nhal,1) = idxmap%loc_to_glob(1:nhal)
-!!$    call psb_qsort(idxmap%srt_l2g(:,1),&
-!!$         & ix=idxmap%srt_l2g(:,2),dir=psb_sort_up_)
-!!$    idxmap%state = psb_desc_asb_
+    call hash_bld_g2l_map(idxmap,info)
+
+    call idxmap%set_state(psb_desc_asb_)
     
   end subroutine hash_asb
 

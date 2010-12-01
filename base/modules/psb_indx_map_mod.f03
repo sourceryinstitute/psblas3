@@ -10,7 +10,9 @@ module psb_indx_map_mod
     integer :: global_cols    = -1
     integer :: local_rows     = -1
     integer :: local_cols     = -1
+
   contains
+
     procedure, pass(idxmap)  :: get_state => base_get_state
     procedure, pass(idxmap)  :: set_state => base_set_state
     procedure, pass(idxmap)  :: is_repl   => base_is_repl
