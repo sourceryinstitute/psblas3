@@ -115,6 +115,7 @@ subroutine psi_idx_ins_cnv1(nv,idxin,desc,info,mask)
     allocate(itmp(nv),stat=info)
     itmp(1:nv) = idxin(1:nv)
     call desc%indxmap%g2l_ins(itmp(1:nv),info,mask)
+    info = 0
   end if
 
   if (psb_is_large_desc(desc)) then 

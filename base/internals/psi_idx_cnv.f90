@@ -191,6 +191,14 @@ subroutine psi_idx_cnv1(nv,idxin,desc,info,mask,owned)
           call psb_errpush(info,name,a_err='Invalid hashv into inner_cnv')
         end if
         call psi_inner_cnv(nv,idxin,desc%idxmap%hashvmask,desc%idxmap%hashv,desc%idxmap%glb_lc,mask=mask)
+        if (owned_) then 
+          do i = 1, nv
+            if (idxin(i) > nrow)  then 
+              idxin(i) = -1
+            endif
+          end do
+        end if
+
       end if
 
     else
