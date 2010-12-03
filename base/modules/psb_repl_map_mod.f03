@@ -29,6 +29,8 @@ module psb_repl_map_mod
     procedure, pass(idxmap)  :: g2lv1_ins => repl_g2lv1_ins
     procedure, pass(idxmap)  :: g2lv2_ins => repl_g2lv2_ins
 
+    procedure, pass(idxmap)  :: fnd_owner => repl_fnd_owner
+
   end type psb_repl_map
 
   private :: repl_init, repl_is_repl, repl_asb, repl_free,&
@@ -408,6 +410,27 @@ contains
   end subroutine repl_g2lv2_ins
 
 
+  subroutine repl_fnd_owner(idx,iprc,idxmap,info)
+    use psb_penv_mod
+    implicit none 
+    integer, intent(in) :: idx(:)
+    integer, allocatable, intent(out) ::  iprc(:)
+    class(psb_repl_map), intent(in) :: idxmap
+    integer, intent(out) :: info
+    integer :: ictxt, iam, np, nv
+    
+    ictxt = idxmap%get_ctxt()
+    call psb_info(ictxt,iam,np)
+    
+    nv = size(idx)
+    allocate(iprc(nv),stat=info) 
+    if (info /= 0) then 
+      write(0,*) 'Memory allocation failure in repl_map_fnd-owner'
+      return
+    end if
+    iprc(1:nv) = iam 
+
+  end subroutine repl_fnd_owner
 
 
   subroutine repl_init(idxmap,ictxt,nl,info)

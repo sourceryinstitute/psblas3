@@ -31,6 +31,7 @@ module psb_gen_block_map_mod
     procedure, pass(idxmap)  :: g2lv1_ins => block_g2lv1_ins
     procedure, pass(idxmap)  :: g2lv2_ins => block_g2lv2_ins
 
+    procedure, pass(idxmap)  :: fnd_owner => block_fnd_owner
 
   end type psb_gen_block_map
 
@@ -493,6 +494,30 @@ contains
     if (is > im) info = -3 
 
   end subroutine block_g2lv2_ins
+
+  subroutine block_fnd_owner(idx,iprc,idxmap,info)
+    use psb_penv_mod
+    implicit none 
+    integer, intent(in) :: idx(:)
+    integer, allocatable, intent(out) ::  iprc(:)
+    class(psb_gen_block_map), intent(in) :: idxmap
+    integer, intent(out) :: info
+    integer :: ictxt, iam, np, nv
+    
+    ictxt = idxmap%get_ctxt()
+    call psb_info(ictxt,iam,np)
+    
+    nv = size(idx)
+    allocate(iprc(nv),stat=info) 
+    if (info /= 0) then 
+      write(0,*) 'Memory allocation failure in repl_map_fnd-owner'
+      return
+    end if
+    iprc(1:nv) = iam 
+
+  end subroutine block_fnd_owner
+
+
 
   subroutine block_init(idxmap,ictxt,nl,info)
     use psb_penv_mod

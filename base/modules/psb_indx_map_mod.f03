@@ -3,6 +3,7 @@ module psb_indx_map_mod
   use psb_desc_const_mod
   
   type      :: psb_indx_map
+
     integer :: state          = -1 
     integer :: ictxt          = -1
     integer :: mpic           = -1
@@ -61,6 +62,8 @@ module psb_indx_map_mod
     generic, public          :: g2l_ins => g2ls1_ins, g2ls2_ins,&
          &                     g2lv1_ins, g2lv2_ins
 
+    procedure, pass(idxmap)  :: fnd_owner => psb_indx_map_fnd_owner
+
   end type psb_indx_map
 
   private :: base_get_state, base_set_state, base_is_repl, base_is_bld,&
@@ -74,7 +77,17 @@ module psb_indx_map_mod
        & base_g2ls1_ins, base_g2ls2_ins, base_g2lv1_ins,&
        & base_g2lv2_ins
 
-
+  interface 
+    subroutine psb_indx_map_fnd_owner(idx,iprc,idxmap,info)
+      import :: psb_indx_map
+      implicit none 
+      integer, intent(in) :: idx(:)
+      integer, allocatable, intent(out) ::  iprc(:)
+      class(psb_indx_map), intent(in) :: idxmap
+      integer, intent(out) :: info
+    end subroutine psb_indx_map_fnd_owner
+  end interface
+  
 contains
 
   function base_get_state(idxmap) result(val)

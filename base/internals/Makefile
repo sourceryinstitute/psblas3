@@ -14,7 +14,8 @@ MPFOBJS = psi_dswapdata.o psi_dswaptran.o\
 	psi_iswapdata.o psi_iswaptran.o \
 	psi_cswapdata.o psi_cswaptran.o  \
 	psi_zswapdata.o psi_zswaptran.o  \
-	psi_desc_index.o psi_extrct_dl.o psi_fnd_owner.o
+	psi_desc_index.o psi_extrct_dl.o \
+	psi_fnd_owner.o psb_indx_map_fnd_owner.o
 LIBDIR=..
 MODDIR=../modules
 FINCLUDES=$(FMFLAG)$(LIBDIR) $(FMFLAG)$(MODDIR) $(FMFLAG).
