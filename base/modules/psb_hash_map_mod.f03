@@ -171,7 +171,6 @@ contains
             idx(i) = idxmap%loc_to_glob(idx(i))
           else 
             idx(i) = -1
-            info = -1
           end if
         end if
       end do
@@ -186,7 +185,6 @@ contains
           idx(i) = idxmap%loc_to_glob(idx(i))
         else 
           idx(i) = -1
-          info = -1
         end if
       end do
 
@@ -249,6 +247,7 @@ contains
 
 
   subroutine hash_g2lv1(idx,idxmap,info,mask,owned)
+    use psb_penv_mod
     use psb_sort_mod
     implicit none 
     class(psb_hash_map), intent(in) :: idxmap
@@ -257,10 +256,13 @@ contains
     logical, intent(in), optional :: mask(:)
     logical, intent(in), optional :: owned
     integer :: i, nv, is, mglob, ip, lip, nrow, ncol, nrm 
+    integer :: ictxt, iam, np
     logical :: owned_
 
     info = 0
-
+    ictxt = idxmap%get_ctxt()
+    call psb_info(ictxt,iam,np) 
+    
     if (present(mask)) then 
       if (size(mask) < size(idx)) then 
         info = -1
@@ -283,7 +285,6 @@ contains
     else
       nrm = ncol
     end if
-
     if (present(mask)) then 
 
       if (idxmap%is_asb()) then 
@@ -316,7 +317,7 @@ contains
         enddo
 
       else 
-
+        write(0,*) 'Hash status: invalid ',idxmap%get_state()
         idx(1:is) = -1
         info = -1
       end if
@@ -351,7 +352,7 @@ contains
         enddo
 
       else 
-
+        write(0,*) 'Hash status: invalid ',idxmap%get_state()
         idx(1:is) = -1
         info = -1
 
@@ -421,6 +422,7 @@ contains
     use psb_error_mod
     use psb_realloc_mod
     use psb_sort_mod
+    use psb_penv_mod
     implicit none 
     class(psb_hash_map), intent(inout) :: idxmap
     integer, intent(inout) :: idx(:)
@@ -482,7 +484,8 @@ contains
               info = psb_success_
             else
               ch_err='SearchInsKeyVal'
-              call psb_errpush(psb_err_from_subroutine_ai_,name,a_err=ch_err,i_err=(/info,0,0,0,0/))
+              call psb_errpush(psb_err_from_subroutine_ai_,name,&
+                   & a_err=ch_err,i_err=(/info,0,0,0,0/))
               goto 9999
             end if
             idx(i) = lip
@@ -522,7 +525,8 @@ contains
             info = psb_success_
           else
             ch_err='SearchInsKeyVal'
-            call psb_errpush(psb_err_from_subroutine_ai_,name,a_err=ch_err,i_err=(/info,0,0,0,0/))
+            call psb_errpush(psb_err_from_subroutine_ai_,name,&
+                 & a_err=ch_err,i_err=(/info,0,0,0,0/))
             goto 9999
           end if
           idx(i) = lip
@@ -743,6 +747,7 @@ contains
     end do
 
     call hash_bld_g2l_map(idxmap,info)
+    call idxmap%set_state(psb_desc_bld_)
 
   end subroutine hash_init_vlu
 
@@ -865,10 +870,21 @@ contains
     ictxt = idxmap%get_ctxt()
     call psb_info(ictxt,iam,np)
 
-    nhal = idxmap%local_cols-idxmap%local_rows
+    nhal = max(0,idxmap%local_cols-idxmap%local_rows)
 
     call hash_bld_g2l_map(idxmap,info)
+    if (info /= 0) then 
+      write(0,*) 'Error from bld_g2l_map'
+      return
+    end if
 
+    call psb_free(idxmap%hash,info)
+    if (info == 0) deallocate(idxmap%hash,stat=info)
+    if (info /= 0) then
+      write(0,*) 'Error from hash free'
+      return
+    end if
+      
     call idxmap%set_state(psb_desc_asb_)
 
   end subroutine hash_asb

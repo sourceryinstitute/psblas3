@@ -117,7 +117,7 @@ subroutine psi_idx_cnv1(nv,idxin,desc,info,mask,owned)
 
     call desc%indxmap%g2l(idxin(1:nv),info,mask=mask,owned=owned)
     if (info /= 0) then 
-      write(0,*) 'Exit from idxmap%g2l ',info
+      write(0,*) 'Exit from idxmap%g2l ',info,desc%indxmap%get_fmt()
       goto 9999
     end if
 

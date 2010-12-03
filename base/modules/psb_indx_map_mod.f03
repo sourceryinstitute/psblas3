@@ -192,7 +192,7 @@ contains
     class(psb_indx_map), intent(inout) :: idxmap
     integer, intent(in)  :: val
     
-    idxmap%local_rows = val
+    idxmap%local_cols = val
   end subroutine base_set_lc
 
   subroutine base_set_mpic(idxmap,val)

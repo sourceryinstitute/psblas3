@@ -7,6 +7,9 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
   use psb_penv_mod
   use psb_gen_block_map_mod
   use psb_repl_map_mod
+  use psb_list_map_mod
+  use psb_glist_map_mod
+  use psb_hash_map_mod
   implicit None
   include 'parts.fh'
   Integer, intent(in)               :: mg,ng,ictxt, vg(:), vl(:),nl
@@ -152,6 +155,18 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
             info = psb_err_internal_error_
           end select
         end if
+      else
+        allocate(psb_hash_map    :: desc%indxmap, stat=info)
+        if (info == psb_success_) then 
+          select type(aa => desc%indxmap) 
+          type is (psb_hash_map) 
+            call aa%init(ictxt,vg(1:nnv),info)
+          class default 
+            ! This cannot happen 
+            info = psb_err_internal_error_
+          end select
+        end if
+        
       end if
     end if
 
@@ -177,6 +192,19 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
             info = psb_err_internal_error_
           end select
         end if
+      else
+        allocate(psb_hash_map    :: desc%indxmap, stat=info)
+        if (info == psb_success_) then 
+          select type(aa => desc%indxmap) 
+          type is (psb_hash_map) 
+            call aa%init(ictxt,nnv,vl,info)
+          class default 
+            ! This cannot happen 
+            info = psb_err_internal_error_
+          end select
+        end if
+        
+
       end if
     end if
 
@@ -202,7 +230,8 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
       if (np == 1) then 
         allocate(psb_repl_map      :: desc%indxmap, stat=info)
       else
-        allocate(psb_gen_block_map :: desc%indxmap, stat=info)
+        allocate(psb_hash_map    :: desc%indxmap, stat=info)
+!!$        allocate(psb_gen_block_map :: desc%indxmap, stat=info)
       end if
       if (info == psb_success_) then 
         select type(aa => desc%indxmap) 
@@ -210,6 +239,8 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
           call aa%init(ictxt,nl,info)
         type is (psb_gen_block_map) 
           call aa%init(ictxt,nl,info)
+        type is (psb_hash_map) 
+          call aa%init(ictxt,nl,(/(i,i=nlp+1,nlp+nl)/),info)
         class default 
             ! This cannot happen 
           info = psb_err_internal_error_

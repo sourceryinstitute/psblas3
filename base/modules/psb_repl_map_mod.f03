@@ -124,7 +124,6 @@ contains
             ! do nothing
           else 
             idx(i) = -1
-            info = -1
           end if
         end if
       end do
@@ -136,7 +135,6 @@ contains
           ! do nothing
         else 
           idx(i) = -1
-          info = -1
         end if
       end do
 
@@ -233,7 +231,6 @@ contains
               ! do nothing
             else 
               idx(i) = -1
-              info = -1
             end if
           end if
         end do
@@ -245,7 +242,6 @@ contains
 
             else 
               idx(i) = -1
-              info = -1
             end if
           end if
         end do
@@ -262,7 +258,6 @@ contains
             ! do nothing
           else 
             idx(i) = -1
-            info = -1
           end if
         end do
       else if (idxmap%is_valid()) then 
@@ -271,7 +266,6 @@ contains
             ! do nothing 
           else 
             idx(i) = -1
-            info = -1
           end if
         end do
       else 
@@ -374,7 +368,6 @@ contains
               ! do nothing
             else 
               idx(i) = -1
-              info = -1
             end if
           end if
         end do
@@ -386,7 +379,6 @@ contains
             ! do nothing
           else 
             idx(i) = -1
-            info = -1
           end if
         end do
       end if

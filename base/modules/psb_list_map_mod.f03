@@ -137,7 +137,6 @@ contains
             idx(i) = idxmap%loc_to_glob(idx(i))
           else 
             idx(i) = -1
-            info = -1
           end if
         end if
       end do
@@ -152,7 +151,6 @@ contains
           idx(i) = idxmap%loc_to_glob(idx(i))
         else 
           idx(i) = -1
-          info = -1
         end if
       end do
 
@@ -251,7 +249,6 @@ contains
               idx(i) = ix
             else 
               idx(i) = -1
-              info = -1
             end if
           end if
         end do
@@ -270,7 +267,6 @@ contains
             idx(i) = ix
           else 
             idx(i) = -1
-            info = -1
           end if
         end do
       else 
@@ -382,10 +378,9 @@ contains
                 idxmap%loc_to_glob(ix) = idx(i)
                 idxmap%glob_to_loc(idx(i)) = ix
               end if
-              idx(i)                   = ix
+              idx(i) = ix
             else 
               idx(i) = -1
-              info   = -1
             end if
           end if
         end do
@@ -406,10 +401,9 @@ contains
               idxmap%loc_to_glob(ix) = idx(i)
               idxmap%glob_to_loc(idx(i)) = ix
             end if
-            idx(i)                   = ix
+            idx(i) = ix
           else 
             idx(i) = -1
-            info   = -1
           end if
         end do
       end if

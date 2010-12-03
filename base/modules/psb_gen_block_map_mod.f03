@@ -224,6 +224,7 @@ contains
 
 
   subroutine block_g2lv1(idx,idxmap,info,mask,owned)
+    use psb_penv_mod
     use psb_sort_mod
     implicit none 
     class(psb_gen_block_map), intent(in) :: idxmap
@@ -232,12 +233,16 @@ contains
     logical, intent(in), optional :: mask(:)
     logical, intent(in), optional :: owned
     integer :: i, nv, is
+    integer :: ictxt, iam, np
     logical :: owned_
 
     info = 0
+    ictxt = idxmap%get_ctxt()
+    call psb_info(ictxt,iam,np) 
 
     if (present(mask)) then 
       if (size(mask) < size(idx)) then 
+        write(0,*) 'Block g2l: size of mask', size(mask),size(idx)
         info = -1
         return
       end if
@@ -264,7 +269,6 @@ contains
               if (idx(i) > 0) idx(i) = idxmap%srt_l2g(idx(i),2)+idxmap%local_rows
             else 
               idx(i) = -1
-              info = -1
             end if
           end if
         end do
@@ -280,11 +284,11 @@ contains
               if (idx(i) > 0) idx(i) = idx(i) + idxmap%local_rows
             else 
               idx(i) = -1
-              info = -1
             end if
           end if
         end do
       else 
+        write(0,*) 'Block status: invalid ',idxmap%get_state()
         idx(1:is) = -1
         info = -1
       end if
@@ -292,6 +296,7 @@ contains
     else  if (.not.present(mask)) then 
 
       if (idxmap%is_asb()) then 
+
         do i=1, is
           if ((idxmap%min_glob_row <= idx(i)).and.(idx(i) <= idxmap%max_glob_row)) then
             idx(i) = idx(i) - idxmap%min_glob_row + 1
@@ -302,9 +307,9 @@ contains
             if (idx(i) > 0) idx(i) = idxmap%srt_l2g(idx(i),2)+idxmap%local_rows
           else 
             idx(i) = -1
-            info = -1
           end if
         end do
+
       else if (idxmap%is_valid()) then 
         do i=1,is
           if ((idxmap%min_glob_row <= idx(i)).and.(idx(i) <= idxmap%max_glob_row)) then
@@ -316,10 +321,10 @@ contains
             if (idx(i) > 0) idx(i) = idx(i) + idxmap%local_rows
           else 
             idx(i) = -1
-            info = -1
           end if
         end do
       else 
+        write(0,*) 'Block status: invalid ',idxmap%get_state()
         idx(1:is) = -1
         info = -1
       end if
