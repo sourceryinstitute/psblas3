@@ -230,8 +230,8 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
       if (np == 1) then 
         allocate(psb_repl_map      :: desc%indxmap, stat=info)
       else
-        allocate(psb_hash_map    :: desc%indxmap, stat=info)
-!!$        allocate(psb_gen_block_map :: desc%indxmap, stat=info)
+!!$        allocate(psb_hash_map    :: desc%indxmap, stat=info)
+        allocate(psb_gen_block_map :: desc%indxmap, stat=info)
       end if
       if (info == psb_success_) then 
         select type(aa => desc%indxmap) 

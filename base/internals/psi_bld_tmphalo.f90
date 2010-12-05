@@ -101,9 +101,14 @@ subroutine psi_bld_tmphalo(desc,info)
   end do
 
   call psb_map_l2g(helem(1:nh),desc%idxmap,info)
-  if (info == psb_success_) &
-       & call psi_fnd_owner(nh,helem,hproc,desc,info)
-
+  if (info == psb_success_) then 
+    if (allocated(desc%indxmap)) then 
+      call desc%indxmap%fnd_owner(helem(1:nh),hproc,info)
+    else
+      call psi_fnd_owner(nh,helem,hproc,desc,info)
+    end if
+  end if
+  
   if (info /= psb_success_) then 
     call psb_errpush(psb_err_from_subroutine_,name,a_err='fnd_owner')
     goto 9999      

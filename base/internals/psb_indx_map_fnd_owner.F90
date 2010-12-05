@@ -85,17 +85,16 @@ subroutine psb_indx_map_fnd_owner(idx,iprc,idxmap,info)
   n_row   = idxmap%get_lr()
   n_col   = idxmap%get_lc()
 
-
-  ! check on blacs grid 
+  
   call psb_info(ictxt, me, np)
-
+  
   if (np == -1) then
     info = psb_err_context_error_
     call psb_errpush(info,name)
     goto 9999
   endif
 
-
+  write(0,*) me,' Into base_fnd_owner'
   if (.not.(idxmap%is_valid())) then 
     call psb_errpush(psb_err_from_subroutine_,name,a_err='invalid idxmap')
     goto 9999      

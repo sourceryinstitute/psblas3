@@ -497,23 +497,27 @@ contains
 
   subroutine block_fnd_owner(idx,iprc,idxmap,info)
     use psb_penv_mod
+    use psb_sort_mod
     implicit none 
     integer, intent(in) :: idx(:)
     integer, allocatable, intent(out) ::  iprc(:)
     class(psb_gen_block_map), intent(in) :: idxmap
     integer, intent(out) :: info
-    integer :: ictxt, iam, np, nv
+    integer :: ictxt, iam, np, nv, ip, i
     
     ictxt = idxmap%get_ctxt()
     call psb_info(ictxt,iam,np)
-    
+!!$    write(0,*) iam,' BLOCK fnd_owner'
     nv = size(idx)
     allocate(iprc(nv),stat=info) 
     if (info /= 0) then 
       write(0,*) 'Memory allocation failure in repl_map_fnd-owner'
       return
     end if
-    iprc(1:nv) = iam 
+    do i=1, nv 
+      ip = psb_iblsrch(idx(i)-1,np+1,idxmap%vnl)
+      iprc(i) = ip - 1
+    end do
 
   end subroutine block_fnd_owner
 
