@@ -111,7 +111,7 @@ contains
     implicit none 
     integer, intent(in) :: idx(:)
     integer, allocatable, intent(out) ::  iprc(:)
-    class(psb_gen_block_map), intent(in) :: idxmap
+    class(psb_glist_map), intent(in) :: idxmap
     integer, intent(out) :: info
     integer :: ictxt, iam, np, nv, ip, i, ngp
     

@@ -83,6 +83,7 @@ subroutine psb_cdcpy(desc_in, desc_out, info)
   if (info == psb_success_) call psb_safe_ab_cpy(desc_in%lprm,desc_out%lprm,info)
   if (info == psb_success_) call psb_safe_ab_cpy(desc_in%idx_space,desc_out%idx_space,info)
   if (info == psb_success_) call psb_idxmap_copy(desc_in%idxmap,desc_out%idxmap, info)
+  if (info == psb_success_) allocate(desc_out%indxmap, source=desc_in%indxmap, stat=info) 
 !!$  if (info == psb_success_)   call psb_safe_ab_cpy(desc_in%loc_to_glob,desc_out%loc_to_glob,info)
 !!$  if (info == psb_success_)   call psb_safe_ab_cpy(desc_in%glob_to_loc,desc_out%glob_to_loc,info)
 !!$  desc_out%hashvsize =   desc_in%hashvsize 
