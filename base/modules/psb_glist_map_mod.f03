@@ -12,6 +12,8 @@ module psb_glist_map_mod
     procedure, pass(idxmap)  :: free    => glist_free
     procedure, pass(idxmap)  :: get_fmt => glist_get_fmt
 
+    procedure, pass(idxmap)  :: fnd_owner => glist_fnd_owner
+
   end type psb_glist_map
 
   private :: glist_initvg, glist_sizeof, glist_free, glist_get_fmt
@@ -102,6 +104,36 @@ contains
     call idxmap%set_lc(nl)
    
   end subroutine glist_initvg
+
+  subroutine glist_fnd_owner(idx,iprc,idxmap,info)
+    use psb_penv_mod
+    use psb_sort_mod
+    implicit none 
+    integer, intent(in) :: idx(:)
+    integer, allocatable, intent(out) ::  iprc(:)
+    class(psb_gen_block_map), intent(in) :: idxmap
+    integer, intent(out) :: info
+    integer :: ictxt, iam, np, nv, ip, i, ngp
+    
+    ictxt = idxmap%get_ctxt()
+    call psb_info(ictxt,iam,np)
+    nv = size(idx)
+    allocate(iprc(nv),stat=info) 
+    if (info /= 0) then 
+      write(0,*) 'Memory allocation failure in repl_map_fnd-owner'
+      return
+    end if
+
+    ngp = size(idxmap%vgp)
+    do i=1, nv 
+      if ((1<=idx(i)).and.(idx(i)<ngp)) then
+        iprc(i) = idxmap%vgp(idx(i))
+      else
+        iprc(i) = -1
+      end if
+    end do
+
+  end subroutine glist_fnd_owner
 
   function glist_get_fmt(idxmap) result(res)
     implicit none 
