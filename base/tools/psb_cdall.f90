@@ -10,6 +10,7 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
   use psb_list_map_mod
   use psb_glist_map_mod
   use psb_hash_map_mod
+  use psi_mod
   implicit None
   include 'parts.fh'
   Integer, intent(in)               :: mg,ng,ictxt, vg(:), vl(:),nl
@@ -51,7 +52,7 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
     end subroutine psb_cdrep
   end interface
   character(len=20)   :: name
-  integer :: err_act, n_, flag_, i, me, np, nlp, nnv
+  integer :: err_act, n_, flag_, i, me, np, nlp, nnv, lr
   integer, allocatable :: itmpsz(:) 
 
 
@@ -71,9 +72,12 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
   endif
 
   desc%base_desc => null() 
-
+  if (allocated(desc%indxmap)) then 
+    write(0,*) 'Allocated on an intent(OUT) var?'
+  end if
 
   if (present(parts)) then 
+
     if (.not.present(mg)) then 
       info=psb_err_no_optional_arg_
       call psb_errpush(info,name)
@@ -86,22 +90,8 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
     endif
     call  psb_cdals(mg, n_, parts, ictxt, desc, info)
 
-    if (info == psb_success_) then 
-      if (np == 1) then 
-        allocate(psb_repl_map      :: desc%indxmap, stat=info)
-        if (info == psb_success_) then 
-          select type(aa => desc%indxmap) 
-          type is (psb_repl_map) 
-            call aa%init(ictxt,mg,info)
-          class default 
-              ! This cannot happen 
-            info = psb_err_internal_error_
-          end select
-        end if
-      end if
-    end if
-
   else if (present(repl)) then 
+
     if (.not.present(mg)) then 
       info=psb_err_no_optional_arg_
       call psb_errpush(info,name)
@@ -114,19 +104,6 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
     end if
 
     call  psb_cdrep(mg, ictxt, desc, info)
-    if (info == psb_success_) then 
-      allocate(psb_repl_map      :: desc%indxmap, stat=info)
-      if (info == psb_success_) then 
-        select type(aa => desc%indxmap) 
-        type is (psb_repl_map) 
-          call aa%init(ictxt,mg,info)
-        class default 
-            ! This cannot happen 
-          info = psb_err_internal_error_
-        end select
-      end if
-    end if
-
 
 
   else if (present(vg)) then 
@@ -141,34 +118,8 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
     else
       nnv = size(vg)
     end if
-    call psb_cdalv(vg(1:nnv), ictxt, desc, info, flag=flag_)
 
-    if (info == psb_success_) then 
-      if (np == 1) then 
-        allocate(psb_repl_map      :: desc%indxmap, stat=info)
-        if (info == psb_success_) then 
-          select type(aa => desc%indxmap) 
-          type is (psb_repl_map) 
-            call aa%init(ictxt,nnv,info)
-          class default 
-            ! This cannot happen 
-            info = psb_err_internal_error_
-          end select
-        end if
-      else
-        allocate(psb_hash_map    :: desc%indxmap, stat=info)
-        if (info == psb_success_) then 
-          select type(aa => desc%indxmap) 
-          type is (psb_hash_map) 
-            call aa%init(ictxt,vg(1:nnv),info)
-          class default 
-            ! This cannot happen 
-            info = psb_err_internal_error_
-          end select
-        end if
-        
-      end if
-    end if
+    call psb_cdalv(vg(1:nnv), ictxt, desc, info, flag=flag_)
 
   else if (present(vl)) then 
 
@@ -177,78 +128,65 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
     else
       nnv = size(vl)
     end if
-    call psb_cd_inloc(vl(1:nnv),ictxt,desc,info, globalcheck=globalcheck)
-    if (info == psb_success_) then 
-      if (np == 1) then 
-        allocate(psb_repl_map      :: desc%indxmap, stat=info)
-        if (info == psb_success_) then 
-          select type(aa => desc%indxmap) 
-          type is (psb_repl_map) 
-            ! This is potentially wrong if there are multiple entries.
-            ! 
-            call aa%init(ictxt,nnv,info)
-          class default 
-              ! This cannot happen 
-            info = psb_err_internal_error_
-          end select
-        end if
-      else
-        allocate(psb_hash_map    :: desc%indxmap, stat=info)
-        if (info == psb_success_) then 
-          select type(aa => desc%indxmap) 
-          type is (psb_hash_map) 
-            call aa%init(ictxt,nnv,vl,info)
-          class default 
-            ! This cannot happen 
-            info = psb_err_internal_error_
-          end select
-        end if
-        
 
-      end if
-    end if
+    call psb_cd_inloc(vl(1:nnv),ictxt,desc,info, globalcheck=globalcheck)
 
   else if (present(nl)) then 
+    
+    allocate(desc%matrix_data(psb_mdata_size_))
+    desc%matrix_data(psb_m_)        = nl
+    call psb_sum(ictxt,desc%matrix_data(psb_m_))
+    desc%matrix_data(psb_n_)        = desc%matrix_data(psb_m_)
+    desc%matrix_data(psb_ctxt_)     = ictxt
+    call psb_get_mpicomm(ictxt,desc%matrix_data(psb_mpi_c_))
 
-    allocate(itmpsz(0:np-1),stat=info)
-    if (info /= psb_success_) then 
-      info = psb_err_alloc_dealloc_ 
-      call psb_errpush(info,name)
-      goto 999
-    endif
 
-    itmpsz = 0
-    itmpsz(me) = nl
-    call psb_sum(ictxt,itmpsz)
-    nlp=0 
-    do i=0, me-1
-      nlp = nlp + itmpsz(i)
-    end do
-    call psb_cd_inloc((/(i,i=nlp+1,nlp+nl)/),ictxt,desc,info,globalcheck=.false.)
 
-    if (info == psb_success_) then 
-      if (np == 1) then 
-        allocate(psb_repl_map      :: desc%indxmap, stat=info)
-      else
-!!$        allocate(psb_hash_map    :: desc%indxmap, stat=info)
-        allocate(psb_gen_block_map :: desc%indxmap, stat=info)
-      end if
-      if (info == psb_success_) then 
-        select type(aa => desc%indxmap) 
-        type is (psb_repl_map) 
-          call aa%init(ictxt,nl,info)
-        type is (psb_gen_block_map) 
-          call aa%init(ictxt,nl,info)
-        type is (psb_hash_map) 
-          call aa%init(ictxt,nl,(/(i,i=nlp+1,nlp+nl)/),info)
-        class default 
-            ! This cannot happen 
-          info = psb_err_internal_error_
-        end select
-      end if
+    if (np == 1) then 
+      allocate(psb_repl_map      :: desc%indxmap, stat=info)
+    else
+      allocate(psb_gen_block_map :: desc%indxmap, stat=info)
     end if
+    if (info == psb_success_) then 
+      select type(aa => desc%indxmap) 
+      type is (psb_repl_map) 
+        call aa%init(ictxt,nl,info)
+      type is (psb_gen_block_map) 
+        call aa%init(ictxt,nl,info)
+      class default 
+        ! This cannot happen 
+        info = psb_err_internal_error_
+        goto 999
+      end select
+    end if
+    
+    call psb_realloc(1,itmpsz, info)
+    if (info /= 0) then 
+      write(0,*) 'Error reallocating itmspz'
+      goto 999
+    end if
+    itmpsz(:) = -1
+    call psi_bld_tmpovrl(itmpsz,desc,info)
+
   endif
 
+  if (info /= psb_success_) goto 999
+
+  ! Finish off 
+  lr = desc%indxmap%get_lr()
+  call psb_realloc(max(1,lr/2),desc%halo_index, info)
+  if (info == psb_success_) call psb_realloc(1,desc%ext_index, info)
+  if (info /= psb_success_) then
+    info=psb_err_from_subroutine_
+    call psb_errpush(info,name,a_err='psb_realloc')
+    Goto 999
+  end if
+  desc%matrix_data(psb_pnt_h_) = 1
+  desc%halo_index(:)           = -1
+  desc%ext_index(:)            = -1
+  call psb_cd_set_bld(desc,info)
+  desc%matrix_data(psb_n_row_) = desc%indxmap%get_lr()
+  desc%matrix_data(psb_n_col_) = desc%indxmap%get_lc()
   if (info /= psb_success_) goto 999
 
   call psb_erractionrestore(err_act)

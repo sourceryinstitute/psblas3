@@ -245,7 +245,7 @@ contains
           if (mask(i)) then 
             if ((1 <= idx(i)).and.(idx(i) <= idxmap%global_rows)) then
               ix = idxmap%glob_to_loc(idx(i))
-              if ((ix > idxmap%get_lr()).and.(.not.owned_)) ix = -1
+              if ((ix > idxmap%get_lr()).and.(owned_)) ix = -1
               idx(i) = ix
             else 
               idx(i) = -1
@@ -263,7 +263,7 @@ contains
         do i=1, is
           if ((1 <= idx(i)).and.(idx(i) <= idxmap%global_rows)) then
             ix = idxmap%glob_to_loc(idx(i))
-            if ((ix > idxmap%get_lr()).and.(.not.owned_)) ix = -1
+                if ((ix > idxmap%get_lr()).and.(owned_)) ix = -1
             idx(i) = ix
           else 
             idx(i) = -1
@@ -540,6 +540,7 @@ contains
     
     idxmap%local_rows   = nl
     idxmap%local_cols   = nl
+    call idxmap%set_state(psb_desc_bld_)
    
   end subroutine list_initvl
 
@@ -561,7 +562,8 @@ contains
 
     nhal = idxmap%local_cols
     call psb_realloc(nhal,idxmap%loc_to_glob,info)
-    idxmap%state = psb_desc_asb_
+
+    call idxmap%set_state(psb_desc_asb_)
     
   end subroutine list_asb
 

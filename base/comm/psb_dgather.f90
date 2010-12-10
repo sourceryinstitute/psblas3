@@ -134,7 +134,7 @@ subroutine  psb_dgatherm(globx, locx, desc_a, info, iroot)
 
   do j=1,k
     do i=1,psb_cd_get_local_rows(desc_a)
-      idx = desc_a%idxmap%loc_to_glob(i)
+      call psb_loc_to_glob(i,idx,desc_a,info)
       globx(idx,jglobx+j-1) = locx(i,jlx+j-1)
     end do
   end do
@@ -143,7 +143,7 @@ subroutine  psb_dgatherm(globx, locx, desc_a, info, iroot)
     do i=1, size(desc_a%ovrlap_elem,1)
       if (me /= desc_a%ovrlap_elem(i,3)) then 
         idx = desc_a%ovrlap_elem(i,1)
-        idx = desc_a%idxmap%loc_to_glob(idx)
+        call psb_loc_to_glob(idx,desc_a,info)
         globx(idx,jglobx+j-1) = dzero
       end if
     end do
@@ -294,7 +294,7 @@ subroutine  psb_dgatherv(globx, locx, desc_a, info, iroot)
   globx(:)=0.d0
 
   do i=1,psb_cd_get_local_rows(desc_a)
-    idx = desc_a%idxmap%loc_to_glob(i)
+    call psb_loc_to_glob(i,idx,desc_a,info)
     globx(idx) = locx(i)
   end do
   
@@ -302,10 +302,11 @@ subroutine  psb_dgatherv(globx, locx, desc_a, info, iroot)
   do i=1, size(desc_a%ovrlap_elem,1)
     if (me /= desc_a%ovrlap_elem(i,3)) then 
       idx = desc_a%ovrlap_elem(i,1)
-      idx = desc_a%idxmap%loc_to_glob(idx)
+      call psb_loc_to_glob(idx,desc_a,info)
       globx(idx) = dzero
     end if
   end do
+  
   call psb_sum(ictxt,globx(1:m),root=root)
 
   call psb_erractionrestore(err_act)

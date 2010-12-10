@@ -67,9 +67,9 @@ subroutine psb_cdprt(iout,desc_p,glob,short)
     m=desc_p%matrix_data(psb_m_)
     n_row=desc_p%matrix_data(psb_n_row_)
     n_col=desc_p%matrix_data(psb_n_col_)
-    if (.not.lshort) &
-         & write(iout,*) 'Loc_to_glob ',desc_p%idxmap%loc_to_glob(1:n_row), ': ',&
-         & desc_p%idxmap%loc_to_glob(n_row+1:n_col)
+!!$    if (.not.lshort) &
+!!$         & write(iout,*) 'Loc_to_glob ',desc_p%idxmap%loc_to_glob(1:n_row), ': ',&
+!!$         & desc_p%idxmap%loc_to_glob(n_row+1:n_col)
 
 !!$    if (.not.lshort) write(iout,*) 'glob_to_loc ',desc_p%idxmap%glob_to_loc(1:m) 
     write(iout,*) 'Halo_index'

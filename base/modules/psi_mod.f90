@@ -447,12 +447,14 @@ module psi_mod
   end interface
 
   interface
-    subroutine psi_extract_dep_list(desc_data,desc_str,dep_list,&
+    subroutine psi_extract_dep_list(ictxt,is_bld,is_upd,desc_str,dep_list,&
          & length_dl,np,dl_lda,mode,info)
-      integer :: np,dl_lda,mode, info
-      integer :: desc_str(*),desc_data(*),dep_list(dl_lda,0:np),length_dl(0:np)
+      logical :: is_bld, is_upd
+      integer :: ictxt,np,dl_lda,mode, info
+      integer :: desc_str(*),dep_list(dl_lda,0:np),length_dl(0:np)
     end subroutine psi_extract_dep_list
   end interface
+
   interface psi_fnd_owner
     subroutine psi_fnd_owner(nv,idx,iprc,desc,info)
       use psb_descriptor_type, only : psb_desc_type, psb_spk_, psb_dpk_

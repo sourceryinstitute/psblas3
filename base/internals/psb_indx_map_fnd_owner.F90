@@ -94,7 +94,6 @@ subroutine psb_indx_map_fnd_owner(idx,iprc,idxmap,info)
     goto 9999
   endif
 
-  write(0,*) me,' Into base_fnd_owner'
   if (.not.(idxmap%is_valid())) then 
     call psb_errpush(psb_err_from_subroutine_,name,a_err='invalid idxmap')
     goto 9999      

@@ -61,7 +61,7 @@ subroutine psb_dspins(nz,ia,ja,val,a,desc_a,info,rebuild)
   logical, intent(in), optional        :: rebuild
   !locals.....
 
-  integer :: nrow, err_act, ncol, spstate
+  integer :: nrow, err_act, ncol, spstate,k,kb
   integer                :: ictxt,np,me
   logical, parameter     :: debug=.false.
   integer, parameter     :: relocsz=200
@@ -114,7 +114,7 @@ subroutine psb_dspins(nz,ia,ja,val,a,desc_a,info,rebuild)
   endif
 
   if (psb_is_bld_desc(desc_a)) then 
-    if (psb_is_large_desc(desc_a)) then 
+!!$    if (psb_is_large_desc(desc_a)) then 
 
       allocate(ila(nz),jla(nz),stat=info)
       if (info /= psb_success_) then
@@ -123,6 +123,7 @@ subroutine psb_dspins(nz,ia,ja,val,a,desc_a,info,rebuild)
         goto 9999
       end if
       call  psb_cdins(nz,ia,ja,desc_a,info,ila=ila,jla=jla)
+
       if (info /= psb_success_) then
         ch_err='psb_cdins'
         call psb_errpush(psb_err_from_subroutine_ai_,name,a_err=ch_err,i_err=(/info,0,0,0,0/))
@@ -145,36 +146,36 @@ subroutine psb_dspins(nz,ia,ja,val,a,desc_a,info,rebuild)
         goto 9999
       end if
 
-    else
-
-      call  psb_cdins(nz,ia,ja,desc_a,info)
-      if (info /= psb_success_) then
-        ch_err='psb_cdins'
-        call psb_errpush(psb_err_from_subroutine_ai_,name,a_err=ch_err,i_err=(/info,0,0,0,0/))
-        goto 9999
-      end if
-      nrow = psb_cd_get_local_rows(desc_a)
-      ncol = psb_cd_get_local_cols(desc_a)
-
-      if (a%is_bld()) then 
-        call a%csput(nz,ia,ja,val,1,nrow,1,ncol,info,gtl=desc_a%idxmap%glob_to_loc)
-        if (info /= psb_success_) then
-          info=psb_err_from_subroutine_
-          ch_err='psb_coins'
-          call psb_errpush(info,name,a_err=ch_err)
-          goto 9999
-        end if
-      else
-        info = psb_err_invalid_a_and_cd_state_
-        call psb_errpush(info,name)
-        goto 9999
-      end if
-
-    end if
+!!$    else
+!!$
+!!$      call  psb_cdins(nz,ia,ja,desc_a,info)
+!!$      if (info /= psb_success_) then
+!!$        ch_err='psb_cdins'
+!!$        call psb_errpush(psb_err_from_subroutine_ai_,name,a_err=ch_err,i_err=(/info,0,0,0,0/))
+!!$        goto 9999
+!!$      end if
+!!$      nrow = psb_cd_get_local_rows(desc_a)
+!!$      ncol = psb_cd_get_local_cols(desc_a)
+!!$
+!!$      if (a%is_bld()) then 
+!!$        call a%csput(nz,ia,ja,val,1,nrow,1,ncol,info,gtl=desc_a%idxmap%glob_to_loc)
+!!$        if (info /= psb_success_) then
+!!$          info=psb_err_from_subroutine_
+!!$          ch_err='psb_coins'
+!!$          call psb_errpush(info,name,a_err=ch_err)
+!!$          goto 9999
+!!$        end if
+!!$      else
+!!$        info = psb_err_invalid_a_and_cd_state_
+!!$        call psb_errpush(info,name)
+!!$        goto 9999
+!!$      end if
+!!$
+!!$    end if
     
   else if (psb_is_asb_desc(desc_a)) then 
 
-    if (psb_is_large_desc(desc_a)) then 
+!!$    if (psb_is_large_desc(desc_a)) then 
 
       allocate(ila(nz),jla(nz),stat=info)
       if (info /= psb_success_) then
@@ -198,18 +199,18 @@ subroutine psb_dspins(nz,ia,ja,val,a,desc_a,info,rebuild)
         goto 9999
       end if
 
-    else
-      nrow = psb_cd_get_local_rows(desc_a)
-      ncol = psb_cd_get_local_cols(desc_a)
-      call a%csput(nz,ia,ja,val,1,nrow,1,ncol,&
-           & info,gtl=desc_a%idxmap%glob_to_loc)
-      if (info /= psb_success_) then
-        info=psb_err_from_subroutine_
-        ch_err='psb_coins'
-        call psb_errpush(info,name,a_err=ch_err)
-        goto 9999
-      end if
-    end if
+!!$    else
+!!$      nrow = psb_cd_get_local_rows(desc_a)
+!!$      ncol = psb_cd_get_local_cols(desc_a)
+!!$      call a%csput(nz,ia,ja,val,1,nrow,1,ncol,&
+!!$           & info,gtl=desc_a%idxmap%glob_to_loc)
+!!$      if (info /= psb_success_) then
+!!$        info=psb_err_from_subroutine_
+!!$        ch_err='psb_coins'
+!!$        call psb_errpush(info,name,a_err=ch_err)
+!!$        goto 9999
+!!$      end if
+!!$    end if
   else
     info = psb_err_invalid_cd_state_
     call psb_errpush(info,name)

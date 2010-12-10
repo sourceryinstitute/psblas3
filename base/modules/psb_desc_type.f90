@@ -865,7 +865,7 @@ contains
     endif
 
     call psb_free(desc_a%idxmap,info)
-
+    
     if (.not.allocated(desc_a%halo_index)) then
       info=298
       call psb_errpush(info,name)
@@ -926,13 +926,18 @@ contains
     end if
 
 
-    deallocate(desc_a%lprm,stat=info)
+    if (allocated(desc_a%lprm)) &
+         & deallocate(desc_a%lprm,stat=info)
     if (info /= psb_success_) then 
       info=2057
       call psb_errpush(info,name)
       goto 9999
     end if
 
+    if (allocated(desc_a%indxmap)) then 
+      call desc_a%indxmap%free()
+      deallocate(desc_a%indxmap, stat=info)
+    end if
     if (allocated(desc_a%idx_space)) then 
       deallocate(desc_a%idx_space,stat=info)
       if (info /= psb_success_) then 

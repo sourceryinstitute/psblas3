@@ -255,7 +255,6 @@ contains
     end if
 
     is = size(idx)
-
     if (present(mask)) then 
 
       if (idxmap%is_asb()) then 
@@ -280,7 +279,7 @@ contains
               idx(i) = idx(i) - idxmap%min_glob_row + 1
             else if ((1<= idx(i)).and.(idx(i) <= idxmap%global_rows)&
                  &.and.(.not.owned_)) then
-              nv  = idxmap%local_cols-idxmap%local_rows+1
+              nv  = idxmap%local_cols-idxmap%local_rows
               idx(i) = psb_issrch(idx(i),nv,idxmap%loc_to_glob)
               if (idx(i) > 0) idx(i) = idx(i) + idxmap%local_rows
             else 
@@ -297,7 +296,6 @@ contains
     else  if (.not.present(mask)) then 
 
       if (idxmap%is_asb()) then 
-
         do i=1, is
           if ((idxmap%min_glob_row <= idx(i)).and.(idx(i) <= idxmap%max_glob_row)) then
             idx(i) = idx(i) - idxmap%min_glob_row + 1
@@ -317,7 +315,7 @@ contains
             idx(i) = idx(i) - idxmap%min_glob_row + 1
           else if ((1<= idx(i)).and.(idx(i) <= idxmap%global_rows)&
                &.and.(.not.owned_)) then
-            nv  = idxmap%local_cols-idxmap%local_rows+1
+            nv  = idxmap%local_cols-idxmap%local_rows
             idx(i) = psb_issrch(idx(i),nv,idxmap%loc_to_glob)
             if (idx(i) > 0) idx(i) = idx(i) + idxmap%local_rows
           else 
@@ -424,7 +422,7 @@ contains
             if ((idxmap%min_glob_row <= idx(i)).and.(idx(i) <= idxmap%max_glob_row)) then
               idx(i) = idx(i) - idxmap%min_glob_row + 1
             else if ((1<= idx(i)).and.(idx(i) <= idxmap%global_rows)) then
-              nv  = idxmap%local_cols-idxmap%local_rows+1
+              nv  = idxmap%local_cols-idxmap%local_rows
               ix  = psb_issrch(idx(i),nv,idxmap%loc_to_glob)
               if (ix < 0) then 
                 ix = idxmap%local_cols + 1
@@ -437,6 +435,7 @@ contains
                 ix                     = ix - idxmap%local_rows
                 idxmap%loc_to_glob(ix) = idx(i)
               end if
+              ix                       = ix + idxmap%local_rows
               idx(i)                   = ix
             else 
               idx(i) = -1
@@ -448,10 +447,11 @@ contains
       else if (.not.present(mask)) then 
 
         do i=1, is
+          
           if ((idxmap%min_glob_row <= idx(i)).and.(idx(i) <= idxmap%max_glob_row)) then
             idx(i) = idx(i) - idxmap%min_glob_row + 1
           else if ((1<= idx(i)).and.(idx(i) <= idxmap%global_rows)) then
-            nv  = idxmap%local_cols-idxmap%local_rows+1
+            nv  = idxmap%local_cols-idxmap%local_rows
             ix  = psb_issrch(idx(i),nv,idxmap%loc_to_glob)
             if (ix < 0) then 
               ix = idxmap%local_cols + 1
@@ -460,9 +460,11 @@ contains
                 info = -4
                 return
               end if
-              idxmap%loc_to_glob(ix) = idx(i)
               idxmap%local_cols      = ix
+              ix                     = ix - idxmap%local_rows
+              idxmap%loc_to_glob(ix) = idx(i)
             end if
+            ix                       = ix + idxmap%local_rows
             idx(i)                   = ix
           else 
             idx(i) = -1
@@ -507,7 +509,6 @@ contains
     
     ictxt = idxmap%get_ctxt()
     call psb_info(ictxt,iam,np)
-!!$    write(0,*) iam,' BLOCK fnd_owner'
     nv = size(idx)
     allocate(iprc(nv),stat=info) 
     if (info /= 0) then 
@@ -575,6 +576,7 @@ contains
       info = -2
       return
     end if
+    call idxmap%set_state(psb_desc_bld_)
     
     
   end subroutine block_init
@@ -600,9 +602,11 @@ contains
     call psb_realloc(nhal,idxmap%loc_to_glob,info)
     call psb_realloc(nhal,2,idxmap%srt_l2g,info)
     idxmap%srt_l2g(1:nhal,1) = idxmap%loc_to_glob(1:nhal)
+
     call psb_qsort(idxmap%srt_l2g(:,1),&
          & ix=idxmap%srt_l2g(:,2),dir=psb_sort_up_)
-    idxmap%state = psb_desc_asb_
+
+    call idxmap%set_state(psb_desc_asb_)
     
   end subroutine block_asb
 

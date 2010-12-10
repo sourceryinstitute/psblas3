@@ -137,7 +137,7 @@ subroutine psb_cdinsrc(nz,ia,ja,desc_a,info,ila,jla)
          & call psb_cdins(nz,ja,desc_a,info,mask=(ila_(1:nz)>0))
     deallocate(ila_)
   end if
-
+  if (info /= psb_success_) goto 9999
   call psb_erractionrestore(err_act)
   return
 

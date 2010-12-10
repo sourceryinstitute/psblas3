@@ -80,7 +80,7 @@ program ppde
   type(psb_dspmat_type) :: a
   type(psb_dprec_type)  :: prec
   ! descriptor
-  type(psb_desc_type)   :: desc_a
+  type(psb_desc_type)   :: desc_a, desc_b
   ! dense matrices
   real(psb_dpk_), allocatable :: b(:), x(:)
   ! blacs parameters
@@ -94,6 +94,7 @@ program ppde
   ! other variables
   integer            :: info, i
   character(len=20)  :: name,ch_err
+  character(len=40)  :: fname
 
   info=psb_success_
 
@@ -131,6 +132,14 @@ program ppde
   end if
   if (iam == psb_root_) write(psb_out_unit,'("Overall matrix creation time : ",es12.5)')t2
   if (iam == psb_root_) write(psb_out_unit,'(" ")')
+!!$  write(fname,'(a,i2.2,a,i2.2,a)') 'amat-',iam,'-',np,'.mtx'
+!!$  call a%print(fname)
+!!$  call psb_cdprt(20+iam,desc_a,short=.false.)
+!!$  call psb_cdcpy(desc_b,desc_a,info)
+!!$  if (info /= 0) then 
+!!$    write(0,*) 'Error from cdcpy'
+!!$    call psb_abort(ictxt)
+!!$  end if
   !
   !  prepare the preconditioner.
   !  
@@ -572,6 +581,9 @@ contains
     end if
 
     deallocate(val,irow,icol)
+    write(fname,'(a,i2.2,a,i2.2,a)') 'amat-p-',iam,'-',np,'.mtx'
+    call a%print(fname)
+    call psb_cdprt(20+iam,desc_a,short=.false.)
 
     call psb_barrier(ictxt)
     t1 = psb_wtime()

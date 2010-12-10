@@ -461,6 +461,7 @@ contains
     idxmap%ictxt        = ictxt
     idxmap%state        = psb_desc_bld_
     call psb_get_mpicomm(ictxt,idxmap%mpic)
+    call idxmap%set_state(psb_desc_bld_)
 
   end subroutine repl_init
 
@@ -478,7 +479,7 @@ contains
     ictxt = idxmap%get_ctxt()
     call psb_info(ictxt,iam,np)
 
-    idxmap%state = psb_desc_asb_
+    call idxmap%set_state(psb_desc_asb_)
     
   end subroutine repl_asb
 
