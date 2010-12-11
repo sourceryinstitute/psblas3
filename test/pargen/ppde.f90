@@ -110,7 +110,6 @@ program ppde
   if(psb_get_errstatus() /= 0) goto 9999
   name='pde90'
   call psb_set_errverbosity(2)
-  call psb_cd_set_large_threshold(2)
   !
   !  get parameters
   !
@@ -190,10 +189,6 @@ program ppde
   call psb_sum(ictxt,descsize)
   call psb_sum(ictxt,precsize)
 
-  d2size = 0
-  if (allocated(desc_a%indxmap)) d2size=desc_a%indxmap%sizeof()
-  call psb_sum(ictxt,d2size)
-
   if (iam == psb_root_) then
     write(psb_out_unit,'(" ")')
     write(psb_out_unit,'("Time to solve matrix          : ",es12.5)')t2
@@ -204,7 +199,7 @@ program ppde
     write(psb_out_unit,'("Total memory occupation for A:      ",i12)')amatsize
     write(psb_out_unit,'("Total memory occupation for DESC_A: ",i12)')descsize
     write(psb_out_unit,'("Total memory occupation for PREC:   ",i12)')precsize
-    write(psb_out_unit,'("Total memory occupation for D%IDXM: ",i12)')d2size
+    write(psb_out_unit,'("Type for DESC_A :   ",a)') desc_a%indxmap%get_fmt()
   end if
 
   !  
@@ -581,9 +576,6 @@ contains
     end if
 
     deallocate(val,irow,icol)
-    write(fname,'(a,i2.2,a,i2.2,a)') 'amat-p-',iam,'-',np,'.mtx'
-    call a%print(fname)
-    call psb_cdprt(20+iam,desc_a,short=.false.)
 
     call psb_barrier(ictxt)
     t1 = psb_wtime()
