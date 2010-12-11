@@ -7,7 +7,7 @@ module psb_repl_map_mod
 
   contains
 
-    procedure, pass(idxmap)  :: init      => repl_init
+    procedure, pass(idxmap)  :: repl_map_init => repl_init
 
     procedure, pass(idxmap)  :: is_repl   => repl_is_repl
     procedure, pass(idxmap)  :: asb       => repl_asb

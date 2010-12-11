@@ -150,9 +150,9 @@ subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalche
     if (info == psb_success_) then 
       select type(aa => desc%indxmap) 
       type is (psb_repl_map) 
-        call aa%init(ictxt,nl,info)
+        call aa%repl_map_init(ictxt,nl,info)
       type is (psb_gen_block_map) 
-        call aa%init(ictxt,nl,info)
+        call aa%gen_block_map_init(ictxt,nl,info)
       class default 
         ! This cannot happen 
         info = psb_err_internal_error_

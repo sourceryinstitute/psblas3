@@ -9,7 +9,7 @@ module psb_gen_block_map_mod
     integer, allocatable :: loc_to_glob(:), srt_l2g(:,:), vnl(:)
   contains
 
-    procedure, pass(idxmap)  :: init      => block_init
+    procedure, pass(idxmap)  :: gen_block_map_init => block_init
 
     procedure, pass(idxmap)  :: sizeof    => block_sizeof
     procedure, pass(idxmap)  :: asb       => block_asb

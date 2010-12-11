@@ -194,12 +194,12 @@ subroutine psb_cdalv(v, ictxt, desc, info, flag)
 
   select type(aa => desc%indxmap) 
   type is (psb_repl_map) 
-    call aa%init(ictxt,m,info)
+    call aa%repl_map_init(ictxt,m,info)
   type is (psb_hash_map) 
-    call aa%init(ictxt,v,info)
+    call aa%hash_map_init(ictxt,v,info)
   type is (psb_glist_map) 
-    call aa%init(v,ictxt,info)
-    class default 
+    call aa%glist_map_init(ictxt,v,info)
+  class default 
       ! This cannot happen 
     info = psb_err_internal_error_
     call psb_errpush(info,name)

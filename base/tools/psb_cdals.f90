@@ -268,13 +268,10 @@ subroutine psb_cdals(m, n, parts, ictxt, desc, info)
 
   select type(aa => desc%indxmap) 
   type is (psb_repl_map) 
-    call aa%init(ictxt,m,info)
-  type is (psb_hash_map) 
-    call aa%init(ictxt,k,loc_idx(1:k),info)
-  type is (psb_list_map) 
-    call aa%init(m,loc_idx(1:k),ictxt,info)
-    class default 
-      ! This cannot happen 
+    call aa%repl_map_init(ictxt,m,info)
+  class default 
+    call aa%init(ictxt,loc_idx(1:k),info)
+    ! This cannot happen 
     info = psb_err_internal_error_
     call psb_errpush(info,name)
     Goto 9999

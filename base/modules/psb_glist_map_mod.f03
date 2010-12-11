@@ -6,8 +6,7 @@ module psb_glist_map_mod
   type, extends(psb_list_map) :: psb_glist_map
     integer, allocatable :: vgp(:)
   contains
-    procedure, pass(idxmap)  :: initvg  => glist_initvg
-    generic, public          :: init    => initvg
+    procedure, pass(idxmap)  :: glist_map_init   => glist_initvg
     procedure, pass(idxmap)  :: sizeof  => glist_sizeof
     procedure, pass(idxmap)  :: free    => glist_free
     procedure, pass(idxmap)  :: get_fmt => glist_get_fmt
@@ -49,7 +48,7 @@ contains
 
 
 
-  subroutine glist_initvg(idxmap,vg,ictxt,info)
+  subroutine glist_initvg(idxmap,ictxt,vg,info)
     use psb_penv_mod
     use psb_error_mod
     implicit none 

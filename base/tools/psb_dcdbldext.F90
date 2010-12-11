@@ -132,7 +132,8 @@ Subroutine psb_dcdbldext(a,desc_a,novr,desc_ov,info, extype)
 
   if (debug_level >= psb_debug_outer_) &
        & write(debug_unit,*) me,' ',trim(name),&
-       & ':Calling desccpy'
+       & ': Calling desccpy'
+
   call psb_cdcpy(desc_a,desc_ov,info)
   if (info /= psb_success_) then
     info=psb_err_from_subroutine_
@@ -140,6 +141,7 @@ Subroutine psb_dcdbldext(a,desc_a,novr,desc_ov,info, extype)
     call psb_errpush(info,name,a_err=ch_err)
     goto 9999
   end if
+
   if (debug_level >= psb_debug_outer_) &
        & write(debug_unit,*) me,' ',trim(name),&
        & ':From desccpy'
@@ -155,7 +157,7 @@ Subroutine psb_dcdbldext(a,desc_a,novr,desc_ov,info, extype)
 
   If (debug_level >= psb_debug_outer_)then 
     Write(debug_unit,*) me,' ',trim(name),&
-         & ':BEGIN ',nhalo
+         & ': BEGIN ',nhalo
     call psb_barrier(ictxt)
   endif
 
@@ -297,7 +299,7 @@ Subroutine psb_dcdbldext(a,desc_a,novr,desc_ov,info, extype)
     counter    = 1
     counter_t  = 1
 
-    desc_ov%matrix_data(psb_n_row_)=desc_ov%matrix_data(psb_n_col_)
+    desc_ov%matrix_data(psb_n_row_) = desc_ov%matrix_data(psb_n_col_)
 
     Do While (halo(counter) /= -1)
       tot_elem=0

@@ -63,6 +63,8 @@ module psb_indx_map_mod
          &                     g2lv1_ins, g2lv2_ins
 
     procedure, pass(idxmap)  :: fnd_owner => psb_indx_map_fnd_owner
+    procedure, pass(idxmap)  :: init_vl   => base_init_vl
+    generic, public          :: init => init_vl
 
   end type psb_indx_map
 
@@ -75,7 +77,7 @@ module psb_indx_map_mod
        & base_l2gs1, base_l2gs2, base_l2gv1, base_l2gv2,&
        & base_g2ls1, base_g2ls2, base_g2lv1, base_g2lv2,&
        & base_g2ls1_ins, base_g2ls2_ins, base_g2lv1_ins,&
-       & base_g2lv2_ins
+       & base_g2lv2_ins, base_init_vl
 
   interface 
     subroutine psb_indx_map_fnd_owner(idx,iprc,idxmap,info)
@@ -658,6 +660,32 @@ contains
     character(len=5) :: res
     res = 'NULL'
   end function base_get_fmt
+
+
+  subroutine base_init_vl(idxmap,ictxt,vl,info)
+    use psb_penv_mod
+    use psb_error_mod
+    implicit none 
+    class(psb_indx_map), intent(inout) :: idxmap
+    integer, intent(in)  :: ictxt, vl(:)
+    integer, intent(out) :: info
+    Integer :: err_act
+    character(len=20)  :: name='base_init_vl'
+    logical, parameter :: debug=.false.
+
+    call psb_get_erraction(err_act)
+    ! This is the base version. If we get here
+    ! it means the derived class is incomplete,
+    ! so we throw an error.
+    call psb_errpush(psb_err_missing_override_method_,&
+         & name,a_err=idxmap%get_fmt())
+
+    if (err_act /= psb_act_ret_) then
+      call psb_error()
+    end if
+    return
+  end subroutine base_init_vl
+    
 
 
 end module psb_indx_map_mod

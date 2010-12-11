@@ -199,7 +199,7 @@ subroutine psb_cdrep(m, ictxt, desc, info)
   allocate(psb_repl_map :: desc%indxmap, stat=info)
   select type(aa => desc%indxmap) 
   type is (psb_repl_map) 
-    call aa%init(ictxt,m,info)
+    call aa%repl_map_init(ictxt,m,info)
   class default 
     ! This cannot happen 
     info = psb_err_internal_error_

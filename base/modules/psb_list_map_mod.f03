@@ -7,8 +7,7 @@ module psb_list_map_mod
     integer :: pnt_h          = -1 
     integer, allocatable :: loc_to_glob(:), glob_to_loc(:)
   contains
-    procedure, pass(idxmap)  :: initvl    => list_initvl
-    generic, public          :: init      => initvl
+    procedure, pass(idxmap)  :: init_vl    => list_initvl
 
     procedure, pass(idxmap)  :: sizeof    => list_sizeof
     procedure, pass(idxmap)  :: asb       => list_asb
@@ -491,15 +490,15 @@ contains
 !!$  end subroutine list_initvg
 !!$
 
-  subroutine list_initvl(idxmap,n,v,ictxt,info)
+  subroutine list_initvl(idxmap,ictxt,vL,info)
     use psb_penv_mod
     use psb_error_mod
     implicit none 
     class(psb_list_map), intent(inout) :: idxmap
-    integer, intent(in)  :: ictxt, n, v(:)
+    integer, intent(in)  :: ictxt, vl(:)
     integer, intent(out) :: info
     !  To be implemented
-    integer :: iam, np, i, ix, nl
+    integer :: iam, np, i, ix, nl, n, nrt
 
     info = 0
     call psb_info(ictxt,iam,np) 
@@ -508,9 +507,18 @@ contains
       info = -1
       return
     end if
+
+    nl = size(vl) 
     
-    if (n < 0) then 
-      write(psb_err_unit,*) 'Invalid size ',n
+
+    n   = maxval(vl(1:nl))
+    nrt = nl
+    call psb_sum(ictxt,nrt)
+    call psb_max(ictxt,n)
+
+
+    if (n /= nrt) then 
+      write(psb_err_unit,*) 'Size mismatch', n, nrt
       info = -1
       return
     end if
@@ -531,9 +539,8 @@ contains
       idxmap%glob_to_loc(i) = -1
     end do
     
-    nl = size(v) 
     do i=1, nl 
-      ix = v(i) 
+      ix = vl(i) 
       idxmap%loc_to_glob(i)  = ix
       idxmap%glob_to_loc(ix) = i
     end do

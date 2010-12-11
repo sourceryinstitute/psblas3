@@ -67,34 +67,8 @@ subroutine psb_cd_set_bld(desc,info)
 
   desc%matrix_data(psb_dec_type_) = psb_desc_bld_ 
   
-!!$  if (psb_is_large_desc(desc)) then 
-!!$    !
-!!$    ! The idea: first build glb_lc with the info on
-!!$    ! rows we already have, then leave space in
-!!$    ! hash for newcomers (halo indices).
-!!$    ! The policy is to allocate for as many entries
-!!$    ! as there are rows; if we ever fill them up, we can
-!!$    ! try and enlarge again, but by the time the hash
-!!$    ! fills up it means we have as many halo as internals,
-!!$    ! therefore there are much worse problems ahead than
-!!$    ! the hash occupancy.
-!!$    !
-!!$    nc = psb_cd_get_local_cols(desc)
-!!$    if (info == psb_success_)&
-!!$         & call psb_hash_init(nc,desc%idxmap%hash,info)
-!!$    if (info == HashDuplicate) then 
-!!$      info = psb_err_dupl_cd_vl
-!!$      call psb_errpush(info,name,a_err='hashInit')
-!!$      goto 9999
-!!$    end if
-!!$    if (info == psb_success_) call psi_bld_g2lmap(desc,info)
-!!$    if (info /= psb_success_) then 
-!!$      call psb_errpush(psb_err_from_subroutine_,name,a_err='hashInit')
-!!$      goto 9999      
-!!$    end if
-!!$
-!!$  end if
-
+  
+  
   if (debug) write(psb_err_unit,*) me,'SET_BLD: done'
   call psb_erractionrestore(err_act)
   return

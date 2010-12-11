@@ -12,9 +12,8 @@ module psb_hash_map_mod
 
   contains
 
-    procedure, pass(idxmap)  :: initvl    => hash_init_vl
-    procedure, pass(idxmap)  :: initvg    => hash_init_vg
-    generic,   public        :: init      => initvl, initvg
+    procedure, pass(idxmap)  :: init_vl    => hash_init_vl
+    procedure, pass(idxmap)  :: hash_map_init => hash_init_vg
 
     procedure, pass(idxmap)  :: sizeof    => hash_sizeof
     procedure, pass(idxmap)  :: asb       => hash_asb
@@ -573,17 +572,17 @@ contains
 
   end subroutine hash_g2lv2_ins
 
-  subroutine hash_init_vl(idxmap,ictxt,nl,vl,info)
+  subroutine hash_init_vl(idxmap,ictxt,vl,info)
     use psb_penv_mod
     use psb_error_mod
     use psb_sort_mod
     use psb_realloc_mod
     implicit none 
     class(psb_hash_map), intent(inout) :: idxmap
-    integer, intent(in)  :: ictxt, vl(:), nl
+    integer, intent(in)  :: ictxt, vl(:)
     integer, intent(out) :: info
     !  To be implemented
-    integer :: iam, np, i, j, ntot, nlu, m, nrt,int_err(5)
+    integer :: iam, np, i, j, ntot, nlu, nl, m, nrt,int_err(5)
     integer, allocatable :: vlu(:)
     character(len=20), parameter :: name='hash_map_init_vl'
 
@@ -595,12 +594,7 @@ contains
       return
     end if
 
-    if (nl > size(vl)) then 
-      write(psb_err_unit,*) 'Invalid nl:',&
-           & nl, size(vl)
-      info = -1
-      return
-    end if
+    nl = size(vl) 
 
     m   = maxval(vl(1:nl))
     nrt = nl
