@@ -4,7 +4,7 @@ module psb_indx_map_mod
   
   type      :: psb_indx_map
 
-    integer :: state          = -1 
+    integer :: state          = psb_desc_null_
     integer :: ictxt          = -1
     integer :: mpic           = -1
     integer :: global_rows    = -1
@@ -16,6 +16,7 @@ module psb_indx_map_mod
 
     procedure, pass(idxmap)  :: get_state => base_get_state
     procedure, pass(idxmap)  :: set_state => base_set_state
+    procedure, pass(idxmap)  :: is_null   => base_is_null
     procedure, pass(idxmap)  :: is_repl   => base_is_repl
     procedure, pass(idxmap)  :: is_bld    => base_is_bld
     procedure, pass(idxmap)  :: is_upd    => base_is_upd
@@ -30,7 +31,7 @@ module psb_indx_map_mod
     procedure, pass(idxmap)  :: get_mpic  => base_get_mpic
     procedure, pass(idxmap)  :: sizeof    => base_sizeof
     procedure, pass(idxmap)  :: set_null  => base_set_null
-    
+    procedure, pass(idxmap)  :: can_ovrlap => base_can_ovrlap
 
     procedure, pass(idxmap)  :: set_gr    => base_set_gr
     procedure, pass(idxmap)  :: set_gc    => base_set_gc
@@ -65,7 +66,7 @@ module psb_indx_map_mod
 
     procedure, pass(idxmap)  :: fnd_owner => psb_indx_map_fnd_owner
     procedure, pass(idxmap)  :: init_vl   => base_init_vl
-    generic, public          :: init => init_vl
+    generic, public          :: init      => init_vl
 
   end type psb_indx_map
 
@@ -78,7 +79,7 @@ module psb_indx_map_mod
        & base_l2gs1, base_l2gs2, base_l2gv1, base_l2gv2,&
        & base_g2ls1, base_g2ls2, base_g2lv1, base_g2lv2,&
        & base_g2ls1_ins, base_g2ls2_ins, base_g2lv1_ins,&
-       & base_g2lv2_ins, base_init_vl
+       & base_g2lv2_ins, base_init_vl, base_is_null, base_can_ovrlap
 
   interface 
     subroutine psb_indx_map_fnd_owner(idx,iprc,idxmap,info)
@@ -220,6 +221,13 @@ contains
   end subroutine base_set_mpic
 
   
+  function base_can_ovrlap(idxmap) result(val)
+    implicit none 
+    class(psb_indx_map), intent(in) :: idxmap
+    logical :: val
+    val = .false.
+  end function base_can_ovrlap
+
   function base_is_repl(idxmap) result(val)
     implicit none 
     class(psb_indx_map), intent(in) :: idxmap
@@ -227,6 +235,13 @@ contains
     val = .false.
   end function base_is_repl
     
+  function base_is_null(idxmap) result(val)
+    implicit none 
+    class(psb_indx_map), intent(in) :: idxmap
+    logical :: val
+    val =  (idxmap%state == psb_desc_null_)
+  end function base_is_null
+  
   
   function base_is_bld(idxmap) result(val)
     implicit none 
@@ -655,7 +670,7 @@ contains
     implicit none 
     class(psb_indx_map), intent(inout) :: idxmap
 
-    idxmap%state          = -1 
+    idxmap%state          = psb_desc_null_
     idxmap%ictxt          = -1
     idxmap%mpic           = -1
     idxmap%global_rows    = -1

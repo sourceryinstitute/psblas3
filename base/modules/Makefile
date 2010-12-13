@@ -63,8 +63,10 @@ psb_ip_reord_mod.o: psb_const_mod.o
 psb_blacs_mod.o: psb_const_mod.o
 psi_serial_mod.o: psb_const_mod.o psb_realloc_mod.o
 psi_mod.o: psb_penv_mod.o psb_error_mod.o psb_desc_type.o psb_const_mod.o psi_serial_mod.o psb_serial_mod.o
-psb_desc_type.o: psb_const_mod.o psb_error_mod.o psb_penv_mod.o psb_realloc_mod.o  psb_hash_mod.o\
-           psb_desc_const_mod.o psb_indx_map_mod.o
+psb_desc_type.o: psb_const_mod.o psb_error_mod.o psb_penv_mod.o psb_realloc_mod.o\
+	  psb_hash_mod.o psb_hash_map_mod.o psb_list_map_mod.o \
+	  psb_repl_map_mod.o psb_gen_block_map_mod.o psb_desc_const_mod.o\
+	  psb_indx_map_mod.o 
 psb_indx_map_mod.o: psb_desc_const_mod.o psb_const_mod.o
 psb_hash_map_mod.o psb_list_map_mod.o psb_repl_map_mod.o psb_gen_block_map_mod.o:\
     psb_indx_map_mod.o \

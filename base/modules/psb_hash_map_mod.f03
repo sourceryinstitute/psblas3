@@ -20,6 +20,8 @@ module psb_hash_map_mod
     procedure, pass(idxmap)  :: free      => hash_free
     procedure, pass(idxmap)  :: get_fmt   => hash_get_fmt
 
+    procedure, pass(idxmap)  :: can_ovrlap => hash_can_ovrlap
+
     procedure, pass(idxmap)  :: l2gs1     => hash_l2gs1
     procedure, pass(idxmap)  :: l2gs2     => hash_l2gs2
     procedure, pass(idxmap)  :: l2gv1     => hash_l2gv1
@@ -37,14 +39,6 @@ module psb_hash_map_mod
 
     procedure, pass(idxmap)  :: bld_g2l_map => hash_bld_g2l_map
 
-!!$    procedure, pass(idxmap)  :: hash_inner_cnvs1
-!!$    procedure, pass(idxmap)  :: hash_inner_cnv2
-!!$    procedure, pass(idxmap)  :: hash_inner_cnv1
-!!$    procedure, pass(idxmap)  :: hash_inner_cnv2 
-!!$    generic, private         :: inner_cnv => hash_inner_cnvs1,&
-!!$         & hash_inner_cnvs2, hash_inner_cnv1, hash_inner_cnv2
-
-
   end type psb_hash_map
 
   private :: hash_initvl, hash_initvg, hash_sizeof, hash_asb, &
@@ -53,7 +47,7 @@ module psb_hash_map_mod
        & hash_g2lv1, hash_g2lv2, hash_g2ls1_ins, hash_g2ls2_ins, &
        & hash_g2lv1_ins, hash_g2lv2_ins, hash_init_vlu, &
        & hash_bld_g2l_map,  hash_inner_cnvs1, hash_inner_cnvs2,&
-       & hash_inner_cnv1, hash_inner_cnv2 
+       & hash_inner_cnv1, hash_inner_cnv2, hash_can_ovrlap 
 
 
   interface hash_inner_cnv 
@@ -64,6 +58,12 @@ module psb_hash_map_mod
 
 contains
   
+  function hash_can_ovrlap(idxmap) result(val)
+    implicit none 
+    class(psb_hash_map), intent(in) :: idxmap
+    logical :: val
+    val = .true.
+  end function hash_can_ovrlap
   
   function hash_sizeof(idxmap) result(val)
     implicit none 

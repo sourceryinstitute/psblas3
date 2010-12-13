@@ -10,7 +10,6 @@ module psb_glist_map_mod
     procedure, pass(idxmap)  :: sizeof  => glist_sizeof
     procedure, pass(idxmap)  :: free    => glist_free
     procedure, pass(idxmap)  :: get_fmt => glist_get_fmt
-
     procedure, pass(idxmap)  :: fnd_owner => glist_fnd_owner
 
   end type psb_glist_map

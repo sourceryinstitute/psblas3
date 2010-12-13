@@ -48,6 +48,7 @@ module psb_desc_const_mod
   integer, parameter :: psb_tmov_rcv_  = 22
   integer, parameter :: psb_mdata_size_= 24
   integer, parameter :: psb_desc_invalid_=-1
+  integer, parameter :: psb_desc_null_=-1
   integer, parameter :: psb_desc_asb_=3099
   integer, parameter :: psb_desc_bld_=psb_desc_asb_+1
   integer, parameter :: psb_desc_upd_=psb_desc_bld_+1

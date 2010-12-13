@@ -355,19 +355,10 @@ subroutine psb_cd_inloc(v, ictxt, desc, info, globalcheck)
 
   select type(aa => desc%indxmap) 
   type is (psb_repl_map) 
-    call aa%init(ictxt,m,info)
-  type is (psb_hash_map) 
-    call aa%init(ictxt,nlu,vl,info)
-  type is (psb_list_map) 
-    call aa%init(nlu,vl,ictxt,info)
-    class default 
-      ! This cannot happen 
-    info = psb_err_internal_error_
-    call psb_errpush(info,name)
-    Goto 9999
+    call aa%repl_map_init(ictxt,m,info)
+  class default 
+    call aa%init(ictxt,vl(1:nlu),info)
   end select
-
-
 
   call psi_bld_tmpovrl(temp_ovrlap,desc,info)
 
