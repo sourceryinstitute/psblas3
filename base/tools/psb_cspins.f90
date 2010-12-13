@@ -80,7 +80,7 @@ subroutine psb_cspins(nz,ia,ja,val,a,desc_a,info,rebuild)
   call psb_info(ictxt, me, np)
 
   if (.not.psb_is_ok_desc(desc_a)) then 
-    info = psb_err_input_matrix_unassembled_
+    info = psb_err_invalid_cd_state_  
     call psb_errpush(info,name)
     goto 9999
   endif
