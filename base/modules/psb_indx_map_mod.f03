@@ -21,6 +21,7 @@ module psb_indx_map_mod
     procedure, pass(idxmap)  :: is_upd    => base_is_upd
     procedure, pass(idxmap)  :: is_asb    => base_is_asb
     procedure, pass(idxmap)  :: is_valid  => base_is_valid
+    procedure, pass(idxmap)  :: is_ovl    => base_is_ovl
     procedure, pass(idxmap)  :: get_gr    => base_get_gr
     procedure, pass(idxmap)  :: get_gc    => base_get_gc
     procedure, pass(idxmap)  :: get_lr    => base_get_lr
@@ -69,8 +70,8 @@ module psb_indx_map_mod
   end type psb_indx_map
 
   private :: base_get_state, base_set_state, base_is_repl, base_is_bld,&
-       & base_is_upd, base_is_asb, base_is_valid, base_get_gr,&
-       & base_get_gc, base_get_lr, base_get_lc, base_get_ctxt,&
+       & base_is_upd, base_is_asb, base_is_valid, base_is_ovl,&
+       & base_get_gr, base_get_gc, base_get_lr, base_get_lc, base_get_ctxt,&
        & base_get_mpic, base_sizeof, base_set_null, base_set_gr,&
        & base_set_gc, base_set_lr, base_set_lc, base_set_ctxt,&
        & base_set_mpic, base_get_fmt, base_asb, base_free,&
@@ -231,7 +232,8 @@ contains
     implicit none 
     class(psb_indx_map), intent(in) :: idxmap
     logical :: val
-    val = (idxmap%state == psb_desc_bld_)
+    val = (idxmap%state == psb_desc_bld_).or.&
+         & (idxmap%state == psb_desc_ovl_bld_)
   end function base_is_bld
     
   function base_is_upd(idxmap) result(val)
@@ -245,7 +247,8 @@ contains
     implicit none 
     class(psb_indx_map), intent(in) :: idxmap
     logical :: val
-    val = (idxmap%state == psb_desc_asb_)
+    val = (idxmap%state == psb_desc_asb_).or.&
+         & (idxmap%state == psb_desc_ovl_asb_)
   end function base_is_asb
     
   function base_is_valid(idxmap) result(val)
@@ -254,7 +257,16 @@ contains
     logical :: val
     val = idxmap%is_bld().or.idxmap%is_upd().or.idxmap%is_asb()
   end function base_is_valid
+
     
+  function base_is_ovl(idxmap) result(val)
+    implicit none 
+    class(psb_indx_map), intent(in) :: idxmap
+    logical :: val
+    val = (idxmap%state == psb_desc_ovl_bld_).or.&
+         & (idxmap%state == psb_desc_ovl_asb_)
+  end function base_is_ovl
+  
   function base_sizeof(idxmap) result(val)
     implicit none 
     class(psb_indx_map), intent(in) :: idxmap

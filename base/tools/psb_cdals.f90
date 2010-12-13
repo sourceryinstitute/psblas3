@@ -271,10 +271,6 @@ subroutine psb_cdals(m, n, parts, ictxt, desc, info)
     call aa%repl_map_init(ictxt,m,info)
   class default 
     call aa%init(ictxt,loc_idx(1:k),info)
-    ! This cannot happen 
-    info = psb_err_internal_error_
-    call psb_errpush(info,name)
-    Goto 9999
   end select
 
 

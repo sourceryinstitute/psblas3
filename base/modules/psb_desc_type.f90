@@ -417,7 +417,8 @@ contains
     if (allocated(desc%ovr_mst_idx))  val = val + psb_sizeof_int*size(desc%ovr_mst_idx)
     if (allocated(desc%lprm))         val = val + psb_sizeof_int*size(desc%lprm)
     if (allocated(desc%idx_space))    val = val + psb_sizeof_int*size(desc%idx_space)
-    val = val + psb_sizeof(desc%idxmap)
+    if (allocated(desc%indxmap))      val = val + desc%indxmap%sizeof()
+!!$    val = val + psb_sizeof(desc%idxmap)
 
   end function psb_cd_sizeof
 
@@ -461,54 +462,73 @@ contains
 
   end subroutine psb_nullify_desc
 
-  logical function psb_is_ok_desc(desc)
+  function psb_is_ok_desc(desc) result(val)
 
     type(psb_desc_type), intent(in) :: desc
-
-    psb_is_ok_desc = psb_is_ok_dec(psb_cd_get_dectype(desc))
+    logical                         :: val 
+    
+    val = .false.
+    if (allocated(desc%indxmap)) &
+         & val = desc%indxmap%is_valid()
 
   end function psb_is_ok_desc
 
-  logical function psb_is_bld_desc(desc)
+  function psb_is_bld_desc(desc) result(val)
     type(psb_desc_type), intent(in) :: desc
+    logical                         :: val 
 
-    psb_is_bld_desc = psb_is_bld_dec(psb_cd_get_dectype(desc))
+    val = .false.
+    if (allocated(desc%indxmap)) &
+         & val = desc%indxmap%is_bld()
 
   end function psb_is_bld_desc
 
-  logical function psb_is_large_desc(desc)
+  function psb_is_large_desc(desc) result(val)
     type(psb_desc_type), intent(in) :: desc
+    logical                         :: val 
 
-    psb_is_large_desc =(psb_desc_large_ == psb_cd_get_size(desc))
+    val = .false.
 
   end function psb_is_large_desc
 
-  logical function psb_is_upd_desc(desc)
+  function psb_is_upd_desc(desc)  result(val)
     type(psb_desc_type), intent(in) :: desc
+    logical                         :: val 
 
-    psb_is_upd_desc = psb_is_upd_dec(psb_cd_get_dectype(desc))
+    val = .false.
+    if (allocated(desc%indxmap)) &
+         & val = desc%indxmap%is_upd()
 
   end function psb_is_upd_desc
 
-  logical function psb_is_repl_desc(desc)
+  function psb_is_repl_desc(desc) result(val)
     type(psb_desc_type), intent(in) :: desc
+    logical                         :: val 
 
-    psb_is_repl_desc = psb_is_repl_dec(psb_cd_get_dectype(desc))
+    val = .false.
+    if (allocated(desc%indxmap)) &
+         & val = desc%indxmap%is_repl()
 
   end function psb_is_repl_desc
 
-  logical function psb_is_ovl_desc(desc)
+  function psb_is_ovl_desc(desc) result(val)
     type(psb_desc_type), intent(in) :: desc
+    logical                         :: val 
 
-    psb_is_ovl_desc = psb_is_ovl_dec(psb_cd_get_dectype(desc))
+    val = .false.
+    if (allocated(desc%indxmap)) &
+         & val = desc%indxmap%is_ovl()
 
   end function psb_is_ovl_desc
 
 
-  logical function psb_is_asb_desc(desc)
+  function psb_is_asb_desc(desc) result(val)
     type(psb_desc_type), intent(in) :: desc
+    logical                         :: val 
 
-    psb_is_asb_desc = psb_is_asb_dec(psb_cd_get_dectype(desc))
+    val = .false.
+    if (allocated(desc%indxmap)) &
+         & val = desc%indxmap%is_asb()
 
   end function psb_is_asb_desc
 
@@ -605,8 +625,8 @@ contains
   integer function psb_cd_get_context(desc)
     use psb_error_mod
     type(psb_desc_type), intent(in) :: desc
-    if (allocated(desc%matrix_data)) then 
-      psb_cd_get_context = desc%matrix_data(psb_ctxt_)
+    if (allocated(desc%indxmap)) then
+      psb_cd_get_context = desc%indxmap%get_ctxt()    
     else
       psb_cd_get_context = -1
       call psb_errpush(psb_err_invalid_cd_state_,'psb_cd_get_context')
@@ -618,8 +638,8 @@ contains
     use psb_error_mod
     type(psb_desc_type), intent(in) :: desc
 
-    if (allocated(desc%matrix_data)) then 
-      psb_cd_get_dectype = desc%matrix_data(psb_dec_type_)
+    if (allocated(desc%indxmap)) then
+      psb_cd_get_dectype = desc%indxmap%get_state()    
     else
       psb_cd_get_dectype = -1
       call psb_errpush(psb_err_invalid_cd_state_,'psb_cd_get_dectype')
@@ -628,26 +648,12 @@ contains
 
   end function psb_cd_get_dectype
 
-  integer function psb_cd_get_size(desc)
-    use psb_error_mod
-    type(psb_desc_type), intent(in) :: desc
-
-    if (allocated(desc%matrix_data)) then 
-      psb_cd_get_size = desc%idxmap%state
-    else
-      psb_cd_get_size = -1
-      call psb_errpush(psb_err_invalid_cd_state_,'psb_cd_get_size')
-      call psb_error()
-    end if
-
-  end function psb_cd_get_size
-
   integer function psb_cd_get_mpic(desc)
     use psb_error_mod
     type(psb_desc_type), intent(in) :: desc
 
-    if (allocated(desc%matrix_data)) then 
-      psb_cd_get_mpic = desc%matrix_data(psb_mpi_c_)
+    if (allocated(desc%indxmap)) then
+      psb_cd_get_mpic = desc%indxmap%get_mpic()    
     else
       psb_cd_get_mpic = -1
       call psb_errpush(psb_err_invalid_cd_state_,'psb_cd_get_mpic')
@@ -664,8 +670,9 @@ contains
     type(psb_desc_type), intent(inout) :: desc
     integer                            :: info
 
-
-    if (psb_is_asb_desc(desc)) desc%matrix_data(psb_dec_type_) = psb_cd_ovl_asb_ 
+    
+    if (psb_is_asb_desc(desc)) &
+         & call desc%indxmap%set_state(psb_desc_ovl_asb_)
 
   end subroutine psb_cd_set_ovl_asb
 
@@ -1026,6 +1033,8 @@ contains
          & call psb_move_alloc( desc_in%idx_space   ,    desc_out%idx_space    , info)
     if (info == psb_success_) &
          & call psb_move_alloc(desc_in%idxmap, desc_out%idxmap,info)
+    if (info == psb_success_) &
+         & call move_alloc(desc_in%indxmap, desc_out%indxmap)
     if (info /= psb_success_) then
       info = psb_err_from_subroutine_
       call psb_errpush(info,name)

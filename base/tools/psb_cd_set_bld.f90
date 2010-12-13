@@ -36,8 +36,11 @@ subroutine psb_cd_set_ovl_bld(desc,info)
   integer                            :: info
 
   call psb_cd_set_bld(desc,info) 
-  if (info == psb_success_) desc%matrix_data(psb_dec_type_) = psb_cd_ovl_bld_ 
-
+  if (info == psb_success_) then 
+    call desc%indxmap%set_state(psb_desc_ovl_bld_)
+    desc%matrix_data(psb_dec_type_) = psb_cd_ovl_bld_ 
+  end if
+    
 end subroutine psb_cd_set_ovl_bld
 
 subroutine psb_cd_set_bld(desc,info)
@@ -62,13 +65,13 @@ subroutine psb_cd_set_bld(desc,info)
   ! check on blacs grid 
   call psb_info(ictxt, me, np)
   if (debug) write(psb_err_unit,*) me,'Entered CDSETBLD'
+
   if (psb_is_asb_desc(desc)) then 
   end if
-
+  
   desc%matrix_data(psb_dec_type_) = psb_desc_bld_ 
-  
-  
-  
+  call desc%indxmap%set_state(psb_desc_bld_)
+
   if (debug) write(psb_err_unit,*) me,'SET_BLD: done'
   call psb_erractionrestore(err_act)
   return

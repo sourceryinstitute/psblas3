@@ -52,10 +52,12 @@ module psb_desc_const_mod
   integer, parameter :: psb_desc_bld_=psb_desc_asb_+1
   integer, parameter :: psb_desc_upd_=psb_desc_bld_+1
   integer, parameter :: psb_desc_repl_=3199
+  integer, parameter :: psb_desc_ovl_bld_=3399
+  integer, parameter :: psb_desc_ovl_asb_=psb_desc_ovl_bld_+1
   ! these two are reserved for descriptors which are
   ! "overlap-extensions" of base descriptors. 
-  integer, parameter :: psb_cd_ovl_bld_=3399
-  integer, parameter :: psb_cd_ovl_asb_=psb_cd_ovl_bld_+1
+  integer, parameter :: psb_cd_ovl_bld_=psb_desc_ovl_bld_
+  integer, parameter :: psb_cd_ovl_asb_=psb_desc_ovl_asb_
   integer, parameter :: psb_desc_normal_=3299
   integer, parameter :: psb_desc_large_=psb_desc_normal_+1
   !
