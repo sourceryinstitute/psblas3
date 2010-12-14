@@ -31,7 +31,7 @@ module psb_indx_map_mod
     procedure, pass(idxmap)  :: get_mpic  => base_get_mpic
     procedure, pass(idxmap)  :: sizeof    => base_sizeof
     procedure, pass(idxmap)  :: set_null  => base_set_null
-    procedure, pass(idxmap)  :: can_ovrlap => base_can_ovrlap
+    procedure, pass(idxmap)  :: row_extendable => base_row_extendable
 
     procedure, pass(idxmap)  :: set_gr    => base_set_gr
     procedure, pass(idxmap)  :: set_gc    => base_set_gc
@@ -79,7 +79,7 @@ module psb_indx_map_mod
        & base_l2gs1, base_l2gs2, base_l2gv1, base_l2gv2,&
        & base_g2ls1, base_g2ls2, base_g2lv1, base_g2lv2,&
        & base_g2ls1_ins, base_g2ls2_ins, base_g2lv1_ins,&
-       & base_g2lv2_ins, base_init_vl, base_is_null, base_can_ovrlap
+       & base_g2lv2_ins, base_init_vl, base_is_null, base_row_extendable
 
   interface 
     subroutine psb_indx_map_fnd_owner(idx,iprc,idxmap,info)
@@ -221,12 +221,12 @@ contains
   end subroutine base_set_mpic
 
   
-  function base_can_ovrlap(idxmap) result(val)
+  function base_row_extendable(idxmap) result(val)
     implicit none 
     class(psb_indx_map), intent(in) :: idxmap
     logical :: val
     val = .false.
-  end function base_can_ovrlap
+  end function base_row_extendable
 
   function base_is_repl(idxmap) result(val)
     implicit none 

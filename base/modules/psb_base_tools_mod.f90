@@ -299,8 +299,13 @@ end module psb_iv_tools_mod
 module psb_cd_if_tools_mod
 
   use psb_const_mod
-
-
+  use psb_descriptor_type
+  use psb_gen_block_map_mod
+  use psb_list_map_mod
+  use psb_glist_map_mod
+  use psb_hash_map_mod
+  use psb_repl_map_mod
+    
   interface psb_cd_set_bld
     subroutine psb_cd_set_bld(desc,info)
       use psb_descriptor_type
@@ -336,7 +341,7 @@ module psb_cd_if_tools_mod
       !....parameters...
 
       type(psb_desc_type), intent(in)  :: desc_in
-      type(psb_desc_type), intent(out) :: desc_out
+      type(psb_desc_type), intent(inout) :: desc_out
       integer, intent(out)             :: info
     end subroutine psb_cdcpy
   end interface
@@ -446,6 +451,15 @@ module psb_cd_tools_mod
     module procedure psb_get_boundary
   end interface
 
+  interface 
+    subroutine psb_cd_switch_ovl_indxmap(desc,info) 
+      use psb_descriptor_type
+      implicit None
+      include 'parts.fh'
+      type(psb_desc_type), intent(inout) :: desc
+      integer, intent(out)               :: info
+    end subroutine psb_cd_switch_ovl_indxmap
+  end interface
 
 contains
 

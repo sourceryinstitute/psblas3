@@ -110,6 +110,7 @@ program ppde
   if(psb_get_errstatus() /= 0) goto 9999
   name='pde90'
   call psb_set_errverbosity(2)
+  call psb_cd_set_large_threshold(20000000)
   !
   !  get parameters
   !
@@ -134,11 +135,14 @@ program ppde
 !!$  write(fname,'(a,i2.2,a,i2.2,a)') 'amat-',iam,'-',np,'.mtx'
 !!$  call a%print(fname)
 !!$  call psb_cdprt(20+iam,desc_a,short=.false.)
-!!$  call psb_cdcpy(desc_b,desc_a,info)
-!!$  if (info /= 0) then 
-!!$    write(0,*) 'Error from cdcpy'
-!!$    call psb_abort(ictxt)
-!!$  end if
+!!$  call psb_cdcpy(desc_a,desc_b,info)
+!!$  call psb_set_debug_level(9999)
+
+  call psb_cdbldext(a,desc_a,2,desc_b,info,extype=psb_ovt_asov_)
+  if (info /= 0) then 
+    write(0,*) 'Error from bldext'
+    call psb_abort(ictxt)
+  end if
   !
   !  prepare the preconditioner.
   !  
@@ -200,6 +204,7 @@ program ppde
     write(psb_out_unit,'("Total memory occupation for PREC:   ",i12)')precsize    
     write(psb_out_unit,'("Total memory occupation for DESC_A: ",i12)')descsize
     write(psb_out_unit,'("Storage type for DESC_A: ",a)') desc_a%indxmap%get_fmt()
+    write(psb_out_unit,'("Storage type for DESC_B: ",a)') desc_b%indxmap%get_fmt()
   end if
 
   !  

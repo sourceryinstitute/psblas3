@@ -13,7 +13,7 @@ module psb_list_map_mod
     procedure, pass(idxmap)  :: asb       => list_asb
     procedure, pass(idxmap)  :: free      => list_free
     procedure, pass(idxmap)  :: get_fmt   => list_get_fmt
-    procedure, pass(idxmap)  :: can_ovrlap => list_can_ovrlap
+    procedure, pass(idxmap)  :: row_extendable => list_row_extendable
 
     procedure, pass(idxmap)  :: l2gs1 => list_l2gs1
     procedure, pass(idxmap)  :: l2gs2 => list_l2gs2
@@ -36,16 +36,16 @@ module psb_list_map_mod
        & list_get_fmt, list_l2gs1, list_l2gs2, list_l2gv1,&
        & list_l2gv2, list_g2ls1, list_g2ls2, list_g2lv1,&
        & list_g2lv2, list_g2ls1_ins, list_g2ls2_ins,&
-       & list_g2lv1_ins, list_g2lv2_ins, list_can_ovrlap
+       & list_g2lv1_ins, list_g2lv2_ins, list_row_extendable
 
 contains
     
-  function list_can_ovrlap(idxmap) result(val)
+  function list_row_extendable(idxmap) result(val)
     implicit none 
     class(psb_list_map), intent(in) :: idxmap
     logical :: val
     val = .true.
-  end function list_can_ovrlap
+  end function list_row_extendable
 
   function list_sizeof(idxmap) result(val)
     implicit none 

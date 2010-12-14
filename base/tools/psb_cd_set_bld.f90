@@ -37,7 +37,7 @@ subroutine psb_cd_set_ovl_bld(desc,info)
 
   call psb_cd_set_bld(desc,info) 
   if (info == psb_success_) then 
-    if (desc%indxmap%can_ovrlap()) then 
+    if (desc%indxmap%row_expandable()) then 
       call desc%indxmap%set_state(psb_desc_ovl_bld_)
       desc%matrix_data(psb_dec_type_) = psb_cd_ovl_bld_ 
     else

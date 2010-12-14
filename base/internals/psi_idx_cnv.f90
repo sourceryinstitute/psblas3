@@ -78,8 +78,12 @@ subroutine psi_idx_cnv1(nv,idxin,desc,info,mask,owned)
 
   call psb_info(ictxt, me, np)
 
-  if ((.not.allocated(desc%indxmap)).or.&
-       & (.not.psb_is_bld_desc(desc))) then 
+  if (.not.allocated(desc%indxmap))then 
+    info =  psb_err_invalid_cd_state_
+    call psb_errpush(info,name)
+    goto 9999
+  endif
+  if (.not.psb_is_valid_desc(desc)) then 
     info =  psb_err_invalid_cd_state_
     call psb_errpush(info,name)
     goto 9999

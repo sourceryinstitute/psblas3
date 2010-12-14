@@ -343,6 +343,10 @@ module psb_descriptor_type
     module procedure psb_is_ok_desc
   end interface psb_is_ok_desc
 
+  interface psb_is_valid_desc
+    module procedure psb_is_valid_desc
+  end interface psb_is_valid_desc
+
   interface psb_is_asb_desc
     module procedure psb_is_asb_desc
   end interface psb_is_asb_desc
@@ -472,6 +476,17 @@ contains
          & val = desc%indxmap%is_valid()
 
   end function psb_is_ok_desc
+
+  function psb_is_valid_desc(desc) result(val)
+
+    type(psb_desc_type), intent(in) :: desc
+    logical                         :: val 
+    
+    val = .false.
+    if (allocated(desc%indxmap)) &
+         & val = desc%indxmap%is_valid()
+
+  end function psb_is_valid_desc
 
   function psb_is_bld_desc(desc) result(val)
     type(psb_desc_type), intent(in) :: desc

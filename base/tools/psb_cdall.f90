@@ -1,15 +1,10 @@
-
 subroutine psb_cdall(ictxt, desc, info,mg,ng,parts,vg,vl,flag,nl,repl, globalcheck)
   use psb_descriptor_type
   use psb_serial_mod
   use psb_const_mod
   use psb_error_mod
   use psb_penv_mod
-  use psb_gen_block_map_mod
-  use psb_repl_map_mod
-  use psb_list_map_mod
-  use psb_glist_map_mod
-  use psb_hash_map_mod
+  use psb_base_tools_mod, psb_protect_name => psb_cdall
   use psi_mod
   implicit None
   include 'parts.fh'
