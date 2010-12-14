@@ -1369,8 +1369,10 @@ contains
           goto 9999
         end if
         if (toglob) then
-          call psb_map_l2g(idx,gidx,desc%idxmap,info)
+!!$          call psb_map_l2g(idx,gidx,desc%idxmap,info)
+          call desc%indxmap%l2g(idx,gidx,info)
           If (gidx < 0) then 
+            write(0,*) 'get_recv_idx gidx <0', idx,gidx
             info=-3
             call psb_errpush(info,name)
             goto 9999

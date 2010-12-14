@@ -184,7 +184,10 @@ contains
     im = min(is,size(idxout))
     idxout(1:im) = idxin(1:im)
     call idxmap%l2g(idxout(1:im),info,mask,owned)
-    if (is > im) info = -3 
+    if (is > im) then 
+      write(0,*) 'l2gv2 err -3'
+      info = -3 
+    end if
 
   end subroutine block_l2gv2
 
@@ -493,7 +496,10 @@ contains
     im = min(is,size(idxout))
     idxout(1:im) = idxin(1:im)
     call idxmap%g2l_ins(idxout(1:im),info,mask)
-    if (is > im) info = -3 
+    if (is > im) then 
+      write(0,*) 'g2lv2_ins err -3'
+      info = -3 
+    end if
 
   end subroutine block_g2lv2_ins
 
