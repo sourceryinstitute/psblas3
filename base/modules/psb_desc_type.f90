@@ -328,7 +328,7 @@ module psb_descriptor_type
     integer, allocatable  :: ovrlap_elem(:,:)
     integer, allocatable  :: ovr_mst_idx(:)
     integer, allocatable  :: bnd_elem(:)
-    type(psb_idxmap_type) :: idxmap 
+!!$    type(psb_idxmap_type) :: idxmap 
     class(psb_indx_map), allocatable :: indxmap
     integer, allocatable  :: lprm(:)
     type(psb_desc_type), pointer     :: base_desc => null()
@@ -886,7 +886,7 @@ contains
       goto 9999
     endif
 
-    call psb_free(desc_a%idxmap,info)
+!!$    call psb_free(desc_a%idxmap,info)
     
     if (.not.allocated(desc_a%halo_index)) then
       info=298
@@ -1046,8 +1046,8 @@ contains
          & call psb_move_alloc( desc_in%lprm        ,    desc_out%lprm         , info)
     if (info == psb_success_)  &
          & call psb_move_alloc( desc_in%idx_space   ,    desc_out%idx_space    , info)
-    if (info == psb_success_) &
-         & call psb_move_alloc(desc_in%idxmap, desc_out%idxmap,info)
+!!$    if (info == psb_success_) &
+!!$         & call psb_move_alloc(desc_in%idxmap, desc_out%idxmap,info)
     if (info == psb_success_) &
          & call move_alloc(desc_in%indxmap, desc_out%indxmap)
     if (info /= psb_success_) then

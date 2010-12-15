@@ -128,7 +128,7 @@ subroutine psb_cdals(m, n, parts, ictxt, desc, info)
   allocate(desc%matrix_data(psb_mdata_size_),&
        & temp_ovrlap(max(1,2*loc_row)), prc_v(np),stat=info)
   desc%matrix_data(:) = 0
-  desc%idxmap%state = psb_desc_large_
+!!$  desc%idxmap%state = psb_desc_large_
   if (info /= psb_success_) then     
     info=psb_err_alloc_request_
     err=info
@@ -163,8 +163,9 @@ subroutine psb_cdals(m, n, parts, ictxt, desc, info)
   !
   loc_col = max(1,(m+np-1)/np)
   loc_col = min(2*loc_col,m)
-  allocate(desc%idxmap%loc_to_glob(loc_col), desc%lprm(1),&
-       & loc_idx(loc_col), stat=info)  
+!!$  allocate(desc%idxmap%loc_to_glob(loc_col), desc%lprm(1),&
+!!$       & loc_idx(loc_col), stat=info)  
+  allocate(desc%lprm(1), loc_idx(loc_col), stat=info)  
   if (info == psb_success_) then 
     if (np == 1) then 
       allocate(psb_repl_map :: desc%indxmap, stat=info)
@@ -182,7 +183,7 @@ subroutine psb_cdals(m, n, parts, ictxt, desc, info)
 
   ! set LOC_TO_GLOB array to all "-1" values
   desc%lprm(1) = 0
-  desc%idxmap%loc_to_glob(:) = -1
+!!$  desc%idxmap%loc_to_glob(:) = -1
   k = 0
   do i=1,m
     if (info == psb_success_) then

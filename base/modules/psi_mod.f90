@@ -475,13 +475,13 @@ module psi_mod
     end subroutine psi_ldsc_pre_halo
   end interface
 
-  interface psi_bld_g2lmap
-    subroutine psi_bld_g2lmap(desc,info)
-      use psb_descriptor_type, only : psb_desc_type, psb_spk_, psb_dpk_
-      type(psb_desc_type), intent(inout) :: desc
-      integer, intent(out) :: info
-    end subroutine psi_bld_g2lmap
-  end interface
+!!$  interface psi_bld_g2lmap
+!!$    subroutine psi_bld_g2lmap(desc,info)
+!!$      use psb_descriptor_type, only : psb_desc_type, psb_spk_, psb_dpk_
+!!$      type(psb_desc_type), intent(inout) :: desc
+!!$      integer, intent(out) :: info
+!!$    end subroutine psi_bld_g2lmap
+!!$  end interface
 
   interface psi_bld_tmphalo
     subroutine psi_bld_tmphalo(desc,info)

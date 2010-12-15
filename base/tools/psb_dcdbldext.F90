@@ -250,7 +250,7 @@ Subroutine psb_dcdbldext(a,desc_a,novr,desc_ov,info, extype)
     Do j=0,n_elem_recv-1
 
       idx = desc_a%ovrlap_index(counter+psb_elem_recv_+j)
-      call psb_map_l2g(idx,gidx,desc_ov%idxmap,info) 
+      call desc_ov%indxmap%l2g(idx,gidx,info) 
       If (gidx < 0) then 
         info=-3
         call psb_errpush(info,name)

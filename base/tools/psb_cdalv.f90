@@ -141,7 +141,7 @@ subroutine psb_cdalv(v, ictxt, desc, info, flag)
        &temp_ovrlap(max(1,2*loc_row)),stat=info)
   if (info == psb_success_) then 
     desc%matrix_data(:) = 0
-    desc%idxmap%state = psb_desc_large_
+!!$    desc%idxmap%state = psb_desc_large_
   end if
   if (info /= psb_success_) then     
     info=psb_err_alloc_request_

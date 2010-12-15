@@ -184,7 +184,7 @@ subroutine psb_cdrep(m, ictxt, desc, info)
   endif
   ! If the index space is replicated there's no point in not having 
   ! the full map on the current process. 
-  desc%idxmap%state = psb_desc_normal_
+!!$  desc%idxmap%state = psb_desc_normal_
   
 
   desc%matrix_data(psb_m_)        = m
