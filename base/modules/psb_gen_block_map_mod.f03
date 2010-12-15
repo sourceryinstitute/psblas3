@@ -185,7 +185,6 @@ contains
     idxout(1:im) = idxin(1:im)
     call idxmap%l2g(idxout(1:im),info,mask,owned)
     if (is > im) then 
-      write(0,*) 'l2gv2 err -3'
       info = -3 
     end if
 
@@ -246,7 +245,7 @@ contains
 
     if (present(mask)) then 
       if (size(mask) < size(idx)) then 
-        write(0,*) 'Block g2l: size of mask', size(mask),size(idx)
+!!$        write(0,*) 'Block g2l: size of mask', size(mask),size(idx)
         info = -1
         return
       end if
@@ -291,7 +290,7 @@ contains
           end if
         end do
       else 
-        write(0,*) 'Block status: invalid ',idxmap%get_state()
+!!$        write(0,*) 'Block status: invalid ',idxmap%get_state()
         idx(1:is) = -1
         info = -1
       end if
@@ -326,7 +325,7 @@ contains
           end if
         end do
       else 
-        write(0,*) 'Block status: invalid ',idxmap%get_state()
+!!$        write(0,*) 'Block status: invalid ',idxmap%get_state()
         idx(1:is) = -1
         info = -1
       end if
@@ -497,7 +496,7 @@ contains
     idxout(1:im) = idxin(1:im)
     call idxmap%g2l_ins(idxout(1:im),info,mask)
     if (is > im) then 
-      write(0,*) 'g2lv2_ins err -3'
+!!$      write(0,*) 'g2lv2_ins err -3'
       info = -3 
     end if
 
@@ -518,7 +517,7 @@ contains
     nv = size(idx)
     allocate(iprc(nv),stat=info) 
     if (info /= 0) then 
-      write(0,*) 'Memory allocation failure in repl_map_fnd-owner'
+!!$      write(0,*) 'Memory allocation failure in repl_map_fnd-owner'
       return
     end if
     do i=1, nv 
@@ -564,7 +563,7 @@ contains
       vnl(i) = vnl(i) + vnl(i-1)
     end do
     if (ntot /= vnl(np)) then 
-      write(0,*) ' Mismatch in block_init ',ntot,vnl(np)
+!!$      write(0,*) ' Mismatch in block_init ',ntot,vnl(np)
     end if
     
     idxmap%global_rows  = ntot

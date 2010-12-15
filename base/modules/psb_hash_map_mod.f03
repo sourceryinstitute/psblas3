@@ -41,7 +41,7 @@ module psb_hash_map_mod
 
   end type psb_hash_map
 
-  private :: hash_initvl, hash_initvg, hash_sizeof, hash_asb, &
+  private :: hash_init_vl, hash_init_vg, hash_sizeof, hash_asb, &
        & hash_free, hash_get_fmt, hash_l2gs1, hash_l2gs2, &
        & hash_l2gv1, hash_l2gv2, hash_g2ls1, hash_g2ls2, &
        & hash_g2lv1, hash_g2lv2, hash_g2ls1_ins, hash_g2ls2_ins, &
@@ -591,7 +591,7 @@ contains
     integer, intent(in)  :: ictxt, vl(:)
     integer, intent(out) :: info
     !  To be implemented
-    integer :: iam, np, i, j, ntot, nlu, nl, m, nrt,int_err(5)
+    integer :: iam, np, i, j,  nlu, nl, m, nrt,int_err(5)
     integer, allocatable :: vlu(:)
     character(len=20), parameter :: name='hash_map_init_vl'
 
@@ -643,7 +643,7 @@ contains
       write(0,*) 'Warning: duplicates in input'
     end if
 
-    call hash_init_vlu(idxmap,ictxt,ntot,nlu,vlu,info)    
+    call hash_init_vlu(idxmap,ictxt,m,nlu,vlu,info)    
 
   end subroutine hash_init_vl
 

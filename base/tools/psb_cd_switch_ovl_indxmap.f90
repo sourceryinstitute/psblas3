@@ -81,7 +81,7 @@ Subroutine psb_cd_switch_ovl_indxmap(desc,info)
   end do
   call desc%indxmap%l2g(vl(1:n_col),info)
 
-  write(0,*) 'from l2g' ,info,n_row,n_Col
+!!$  write(0,*) 'from l2g' ,info,n_row,n_Col
   if (info /= psb_success_) then
     call psb_errpush(psb_err_from_subroutine_ai_,name,&
          & a_err='map%l2g',i_err=(/info,0,0,0,0/))
@@ -97,16 +97,16 @@ Subroutine psb_cd_switch_ovl_indxmap(desc,info)
     allocate(psb_list_map :: desc%indxmap, stat=info)
   end if
   
-  write(0,*) 'from allocate indxmap' ,info
+!!$  write(0,*) 'from allocate indxmap' ,info
   if (info == psb_success_)&
        & call desc%indxmap%init(ictxt,vl(1:n_row),info)
-  write(0,*) 'from indxmap%init' ,info
+!!$  write(0,*) 'from indxmap%init' ,info
   if (info == psb_success_) call psb_cd_set_bld(desc,info)
-  write(0,*) 'from cd_Set_bld' ,info
-  write(0,*) 'into g2l_ins' ,info,vl(n_row+1:n_col)
+!!$  write(0,*) 'from cd_Set_bld' ,info
+!!$  write(0,*) 'into g2l_ins' ,info,vl(n_row+1:n_col)
   if (info == psb_success_) &
        & call  desc%indxmap%g2l_ins(vl(n_row+1:n_col),info)
-  write(0,*) 'from g2l_ins' ,info,vl(n_row+1:n_col)
+!!$  write(0,*) 'from g2l_ins' ,info,vl(n_row+1:n_col)
   if (info /= psb_success_) then
     call psb_errpush(psb_err_from_subroutine_ai_,name,&
          & a_err='allocate/init',i_err=(/info,0,0,0,0/))

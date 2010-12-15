@@ -74,7 +74,7 @@ Subroutine psb_dcdbldext(a,desc_a,novr,desc_ov,info, extype)
 
   !     .. Array Arguments ..
   integer, intent(in)                     :: novr
-  Type(psb_dspmat_type), Intent(in)      ::  a
+  Type(psb_dspmat_type), Intent(in)       ::  a
   Type(psb_desc_type), Intent(in), target :: desc_a
   Type(psb_desc_type), Intent(out)        :: desc_ov
   integer, intent(out)                    :: info
@@ -169,7 +169,6 @@ Subroutine psb_dcdbldext(a,desc_a,novr,desc_ov,info, extype)
     ! so far: LIST or HASH. Encapsulate choice
     ! in a separate method. 
     call psb_cd_switch_ovl_indxmap(desc_ov,info) 
-
   end if
 
   call psb_cd_set_ovl_bld(desc_ov,info)
@@ -345,7 +344,7 @@ Subroutine psb_dcdbldext(a,desc_a,novr,desc_ov,info, extype)
       ! add recv elements in halo_index into ovrlap_index
       !
       Do j=0,n_elem_recv-1
-        If((counter+psb_elem_recv_+j)>Size(halo)) then 
+        If ((counter+psb_elem_recv_+j)>Size(halo)) then 
           info=-2
           call psb_errpush(info,name)
           goto 9999
@@ -435,6 +434,7 @@ Subroutine psb_dcdbldext(a,desc_a,novr,desc_ov,info, extype)
           call desc_ov%indxmap%l2g(icol(1:n_elem),&
                & works(idxs+tot_elem+1:idxs+tot_elem+n_elem),&
                & info) 
+
           tot_elem=tot_elem+n_elem
         End If
 
