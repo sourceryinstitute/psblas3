@@ -291,7 +291,6 @@ subroutine psb_cd_inloc(v, ictxt, desc, info, globalcheck)
   if (info == psb_success_) then 
     desc%lprm(1)        = 0   
     desc%matrix_data(:) = 0
-!!$    desc%idxmap%state   = psb_desc_large_
   end if
   if (info /= psb_success_) then     
     info=psb_err_alloc_request_

@@ -83,7 +83,6 @@ subroutine psb_cdcpy(desc_in, desc_out, info)
   if (info == psb_success_) call psb_safe_ab_cpy(desc_in%ovr_mst_idx,desc_out%ovr_mst_idx,info)
   if (info == psb_success_) call psb_safe_ab_cpy(desc_in%lprm,desc_out%lprm,info)
   if (info == psb_success_) call psb_safe_ab_cpy(desc_in%idx_space,desc_out%idx_space,info)
-!!$  if (info == psb_success_) call psb_idxmap_copy(desc_in%idxmap,desc_out%idxmap, info)
 
   if (allocated(desc_in%indxmap)) then 
     if (allocated(desc_out%indxmap)) then 
@@ -93,14 +92,6 @@ subroutine psb_cdcpy(desc_in, desc_out, info)
     if (info == psb_success_)&
          & allocate(desc_out%indxmap, source=desc_in%indxmap, stat=info) 
   end if
-
-!!$  if (info == psb_success_)   call psb_safe_ab_cpy(desc_in%loc_to_glob,desc_out%loc_to_glob,info)
-!!$  if (info == psb_success_)   call psb_safe_ab_cpy(desc_in%glob_to_loc,desc_out%glob_to_loc,info)
-!!$  desc_out%hashvsize =   desc_in%hashvsize 
-!!$  desc_out%hashvmask =   desc_in%hashvmask
-!!$  if (info == psb_success_)   call psb_safe_ab_cpy(desc_in%hashv,desc_out%hashv,info)
-!!$  if (info == psb_success_)   call psb_safe_ab_cpy(desc_in%glb_lc,desc_out%glb_lc,info)
-!!$  if (info == psb_success_)   call CloneHashTable(desc_in%hash,desc_out%hash,info)
 
   if (info /= psb_success_) then
     info = psb_err_from_subroutine_

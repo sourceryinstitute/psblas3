@@ -475,14 +475,6 @@ module psi_mod
     end subroutine psi_ldsc_pre_halo
   end interface
 
-!!$  interface psi_bld_g2lmap
-!!$    subroutine psi_bld_g2lmap(desc,info)
-!!$      use psb_descriptor_type, only : psb_desc_type, psb_spk_, psb_dpk_
-!!$      type(psb_desc_type), intent(inout) :: desc
-!!$      integer, intent(out) :: info
-!!$    end subroutine psi_bld_g2lmap
-!!$  end interface
-
   interface psi_bld_tmphalo
     subroutine psi_bld_tmphalo(desc,info)
       use psb_descriptor_type, only : psb_desc_type, psb_spk_, psb_dpk_
@@ -590,16 +582,6 @@ module psi_mod
       integer, intent(inout) :: idx(:)
     end subroutine psi_renum_index
   end interface
-
-  interface psi_renum_idxmap
-    subroutine psi_renum_idxmap(nc,iperm,idxmap,info)
-      use psb_descriptor_type, only: psb_idxmap_type
-      integer, intent(out)   :: info
-      integer, intent(in)    :: nc,iperm(:)
-      type(psb_idxmap_type), intent(inout) :: idxmap
-    end subroutine psi_renum_idxmap
-  end interface
-  
 
   interface psi_inner_cnv
     subroutine psi_inner_cnvs(x,hashmask,hashv,glb_lc)
