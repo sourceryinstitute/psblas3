@@ -133,6 +133,7 @@ subroutine psb_dspins(nz,ia,ja,val,a,desc_a,info,rebuild)
       nrow = psb_cd_get_local_rows(desc_a)
       ncol = psb_cd_get_local_cols(desc_a)
 
+!!$      write(0,*) me,' Into csput valid row entries',count(ila(1:nz)>0),count(jla(1:nz)>0)
       if (a%is_bld()) then 
         call a%csput(nz,ila,jla,val,1,nrow,1,ncol,info)
         if (info /= psb_success_) then

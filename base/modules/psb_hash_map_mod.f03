@@ -655,7 +655,7 @@ contains
     integer, intent(in)  :: ictxt, vg(:)
     integer, intent(out) :: info
     !  To be implemented
-    integer :: iam, np, i, j, ntot, lc2, nl, nlu, n, nrt,int_err(5)
+    integer :: iam, np, i, j, lc2, nl, nlu, n, nrt,int_err(5)
     integer :: key, ih, ik, nh, idx, nbits, hsize, hmask
     integer, allocatable :: vlu(:)
 
@@ -668,7 +668,6 @@ contains
     end if
 
     n    = size(vg)
-    ntot = n
     nl   = 0
     do i=1, n
       if ((vg(i)<0).or.(vg(i)>=np)) then 
@@ -696,7 +695,7 @@ contains
     end do
 
 
-    call hash_init_vlu(idxmap,ictxt,ntot,nl,vlu,info)    
+    call hash_init_vlu(idxmap,ictxt,n,nl,vlu,info)    
 
 
   end subroutine hash_init_vg
@@ -878,14 +877,14 @@ contains
 
     call hash_bld_g2l_map(idxmap,info)
     if (info /= 0) then 
-      write(0,*) 'Error from bld_g2l_map'
+      write(0,*) 'Error from bld_g2l_map', info
       return
     end if
 
     call psb_free(idxmap%hash,info)
     if (info == 0) deallocate(idxmap%hash,stat=info)
     if (info /= 0) then
-      write(0,*) 'Error from hash free'
+      write(0,*) 'Error from hash free', info
       return
     end if
       

@@ -292,6 +292,11 @@ subroutine psb_cdals(m, n, parts, ictxt, desc, info)
   desc%matrix_data(psb_n_row_)  = loc_row
   desc%matrix_data(psb_n_col_)  = loc_row
 
+!!$  write(0,*) me,'CDALS: after init ', &
+!!$       & desc%indxmap%get_gr(), &
+!!$       & desc%indxmap%get_gc(), &
+!!$       & desc%indxmap%get_lr(), &
+!!$       & desc%indxmap%get_lc() 
 
   if (debug_level >= psb_debug_ext_) &
        & write(debug_unit,*) me,' ',trim(name),': end'
