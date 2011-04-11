@@ -32,23 +32,30 @@
 module psb_d_psblas_mod
 
   interface psb_gedot
-    function psb_ddotv(x, y, desc_a,info) 
+    function psb_ddot_vect(x, y, desc_a,info) result(res)
       use psb_descriptor_type, only : psb_desc_type, psb_dpk_
-      real(psb_dpk_)                   :: psb_ddotv
+      use psb_d_base_mat_mod, only : psb_d_vect
+      real(psb_dpk_)                   :: res
+      class(psb_d_vect), intent(in)    :: x, y
+      type(psb_desc_type), intent(in)  :: desc_a
+      integer, intent(out)             :: info
+    end function psb_ddot_vect
+    function psb_ddotv(x, y, desc_a,info)  result(res)
+      use psb_descriptor_type, only : psb_desc_type, psb_dpk_
+      real(psb_dpk_)                   :: res
       real(psb_dpk_), intent(in)       :: x(:), y(:)
-      type(psb_desc_type), intent(in)    :: desc_a
-      integer, intent(out)               :: info
+      type(psb_desc_type), intent(in)  :: desc_a
+      integer, intent(out)             :: info
     end function psb_ddotv
-    function psb_ddot(x, y, desc_a, info, jx, jy) 
+    function psb_ddot(x, y, desc_a, info, jx, jy)  result(res)
       use psb_descriptor_type, only : psb_desc_type, psb_dpk_
-      real(psb_dpk_)                   :: psb_ddot
+      real(psb_dpk_)                   :: res
       real(psb_dpk_), intent(in)       :: x(:,:), y(:,:)
-      type(psb_desc_type), intent(in)    :: desc_a
-      integer, optional, intent(in)      :: jx, jy
-      integer, intent(out)               :: info
+      type(psb_desc_type), intent(in)  :: desc_a
+      integer, optional, intent(in)    :: jx, jy
+      integer, intent(out)             :: info
     end function psb_ddot
   end interface
-
 
   interface psb_gedots
     subroutine  psb_ddotvs(res,x, y, desc_a, info) 
@@ -68,6 +75,16 @@ module psb_d_psblas_mod
   end interface
 
   interface psb_geaxpby
+    subroutine psb_daxpby_vect(alpha, x, beta, y,&
+         & desc_a, info)
+      use psb_descriptor_type, only : psb_desc_type, psb_dpk_
+      use psb_d_base_mat_mod, only : psb_d_vect
+      class(psb_d_vect), intent (in)      :: x
+      class(psb_d_vect), intent (inout)   :: y
+      real(psb_dpk_), intent (in)         :: alpha, beta
+      type(psb_desc_type), intent (in)    :: desc_a
+      integer, intent(out)                :: info
+    end subroutine psb_daxpby_vect
     subroutine psb_daxpbyv(alpha, x, beta, y,&
          & desc_a, info)
       use psb_descriptor_type, only : psb_desc_type, psb_dpk_

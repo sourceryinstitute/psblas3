@@ -58,12 +58,14 @@
 module psb_d_base_mat_mod
   
   use psb_base_mat_mod
+  use psb_d_vect_mod
 
   type, extends(psb_base_sparse_mat) :: psb_d_base_sparse_mat
   contains
+    procedure, pass(a) :: d_sp_mv      => psb_d_base_vect_mv
     procedure, pass(a) :: d_csmv       => psb_d_base_csmv
     procedure, pass(a) :: d_csmm       => psb_d_base_csmm
-    generic, public    :: csmm         => d_csmm, d_csmv
+    generic, public    :: csmm         => d_csmm, d_csmv, d_sp_mv
     procedure, pass(a) :: d_inner_cssv => psb_d_base_inner_cssv    
     procedure, pass(a) :: d_inner_cssm => psb_d_base_inner_cssm
     generic, public    :: inner_cssm   => d_inner_cssm, d_inner_cssv
@@ -198,6 +200,18 @@ module psb_d_base_mat_mod
       integer, intent(out)            :: info
       character, optional, intent(in) :: trans
     end subroutine psb_d_base_csmv
+  end interface
+  
+  interface 
+    subroutine psb_d_base_vect_mv(alpha,a,x,beta,y,info,trans) 
+      import :: psb_d_base_sparse_mat, psb_dpk_, psb_d_vect
+      class(psb_d_base_sparse_mat), intent(in) :: a
+      real(psb_dpk_), intent(in)       :: alpha, beta
+      class(psb_d_vect), intent(in)    :: x
+      class(psb_d_vect), intent(inout) :: y
+      integer, intent(out)             :: info
+      character, optional, intent(in)  :: trans
+    end subroutine psb_d_base_vect_mv
   end interface
   
   interface 

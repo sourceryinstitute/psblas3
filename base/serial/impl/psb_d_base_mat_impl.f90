@@ -1232,5 +1232,20 @@ subroutine psb_d_base_get_diag(a,d,info)
 end subroutine psb_d_base_get_diag
 
 
+subroutine psb_d_base_vect_mv(alpha,a,x,beta,y,info,trans) 
+  use psb_error_mod
+  use psb_const_mod
+  use psb_d_base_mat_mod, psb_protect_name => psb_d_base_vect_mv
+  implicit none 
+  class(psb_d_base_sparse_mat), intent(in) :: a
+  real(psb_dpk_), intent(in)       :: alpha, beta
+  class(psb_d_vect), intent(in)    :: x
+  class(psb_d_vect), intent(inout) :: y
+  integer, intent(out)             :: info
+  character, optional, intent(in)  :: trans
 
-
+  ! For the time being we just throw everything back
+  ! onto the normal routines. 
+  call a%csmm(alpha,x%v,beta,y%v,info,trans)
+  
+end subroutine psb_d_base_vect_mv
