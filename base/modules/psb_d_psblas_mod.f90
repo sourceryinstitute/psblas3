@@ -283,6 +283,20 @@ module psb_d_psblas_mod
       logical, optional, intent(in)        :: doswap
       integer, intent(out)                 :: info
     end subroutine psb_dspmv
+    subroutine psb_dspmv_vect(alpha, a, x, beta, y,&
+         & desc_a, info, trans, work,doswap)
+      use psb_descriptor_type, only : psb_desc_type, psb_dpk_
+      use psb_mat_mod, only : psb_dspmat_type, psb_d_vect
+      type(psb_dspmat_type), intent(in)   :: a
+      class(psb_d_vect), intent(inout)    :: x
+      class(psb_d_vect), intent(inout)    :: y
+      real(psb_dpk_), intent(in)          :: alpha, beta
+      type(psb_desc_type), intent(in)     :: desc_a
+      character, optional, intent(in)     :: trans
+      real(psb_dpk_), optional, intent(inout),target :: work(:)
+      logical, optional, intent(in)        :: doswap
+      integer, intent(out)                 :: info
+    end subroutine psb_dspmv_vect
   end interface
 
   interface psb_spsm
