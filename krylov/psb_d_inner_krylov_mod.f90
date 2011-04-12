@@ -55,7 +55,7 @@ contains
     character(len=*), intent(in)      :: methdname
     integer, intent(in)               :: stopc, trace,itmax
     type(psb_dspmat_type), intent(in) :: a
-    real(psb_dpk_), intent(in)      :: b(:), eps
+    real(psb_dpk_), intent(in)        :: b(:), eps
     type(psb_desc_type), intent(in)   :: desc_a
     type(psb_itconv_type)             :: stopdat
     integer, intent(out)              :: info
@@ -121,7 +121,7 @@ contains
     implicit none 
     character(len=*), intent(in)    :: methdname
     integer, intent(in)             :: it
-    real(psb_dpk_), intent(in)    :: x(:), r(:)
+    real(psb_dpk_), intent(in)      :: x(:), r(:)
     type(psb_desc_type), intent(in) :: desc_a
     type(psb_itconv_type)           :: stopdat
     logical                         :: psb_d_check_conv

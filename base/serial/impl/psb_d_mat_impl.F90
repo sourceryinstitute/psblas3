@@ -1825,6 +1825,46 @@ subroutine psb_d_csmv(alpha,a,x,beta,y,info,trans)
 end subroutine psb_d_csmv
 
 
+subroutine psb_d_csmv_vect(alpha,a,x,beta,y,info,trans) 
+  use psb_error_mod
+  use psb_d_vect_mod
+  use psb_d_mat_mod, psb_protect_name => psb_d_csmv
+  implicit none 
+  class(psb_dspmat_type), intent(in) :: a
+  real(psb_dpk_), intent(in)       :: alpha, beta
+  class(psb_d_vect), intent(in)    :: x
+  class(psb_d_vect), intent(inout) :: y
+  integer, intent(out)            :: info
+  character, optional, intent(in) :: trans
+  Integer :: err_act
+  character(len=20)  :: name='psb_csmv'
+  logical, parameter :: debug=.false.
+
+  info = psb_success_
+  call psb_erractionsave(err_act)
+  if (.not.allocated(a%a)) then 
+    info = psb_err_invalid_mat_state_
+    call psb_errpush(info,name)
+    goto 9999
+  endif
+
+  call a%a%csmm(alpha,x,beta,y,info,trans) 
+  if (info /= psb_success_) goto 9999 
+  call psb_erractionrestore(err_act)
+  return
+
+9999 continue
+  call psb_erractionrestore(err_act)
+
+  if (err_act == psb_act_abort_) then
+    call psb_error()
+    return
+  end if
+  return
+
+end subroutine psb_d_csmv_vect
+
+
 subroutine psb_d_cssm(alpha,a,x,beta,y,info,trans,scale,d) 
   use psb_error_mod
   use psb_d_mat_mod, psb_protect_name => psb_d_cssm

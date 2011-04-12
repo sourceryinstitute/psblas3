@@ -122,6 +122,14 @@ module psb_d_psblas_mod
       type(psb_desc_type), intent (in)    :: desc_a
       integer, intent(out)                :: info
     end function psb_damaxv
+    function psb_damax_d_vect(x, desc_a, info) result(res)
+      use psb_descriptor_type, only : psb_desc_type, psb_dpk_
+      use psb_d_base_mat_mod, only : psb_d_vect
+      real(psb_dpk_)                      :: res
+      class(psb_d_vect), intent (in)      :: x
+      type(psb_desc_type), intent (in)    :: desc_a
+      integer, intent(out)                :: info
+    end function psb_damax_d_vect
   end interface
 
   interface psb_geamaxs
@@ -143,6 +151,14 @@ module psb_d_psblas_mod
   end interface
 
   interface psb_geasum
+    function psb_dasum_d_vect(x, desc_a, info) result(res)
+      use psb_descriptor_type, only : psb_desc_type, psb_dpk_
+      use psb_d_base_mat_mod, only : psb_d_vect
+      real(psb_dpk_)                      :: res
+      class(psb_d_vect), intent (in)      :: x
+      type(psb_desc_type), intent (in)    :: desc_a
+      integer, intent(out)                :: info
+    end function psb_dasum_d_vect
     function psb_dasum(x, desc_a, info, jx)
       use psb_descriptor_type, only : psb_desc_type, psb_dpk_
       real(psb_dpk_)   psb_dasum
@@ -194,6 +210,14 @@ module psb_d_psblas_mod
       type(psb_desc_type), intent (in)    :: desc_a
       integer, intent(out)                :: info
     end function psb_dnrm2v
+    function psb_dnrm2_d_vect(x, desc_a, info) result(res)
+      use psb_descriptor_type, only : psb_desc_type, psb_dpk_
+      use psb_d_base_mat_mod, only : psb_d_vect
+      real(psb_dpk_)                      :: res
+      class(psb_d_vect), intent (in)      :: x
+      type(psb_desc_type), intent (in)    :: desc_a
+      integer, intent(out)                :: info
+    end function psb_dnrm2_d_vect
   end interface
 
   interface psb_genrm2s

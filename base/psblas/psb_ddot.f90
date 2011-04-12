@@ -109,7 +109,7 @@ function psb_ddot_vect(x, y, desc_a,info) result(res)
   if(m /= 0) then
     nr = psb_cd_get_local_rows(desc_a) 
     if(nr > 0) then
-      dot_local = x%ddot(nr,y)
+      dot_local = x%dot(nr,y)
 
 !!$      ! adjust dot_local because overlapped elements are computed more than once
 !!$      do i=1,size(desc_a%ovrlap_elem,1)

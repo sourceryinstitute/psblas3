@@ -254,6 +254,88 @@ function psb_damaxv (x,desc_a, info)
   return
 end function psb_damaxv
 
+function psb_damax_d_vect(x, desc_a, info) result(res)
+  use psb_penv_mod
+  use psb_serial_mod
+  use psb_descriptor_type
+  use psb_check_mod
+  use psb_error_mod
+  use psb_d_vect_mod
+  implicit none
+
+  real(psb_dpk_)                      :: res
+  class(psb_d_vect), intent (in)      :: x
+  type(psb_desc_type), intent (in)    :: desc_a
+  integer, intent(out)                :: info
+
+  ! locals
+  integer                  :: ictxt, np, me,&
+       & err_act, iix, jjx, jx, ix, m, imax, idamax
+  real(psb_dpk_)         :: amax
+  character(len=20)        :: name, ch_err
+
+  name='psb_damaxv'
+  if(psb_get_errstatus() /= 0) return 
+  info=psb_success_
+  call psb_erractionsave(err_act)
+
+  amax=0.d0
+
+  ictxt=psb_cd_get_context(desc_a)
+
+  call psb_info(ictxt, me, np)
+  if (np == -1) then
+    info = psb_err_context_error_
+    call psb_errpush(info,name)
+    goto 9999
+  endif
+
+  ix = 1
+  jx = 1
+
+  m = psb_cd_get_global_rows(desc_a)
+
+  call psb_chkvect(m,1,x%get_nrows(),ix,jx,desc_a,info,iix,jjx)
+  if(info /= psb_success_) then
+    info=psb_err_from_subroutine_
+    ch_err='psb_chkvect'
+    call psb_errpush(info,name,a_err=ch_err)
+    goto 9999
+  end if
+
+  if (iix /= 1) then
+    info=psb_err_ix_n1_iy_n1_unsupported_
+    call psb_errpush(info,name)
+    goto 9999
+  end if
+
+  ! compute local max
+  if ((psb_cd_get_local_rows(desc_a) > 0).and.(m /= 0)) then
+    amax=x%amax(psb_cd_get_local_rows(desc_a))
+  else 
+    amax = dzero
+  end if
+
+  ! compute global max
+  call psb_amx(ictxt, amax)
+
+  res=amax
+
+  call psb_erractionrestore(err_act)
+  return  
+
+9999 continue
+  call psb_erractionrestore(err_act)
+
+  if (err_act == psb_act_abort_) then
+    call psb_error(ictxt)
+    return
+  end if
+  return
+
+end function psb_damax_d_vect
+
+
 !!$ 
 !!$              Parallel Sparse BLAS  version 3.0
 !!$    (C) Copyright 2006, 2007, 2008, 2009, 2010

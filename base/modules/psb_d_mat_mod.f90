@@ -598,6 +598,16 @@ module psb_d_mat_mod
       integer, intent(out)            :: info
       character, optional, intent(in) :: trans
     end subroutine psb_d_csmv
+    subroutine psb_d_csmv_vect(alpha,a,x,beta,y,info,trans) 
+      use psb_d_vect_mod
+      import :: psb_dspmat_type
+      class(psb_dspmat_type), intent(in) :: a
+      real(psb_dpk_), intent(in)       :: alpha, beta
+      class(psb_d_vect), intent(in)    :: x
+      class(psb_d_vect), intent(inout) :: y
+      integer, intent(out)            :: info
+      character, optional, intent(in) :: trans
+    end subroutine psb_d_csmv_vect
   end interface
 
   interface psb_cssm

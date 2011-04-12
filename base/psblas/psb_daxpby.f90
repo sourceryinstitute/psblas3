@@ -88,7 +88,7 @@ subroutine psb_daxpby_vect(alpha, x, beta, y,&
   end if
 
   if(psb_cd_get_local_rows(desc_a) > 0) then
-    call y%daxpby(psb_cd_get_local_rows(desc_a),&
+    call y%axpby(psb_cd_get_local_rows(desc_a),&
          & alpha,x,beta,info)
   end if
 
