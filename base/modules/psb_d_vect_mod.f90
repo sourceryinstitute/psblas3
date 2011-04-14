@@ -15,6 +15,11 @@ module psb_d_vect_mod
     procedure, pass(x) :: nrm2     => d_base_nrm2
     procedure, pass(x) :: amax     => d_base_amax
     procedure, pass(x) :: asum     => d_base_asum
+    procedure, pass(x) :: all      => d_base_all
+    procedure, pass(x) :: zero     => d_base_zero
+    procedure, pass(x) :: asb      => d_base_asb
+    procedure, pass(x) :: free     => d_base_free
+    procedure, pass(x) :: ins      => d_base_ins
   end type psb_d_vect
 
 contains
@@ -23,8 +28,8 @@ contains
     implicit none 
     class(psb_d_vect), intent(in) :: x
     integer :: res
-    
-    res = size(x%v)
+    res = 0
+    if (allocated(x%v)) res = size(x%v)
   end function d_base_get_nrows
 
   function d_base_dot_v(n,x,y) result(res)
@@ -122,5 +127,106 @@ contains
     res =  sum(abs(x%v(1:n)))
 
   end function d_base_asum
+  
+  subroutine d_base_all(n, x, info)
+    use psi_serial_mod
+    use psb_realloc_mod
+    implicit none 
+    integer, intent(in)               :: n
+    class(psb_d_vect), intent(out)    :: x
+    integer, intent(out)              :: info
+    
+    call psb_realloc(n,x%v,info)
+    
+  end subroutine d_base_all
+
+  subroutine d_base_zero(x)
+    use psi_serial_mod
+    implicit none 
+    class(psb_d_vect), intent(inout)    :: x
+    
+    if (allocated(x%v)) x%v=dzero
+  end subroutine d_base_zero
+
+  subroutine d_base_asb(n, x, info)
+    use psi_serial_mod
+    use psb_realloc_mod
+    implicit none 
+    integer, intent(in)              :: n
+    class(psb_d_vect), intent(inout) :: x
+    integer, intent(out)             :: info
+    
+    if (x%get_nrows() < n) &
+         & call psb_realloc(n,x%v,info)
+    
+  end subroutine d_base_asb
+
+  subroutine d_base_free(x, info)
+    use psi_serial_mod
+    use psb_realloc_mod
+    implicit none 
+    class(psb_d_vect), intent(inout)  :: x
+    integer, intent(out)              :: info
+    
+    info = 0
+    if (allocated(x%v)) deallocate(x%v, stat=info)
+        
+  end subroutine d_base_free
+
+  subroutine d_base_ins(n,irl,val,dupl,x,info)
+    use psi_serial_mod
+    implicit none 
+    class(psb_d_vect), intent(inout)  :: x
+    integer, intent(in)               :: n, dupl
+    integer, intent(in)               :: irl(:)
+    real(psb_dpk_), intent(in)        :: val(:)
+    integer, intent(out)              :: info
+
+    integer :: i
+
+    info = 0
+    if (.not.allocated(x%v)) then 
+      info = psb_err_invalid_vect_state_
+      return
+    end if
+    
+    
+    if (n > min(size(irl),size(val))) then 
+      info = psb_err_invalid_input_
+      return 
+    end if
+    
+    select case(dupl) 
+    case(psb_dupl_ovwrt_) 
+      do i = 1, n
+        !loop over all val's rows
+        
+        ! row actual block row 
+        if (irl(i) > 0) then
+          ! this row belongs to me
+          ! copy i-th row of block val in x
+          x%v(irl(i)) = val(i)
+        end if
+      enddo
+      
+    case(psb_dupl_add_) 
+      
+      do i = 1, n
+        !loop over all val's rows
+        
+        if (irl(i) > 0) then
+          ! this row belongs to me
+          ! copy i-th row of block val in x
+          x%v(irl(i)) = x%v(irl(i)) +  val(i)
+        end if
+      enddo
+      
+    case default
+      info = 321
+!!$      call psb_errpush(info,name)
+!!$      goto 9999
+    end select
+    
+  end subroutine d_base_ins
 
 end module psb_d_vect_mod

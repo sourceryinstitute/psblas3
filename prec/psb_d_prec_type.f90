@@ -48,9 +48,10 @@ module psb_d_prec_type
   type psb_dprec_type
     class(psb_d_base_prec_type), allocatable :: prec
   contains
+    procedure, pass(prec)               :: d_apply2_vect
     procedure, pass(prec)               :: d_apply2v
     procedure, pass(prec)               :: d_apply1v
-    generic, public                     :: apply => d_apply2v, d_apply1v
+    generic, public                     :: apply => d_apply2v, d_apply1v, d_apply2_vect
   end type psb_dprec_type
 
   interface psb_precfree
@@ -72,29 +73,6 @@ module psb_d_prec_type
 
   interface psb_sizeof
     module procedure psb_dprec_sizeof
-  end interface
-
-  interface psb_precaply
-    subroutine psb_dprc_aply(prec,x,y,desc_data,info,trans,work)
-      use psb_base_mod, only  : psb_desc_type, psb_dpk_
-      import :: psb_dprec_type
-      type(psb_desc_type),intent(in)    :: desc_data
-      type(psb_dprec_type), intent(in)  :: prec
-      real(psb_dpk_),intent(in)         :: x(:)
-      real(psb_dpk_),intent(inout)      :: y(:)
-      integer, intent(out)              :: info
-      character(len=1), optional        :: trans
-      real(psb_dpk_),intent(inout), optional, target :: work(:)
-    end subroutine psb_dprc_aply
-    subroutine psb_dprc_aply1(prec,x,desc_data,info,trans)
-      use psb_base_mod, only  : psb_desc_type, psb_dpk_
-      import :: psb_dprec_type
-      type(psb_desc_type),intent(in)    :: desc_data
-      type(psb_dprec_type), intent(in)  :: prec
-      real(psb_dpk_),intent(inout)      :: x(:)
-      integer, intent(out)              :: info
-      character(len=1), optional        :: trans
-    end subroutine psb_dprc_aply1
   end interface
 
 
@@ -197,6 +175,77 @@ contains
   end function psb_dprec_sizeof
 
 
+  subroutine d_apply2_vect(prec,x,y,desc_data,info,trans,work)
+    use psb_base_mod
+    type(psb_desc_type),intent(in)    :: desc_data
+    class(psb_dprec_type), intent(in) :: prec
+    class(psb_d_vect),intent(inout)   :: x
+    class(psb_d_vect),intent(inout)   :: y
+    integer, intent(out)              :: info
+    character(len=1), optional        :: trans
+    real(psb_dpk_),intent(inout), optional, target :: work(:)
+    
+    character     :: trans_ 
+    real(psb_dpk_), pointer :: work_(:)
+    integer :: ictxt,np,me,err_act
+    character(len=20)   :: name
+    
+    name='d_apply2v'
+    info = psb_success_
+    call psb_erractionsave(err_act)
+    
+    ictxt = psb_cd_get_context(desc_data)
+    call psb_info(ictxt, me, np)
+    
+    if (present(trans)) then 
+      trans_=psb_toupper(trans)
+    else
+      trans_='N'
+    end if
+    
+    if (present(work)) then 
+      work_ => work
+    else
+      allocate(work_(4*psb_cd_get_local_cols(desc_data)),stat=info)
+      if (info /= psb_success_) then 
+        info = psb_err_from_subroutine_
+        call psb_errpush(info,name,a_err='Allocate')
+        goto 9999      
+      end if
+      
+    end if
+    
+    if (.not.allocated(prec%prec)) then 
+      info = 1124
+      call psb_errpush(info,name,a_err="preconditioner")
+      goto 9999
+    end if
+
+    call prec%prec%apply(done,x,dzero,y,desc_data,info,trans=trans_,work=work_)
+
+    if (present(work)) then 
+    else
+      deallocate(work_,stat=info)
+      if (info /= psb_success_) then 
+        info = psb_err_from_subroutine_
+        call psb_errpush(info,name,a_err='DeAllocate')
+        goto 9999      
+      end if
+    end if
+    
+    call psb_erractionrestore(err_act)
+    return
+    
+9999 continue
+    call psb_erractionrestore(err_act)
+    if (err_act == psb_act_abort_) then
+      call psb_error()
+      return
+    end if
+    return
+
+  end subroutine d_apply2_vect
+
   subroutine d_apply2v(prec,x,y,desc_data,info,trans,work)
     use psb_base_mod
     type(psb_desc_type),intent(in)    :: desc_data
@@ -220,7 +269,7 @@ contains
     call psb_info(ictxt, me, np)
     
     if (present(trans)) then 
-      trans_=trans
+      trans_=psb_toupper(trans)
     else
       trans_='N'
     end if
@@ -242,7 +291,7 @@ contains
       call psb_errpush(info,name,a_err="preconditioner")
       goto 9999
     end if
-    call prec%prec%apply(done,x,dzero,y,desc_data,info,trans_,work=work_)
+    call prec%prec%apply(done,x,dzero,y,desc_data,info,trans=trans_,work=work_)
     if (present(work)) then 
     else
       deallocate(work_,stat=info)
@@ -302,7 +351,7 @@ contains
       call psb_errpush(info,name,a_err='Allocate')
       goto 9999      
     end if
-    call prec%prec%apply(done,x,dzero,ww,desc_data,info,trans_,work=w1)
+    call prec%prec%apply(done,x,dzero,ww,desc_data,info,trans=trans_,work=w1)
     if(info /= psb_success_) goto 9999
     x(:) = ww(:)
     deallocate(ww,W1,stat=info)

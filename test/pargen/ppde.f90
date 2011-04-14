@@ -83,6 +83,7 @@ program ppde
   type(psb_desc_type)   :: desc_a, desc_b
   ! dense matrices
   real(psb_dpk_), allocatable :: b(:), x(:)
+  type(psb_d_vect)   :: xxv,bv
   ! blacs parameters
   integer            :: ictxt, iam, np
 
@@ -127,7 +128,7 @@ program ppde
   !
   call psb_barrier(ictxt)
   t1 = psb_wtime()
-  call create_matrix(idim,a,b,x,desc_a,ictxt,afmt,info)  
+  call create_matrix(idim,a,b,x,bv,xxv,desc_a,ictxt,afmt,info)  
   call psb_barrier(ictxt)
   t2 = psb_wtime() - t1
   if(info /= psb_success_) then
@@ -191,7 +192,8 @@ program ppde
   call psb_barrier(ictxt)
   t2 = psb_wtime() - t1
   call psb_amx(ictxt,t2)
-
+  call psb_krylov(kmethd,a,prec,bv,xxv,eps,desc_a,info,& 
+       & itmax=itmax,iter=iter,err=err,itrace=itrace,istop=istopc,irst=irst)     
   amatsize = psb_sizeof(a)
   descsize = psb_sizeof(desc_a)
   precsize = psb_sizeof(prec)
@@ -343,7 +345,7 @@ contains
   !  subroutine to allocate and fill in the coefficient matrix and
   !  the rhs. 
   !
-  subroutine create_matrix(idim,a,b,xv,desc_a,ictxt,afmt,info)
+  subroutine create_matrix(idim,a,b,xv,bv,xxv,desc_a,ictxt,afmt,info)
     !
     !   discretize the partial diferential equation
     ! 
@@ -366,6 +368,7 @@ contains
     integer                      :: idim
     integer, parameter           :: nb=20
     real(psb_dpk_), allocatable  :: b(:),xv(:)
+    class(psb_d_vect)            :: xxv,bv
     type(psb_desc_type)          :: desc_a
     integer                      :: ictxt, info
     character                    :: afmt*5
@@ -424,6 +427,8 @@ contains
     ! define  rhs from boundary conditions; also build initial guess 
     if (info == psb_success_) call psb_geall(b,desc_a,info)
     if (info == psb_success_) call psb_geall(xv,desc_a,info)
+    if (info == psb_success_) call psb_geall(xxv,desc_a,info)
+    if (info == psb_success_) call psb_geall(bv,desc_a,info)
     nlr = psb_cd_get_local_rows(desc_a)
     call psb_barrier(ictxt)
     talc = psb_wtime()-t0
@@ -573,8 +578,12 @@ contains
       if(info /= psb_success_) exit
       call psb_geins(ib,myidx(ii:ii+ib-1),zt(1:ib),b,desc_a,info)
       if(info /= psb_success_) exit
+      call psb_geins(ib,myidx(ii:ii+ib-1),zt(1:ib),bv,desc_a,info)
+      if(info /= psb_success_) exit
       zt(:)=0.d0
       call psb_geins(ib,myidx(ii:ii+ib-1),zt(1:ib),xv,desc_a,info)
+      if(info /= psb_success_) exit
+      call psb_geins(ib,myidx(ii:ii+ib-1),zt(1:ib),xxv,desc_a,info)
       if(info /= psb_success_) exit
     end do
 
@@ -601,7 +610,9 @@ contains
       goto 9999
     end if
     call psb_geasb(b,desc_a,info)
-    call psb_geasb(xv,desc_a,info)
+    if (info == psb_success_) call psb_geasb(xv,desc_a,info)
+    if (info == psb_success_) call psb_geasb(xxv,desc_a,info)
+    if (info == psb_success_) call psb_geasb(bv,desc_a,info)
     if(info /= psb_success_) then
       info=psb_err_from_subroutine_
       ch_err='asb rout.'

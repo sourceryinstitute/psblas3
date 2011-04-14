@@ -74,21 +74,39 @@ Module psb_krylov_mod
     Subroutine psb_dkrylov(method,a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,irst,istop,cond)
       
       use psb_base_mod, only  : psb_desc_type, psb_dspmat_type, psb_dpk_
-      use psb_prec_mod,only : psb_sprec_type, psb_dprec_type, psb_cprec_type, psb_zprec_type
+      use psb_prec_mod,only : psb_dprec_type
       
       character(len=*)                   :: method
       Type(psb_dspmat_type), Intent(in)  :: a
       Type(psb_desc_type), Intent(in)    :: desc_a
-      class(psb_dprec_type), intent(in)   :: prec 
-      Real(psb_dpk_), Intent(in)       :: b(:)
-      Real(psb_dpk_), Intent(inout)    :: x(:)
-      Real(psb_dpk_), Intent(in)       :: eps
+      class(psb_dprec_type), intent(in)  :: prec 
+      Real(psb_dpk_), Intent(in)         :: b(:)
+      Real(psb_dpk_), Intent(inout)      :: x(:)
+      Real(psb_dpk_), Intent(in)         :: eps
       integer, intent(out)               :: info
       Integer, Optional, Intent(in)      :: itmax, itrace, irst,istop
       Integer, Optional, Intent(out)     :: iter
       Real(psb_dpk_), Optional, Intent(out) :: err,cond
 
     end Subroutine psb_dkrylov
+    Subroutine psb_dkrylov_vect(method,a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,irst,istop,cond)
+      
+      use psb_base_mod, only  : psb_desc_type, psb_dspmat_type, psb_dpk_, psb_d_vect
+      use psb_prec_mod,only : psb_dprec_type
+      
+      character(len=*)                   :: method
+      Type(psb_dspmat_type), Intent(in)  :: a
+      Type(psb_desc_type), Intent(in)    :: desc_a
+      class(psb_dprec_type), intent(in)  :: prec 
+      class(psb_d_vect), Intent(in)      :: b
+      class(psb_d_vect), Intent(inout)   :: x
+      Real(psb_dpk_), Intent(in)         :: eps
+      integer, intent(out)               :: info
+      Integer, Optional, Intent(in)      :: itmax, itrace, irst,istop
+      Integer, Optional, Intent(out)     :: iter
+      Real(psb_dpk_), Optional, Intent(out) :: err,cond
+
+    end Subroutine psb_dkrylov_vect
     Subroutine psb_zkrylov(method,a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,irst,istop)
       use psb_base_mod, only  : psb_desc_type, psb_zspmat_type, psb_dpk_
       use psb_prec_mod,only : psb_sprec_type, psb_dprec_type, psb_cprec_type, psb_zprec_type

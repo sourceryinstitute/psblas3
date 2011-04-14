@@ -6,7 +6,8 @@ module psb_d_bjacprec
     type(psb_dspmat_type), allocatable :: av(:)
     real(psb_dpk_), allocatable        :: d(:)
   contains
-    procedure, pass(prec) :: apply     => psb_d_bjac_apply
+    procedure, pass(prec) :: d_apply_v => psb_d_bjac_apply_vect
+    procedure, pass(prec) :: d_apply   => psb_d_bjac_apply
     procedure, pass(prec) :: precbld   => psb_d_bjac_precbld
     procedure, pass(prec) :: precinit  => psb_d_bjac_precinit
     procedure, pass(prec) :: precseti  => psb_d_bjac_precseti
@@ -21,7 +22,7 @@ module psb_d_bjacprec
   private :: psb_d_bjac_apply, psb_d_bjac_precbld, psb_d_bjac_precseti,&
        & psb_d_bjac_precsetr, psb_d_bjac_precsetc, psb_d_bjac_sizeof,&
        & psb_d_bjac_precinit, psb_d_bjac_precfree, psb_d_bjac_precdescr,&
-       & psb_d_bjac_dump
+       & psb_d_bjac_dump, psb_d_bjac_apply_vect
   
 
   character(len=15), parameter, private :: &
@@ -31,12 +32,154 @@ module psb_d_bjacprec
 contains
   
 
+  subroutine psb_d_bjac_apply_vect(alpha,prec,x,beta,y,desc_data,info,trans,work)
+    use psb_base_mod
+    type(psb_desc_type),intent(in)    :: desc_data
+    class(psb_d_bjac_prec_type), intent(in)  :: prec
+    real(psb_dpk_),intent(in)         :: alpha,beta
+    class(psb_d_vect),intent(inout)   :: x
+    class(psb_d_vect),intent(inout)   :: y
+    integer, intent(out)              :: info
+    character(len=1), optional        :: trans
+    real(psb_dpk_),intent(inout), optional, target :: work(:)
+
+    ! Local variables
+    integer :: n_row,n_col
+    real(psb_dpk_), pointer :: ww(:), aux(:)
+    integer :: ictxt,np,me, err_act, int_err(5)
+    integer            :: debug_level, debug_unit
+    character          :: trans_
+    character(len=20)  :: name='d_bjac_prec_apply'
+    character(len=20)  :: ch_err
+
+    info = psb_success_
+    call psb_erractionsave(err_act)
+    debug_unit  = psb_get_debug_unit()
+    debug_level = psb_get_debug_level()
+    ictxt       = psb_cd_get_context(desc_data)
+    call psb_info(ictxt, me, np)
+    
+    
+    trans_ = psb_toupper(trans)
+    select case(trans_)
+    case('N','T','C')
+      ! Ok
+    case default
+      call psb_errpush(psb_err_iarg_invalid_i_,name)
+      goto 9999
+    end select
+    
+    
+    n_row = psb_cd_get_local_rows(desc_data)
+    n_col = psb_cd_get_local_cols(desc_data)
+
+    if (x%get_nrows() < n_row) then 
+      info = 36
+      call psb_errpush(info,name,i_err=(/2,n_row,0,0,0/))
+      goto 9999
+    end if
+    if (y%get_nrows() < n_row) then 
+      info = 36
+      call psb_errpush(info,name,i_err=(/3,n_row,0,0,0/))
+      goto 9999
+    end if
+    if (.not.allocated(prec%d)) then
+      info = 1124
+      call psb_errpush(info,name,a_err="preconditioner: D")
+      goto 9999
+    end if
+    if (size(prec%d) < n_row) then
+      info = 1124
+      call psb_errpush(info,name,a_err="preconditioner: D")
+      goto 9999
+    end if
+
+    
+    if (n_col <= size(work)) then 
+      ww => work(1:n_col)
+      if ((4*n_col+n_col) <= size(work)) then 
+        aux => work(n_col+1:)
+      else
+        allocate(aux(4*n_col),stat=info)
+        if (info /= psb_success_) then 
+          call psb_errpush(psb_err_from_subroutine_,name,a_err='Allocate')
+          goto 9999      
+        end if
+        
+      endif
+    else
+      allocate(ww(n_col),aux(4*n_col),stat=info)
+      if (info /= psb_success_) then 
+        call psb_errpush(psb_err_from_subroutine_,name,a_err='Allocate')
+        goto 9999      
+      end if
+    endif
+    
+    
+    select case(prec%iprcparm(psb_f_type_))
+    case(psb_f_ilu_n_) 
+      
+      select case(trans_)
+      case('N')
+        call psb_spsm(done,prec%av(psb_l_pr_),x%v,dzero,ww,desc_data,info,&
+             & trans=trans_,scale='L',diag=prec%d,choice=psb_none_,work=aux)
+        if(info == psb_success_) call psb_spsm(alpha,prec%av(psb_u_pr_),ww,&
+             & beta,y%v,desc_data,info,&
+             & trans=trans_,scale='U',choice=psb_none_, work=aux)
+        
+      case('T','C')
+        call psb_spsm(done,prec%av(psb_u_pr_),x%v,dzero,ww,desc_data,info,&
+             & trans=trans_,scale='L',diag=prec%d,choice=psb_none_, work=aux)
+        if(info == psb_success_)  call psb_spsm(alpha,prec%av(psb_l_pr_),ww,&
+             & beta,y%v,desc_data,info,&
+           & trans=trans_,scale='U',choice=psb_none_,work=aux)
+        
+      end select
+      if (info /= psb_success_) then 
+        ch_err="psb_spsm"
+        goto 9999
+      end if
+      
+      
+    case default
+      info = psb_err_internal_error_
+      call psb_errpush(info,name,a_err='Invalid factorization')
+      goto 9999
+    end select
+    
+!!$    call psb_halo(y,desc_data,info,data=psb_comm_mov_)
+    
+    if (n_col <= size(work)) then 
+      if ((4*n_col+n_col) <= size(work)) then 
+      else
+        deallocate(aux)
+      endif
+    else
+      deallocate(ww,aux)
+    endif
+    
+    
+    call psb_erractionrestore(err_act)
+    return
+    
+9999 continue
+    call psb_errpush(info,name,i_err=int_err,a_err=ch_err)
+    call psb_erractionrestore(err_act)
+    if (err_act == psb_act_abort_) then
+      call psb_error()
+      return
+    end if
+    return
+
+
+  end subroutine psb_d_bjac_apply_vect
+
   subroutine psb_d_bjac_apply(alpha,prec,x,beta,y,desc_data,info,trans,work)
     use psb_base_mod
     type(psb_desc_type),intent(in)    :: desc_data
     class(psb_d_bjac_prec_type), intent(in)  :: prec
     real(psb_dpk_),intent(in)         :: alpha,beta
-    real(psb_dpk_),intent(in)         :: x(:)
+    real(psb_dpk_),intent(inout)      :: x(:)
     real(psb_dpk_),intent(inout)      :: y(:)
     integer, intent(out)              :: info
     character(len=1), optional        :: trans

@@ -165,3 +165,55 @@ subroutine psb_dfreev(x, desc_a, info)
   return
 
 end subroutine psb_dfreev
+
+subroutine psb_dfree_vect(x, desc_a, info)
+  use psb_base_mod, psb_protect_name => psb_dfree_vect
+  implicit none
+  !....parameters...
+  class(psb_d_vect), intent(inout) :: x
+  type(psb_desc_type), intent(in)  :: desc_a
+  integer, intent(out)             :: info 
+  !...locals....
+  integer             :: ictxt,np,me,err_act
+  character(len=20)   :: name
+
+
+  if(psb_get_errstatus() /= 0) return 
+  info=psb_success_
+  call psb_erractionsave(err_act)
+  name='psb_dfreev'
+
+  if (.not.psb_is_ok_desc(desc_a)) then
+     info=psb_err_forgot_spall_
+     call psb_errpush(info,name)
+     return
+  end if
+  ictxt = psb_cd_get_context(desc_a)
+
+  call psb_info(ictxt, me, np)
+  if (np == -1) then
+    info = psb_err_context_error_
+    call psb_errpush(info,name)
+    goto 9999
+  endif
+
+
+  call x%free(info)
+
+  if (info /= psb_no_err_) then
+    info=psb_err_alloc_dealloc_
+    call psb_errpush(info,name)
+  endif
+
+  call psb_erractionrestore(err_act)
+  return
+
+9999 continue
+  call psb_erractionrestore(err_act)
+  if (err_act == psb_act_abort_) then
+     call psb_error(ictxt)
+     return
+  end if
+  return
+
+end subroutine psb_dfree_vect

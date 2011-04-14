@@ -48,6 +48,14 @@ Module psb_d_tools_mod
       integer,intent(out)             :: info
       integer, optional, intent(in)   :: n
     end subroutine psb_dallocv
+    subroutine psb_dalloc_vect(x, desc_a,info,n)
+      use psb_descriptor_type, only : psb_desc_type, psb_dpk_
+      use psb_d_vect_mod
+      class(psb_d_vect), intent(out)  :: x
+      type(psb_desc_type), intent(in) :: desc_a
+      integer,intent(out)             :: info
+      integer, optional, intent(in)   :: n
+    end subroutine psb_dalloc_vect
   end interface
 
 
@@ -64,6 +72,13 @@ Module psb_d_tools_mod
       real(psb_dpk_), allocatable, intent(inout)   ::  x(:)
       integer, intent(out)        ::  info
     end subroutine psb_dasbv
+    subroutine psb_dasb_vect(x, desc_a, info)
+      use psb_descriptor_type, only : psb_desc_type, psb_dpk_
+      use psb_d_vect_mod
+      type(psb_desc_type), intent(in)  ::  desc_a
+      class(psb_d_vect), intent(inout) :: x
+      integer, intent(out)             ::  info
+    end subroutine psb_dasb_vect
   end interface
 
   interface psb_sphalo
@@ -94,18 +109,25 @@ Module psb_d_tools_mod
       type(psb_desc_type), intent(in) :: desc_a
       integer, intent(out)       :: info
     end subroutine psb_dfreev
+    subroutine psb_dfree_vect(x, desc_a, info)
+      use psb_descriptor_type, only : psb_desc_type, psb_dpk_
+      use psb_d_vect_mod
+      type(psb_desc_type), intent(in)  ::  desc_a
+      class(psb_d_vect), intent(inout) :: x
+      integer, intent(out)             ::  info
+    end subroutine psb_dfree_vect
   end interface
 
   interface psb_geins
     subroutine psb_dinsi(m,irw,val, x,desc_a,info,dupl)
       use psb_descriptor_type, only : psb_desc_type, psb_dpk_
-      integer, intent(in)                ::  m
-      type(psb_desc_type), intent(in)    ::  desc_a
-      real(psb_dpk_),intent(inout)           ::  x(:,:)
-      integer, intent(in)                ::  irw(:)
+      integer, intent(in)              ::  m
+      type(psb_desc_type), intent(in)  ::  desc_a
+      real(psb_dpk_),intent(inout)     ::  x(:,:)
+      integer, intent(in)              ::  irw(:)
       real(psb_dpk_), intent(in)       ::  val(:,:)
-      integer, intent(out)               ::  info
-      integer, optional, intent(in)      ::  dupl
+      integer, intent(out)             ::  info
+      integer, optional, intent(in)    ::  dupl
     end subroutine psb_dinsi
     subroutine psb_dinsvi(m,irw,val,x,desc_a,info,dupl)
       use psb_descriptor_type, only : psb_desc_type, psb_dpk_
@@ -117,6 +139,17 @@ Module psb_d_tools_mod
       integer, intent(out)             ::  info
       integer, optional, intent(in)    ::  dupl
     end subroutine psb_dinsvi
+    subroutine psb_dins_vect(m,irw,val,x,desc_a,info,dupl)
+      use psb_descriptor_type, only : psb_desc_type, psb_dpk_
+      use psb_d_vect_mod
+      integer, intent(in)              :: m
+      type(psb_desc_type), intent(in)  :: desc_a
+      class(psb_d_vect), intent(inout) :: x
+      integer, intent(in)              :: irw(:)
+      real(psb_dpk_), intent(in)       :: val(:)
+      integer, intent(out)             :: info
+      integer, optional, intent(in)    :: dupl
+    end subroutine psb_dins_vect
   end interface
 
 

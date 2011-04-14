@@ -437,7 +437,9 @@ contains
       write(psb_err_unit,'("Invalid state for communication descriptor")')
     case (psb_err_invalid_a_and_cd_state_)
       write(psb_err_unit,'("Invalid combined state for A and DESC_A")')
-    case(1124:1999)
+    case (psb_err_invalid_vect_state_)
+      write(psb_err_unit,'("Invalid state for vector")')
+    case(1125:1999)
       write(psb_err_unit,'("computational error. code: ",i0)')err_c
     case(psb_err_context_error_)
       write(0,'("Parallel context error. Number of processes=-1")')

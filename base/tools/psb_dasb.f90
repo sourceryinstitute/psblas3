@@ -250,3 +250,69 @@ subroutine psb_dasbv(x, desc_a, info)
 
 end subroutine psb_dasbv
 
+subroutine psb_dasb_vect(x, desc_a, info)
+  use psb_base_mod, psb_protect_name => psb_dasb_vect
+  implicit none
+
+  type(psb_desc_type), intent(in)  ::  desc_a
+  class(psb_d_vect), intent(inout) ::  x
+  integer, intent(out)        ::  info
+
+  ! local variables
+  integer :: ictxt,np,me
+  integer :: int_err(5), i1sz,nrow,ncol, err_act
+  integer              :: debug_level, debug_unit
+  character(len=20)    :: name,ch_err
+
+  info = psb_success_
+  int_err(1) = 0
+  name = 'psb_dgeasb_v'
+
+  ictxt   = psb_cd_get_context(desc_a)
+  debug_unit  = psb_get_debug_unit()
+  debug_level = psb_get_debug_level()
+
+  call psb_info(ictxt, me, np)
+
+  !     ....verify blacs grid correctness..
+  if (np == -1) then
+    info = psb_err_context_error_
+    call psb_errpush(info,name)
+    goto 9999
+  else if (.not.psb_is_asb_desc(desc_a)) then
+    info = psb_err_input_matrix_unassembled_
+    call psb_errpush(info,name)
+    goto 9999
+  endif
+
+  nrow = psb_cd_get_local_rows(desc_a)
+  ncol = psb_cd_get_local_cols(desc_a)
+  if (debug_level >= psb_debug_ext_) &
+       & write(debug_unit,*) me,' ',trim(name),': sizes: ',nrow,ncol
+
+  call x%asb(ncol,info)
+
+  ! ..update halo elements..
+!!$  call psb_halo(x,desc_a,info)
+  if(info /= psb_success_) then
+    info=psb_err_from_subroutine_
+    ch_err='f90_pshalo'
+    call psb_errpush(info,name,a_err=ch_err)
+    goto 9999
+  end if
+  if (debug_level >= psb_debug_ext_) &
+       & write(debug_unit,*) me,' ',trim(name),': end'
+  write(0,*) 'Assembled X ',x%get_nrows(),ncol
+  call psb_erractionrestore(err_act)
+  return
+
+9999 continue
+  call psb_erractionrestore(err_act)
+  if (err_act == psb_act_abort_) then
+    call psb_error(ictxt)
+    return
+  end if
+  return
+
+end subroutine psb_dasb_vect
+

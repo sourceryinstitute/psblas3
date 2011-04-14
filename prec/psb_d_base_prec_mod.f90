@@ -49,7 +49,9 @@ module psb_d_base_prec_mod
   contains
     procedure, pass(prec) :: set_ctxt  => psb_d_base_set_ctxt
     procedure, pass(prec) :: get_ctxt  => psb_d_base_get_ctxt
-    procedure, pass(prec) :: apply     => psb_d_base_apply
+    procedure, pass(prec) :: d_apply_v => psb_d_base_apply_vect
+    procedure, pass(prec) :: d_apply   => psb_d_base_apply
+    generic, public       :: apply     => d_apply, d_apply_v
     procedure, pass(prec) :: precbld   => psb_d_base_precbld
     procedure, pass(prec) :: precseti  => psb_d_base_precseti
     procedure, pass(prec) :: precsetr  => psb_d_base_precsetr
@@ -70,12 +72,48 @@ module psb_d_base_prec_mod
 
 contains
 
+  subroutine psb_d_base_apply_vect(alpha,prec,x,beta,y,desc_data,info,trans,work)
+    use psb_base_mod
+    type(psb_desc_type),intent(in)    :: desc_data
+    class(psb_d_base_prec_type), intent(in)  :: prec
+    real(psb_dpk_),intent(in)         :: alpha, beta
+    class(psb_d_vect),intent(inout)   :: x
+    class(psb_d_vect),intent(inout)   :: y
+    integer, intent(out)              :: info
+    character(len=1), optional        :: trans
+    real(psb_dpk_),intent(inout), optional, target :: work(:)
+    Integer :: err_act, nrow
+    character(len=20)  :: name='d_base_prec_apply'
+
+    call psb_erractionsave(err_act)
+
+    !
+    ! This is the base version and we should throw an error. 
+    ! Or should it be the NULL preonditioner???
+    !
+    info = 700
+    call psb_errpush(info,name)
+    goto 9999 
+    
+    call psb_erractionrestore(err_act)
+    return
+
+9999 continue
+    call psb_erractionrestore(err_act)
+    if (err_act == psb_act_abort_) then
+      call psb_error()
+      return
+    end if
+    return
+
+  end subroutine psb_d_base_apply_vect
+
   subroutine psb_d_base_apply(alpha,prec,x,beta,y,desc_data,info,trans,work)
     use psb_base_mod
     type(psb_desc_type),intent(in)    :: desc_data
     class(psb_d_base_prec_type), intent(in)  :: prec
     real(psb_dpk_),intent(in)         :: alpha, beta
-    real(psb_dpk_),intent(in)         :: x(:)
+    real(psb_dpk_),intent(inout)      :: x(:)
     real(psb_dpk_),intent(inout)      :: y(:)
     integer, intent(out)              :: info
     character(len=1), optional        :: trans
