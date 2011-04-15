@@ -22,9 +22,8 @@ MODDIR=../modules
 FINCLUDES=$(FMFLAG)$(LIBDIR) $(FMFLAG)$(MODDIR) $(FMFLAG).
 CINCLUDES=-I. 
 
-lib: mpfobjs $(FOBJS) $(FOBJS2) $(COBJS) $(MPFOBJS2)
-	$(AR) $(LIBDIR)/$(LIBNAME) $(MPFOBJS) $(MPFOBJS2) $(FOBJS) $(FOBJS2) \
-             $(COBJS)
+lib: mpfobjs $(FOBJS) $(FOBJS2) $(COBJS) $(MPFOBJS2) $(MPFOBJS) 
+	$(AR) $(LIBDIR)/$(LIBNAME) $(MPFOBJS) $(MPFOBJS2) $(FOBJS) $(FOBJS2) $(COBJS)
 	$(RANLIB) $(LIBDIR)/$(LIBNAME)
 
 $(FOBJS) $(FBOJS2): $(MODDIR)/psi_mod$(.mod)

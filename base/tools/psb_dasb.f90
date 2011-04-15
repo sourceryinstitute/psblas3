@@ -302,7 +302,7 @@ subroutine psb_dasb_vect(x, desc_a, info)
   end if
   if (debug_level >= psb_debug_ext_) &
        & write(debug_unit,*) me,' ',trim(name),': end'
-  write(0,*) 'Assembled X ',x%get_nrows(),ncol
+
   call psb_erractionrestore(err_act)
   return
 

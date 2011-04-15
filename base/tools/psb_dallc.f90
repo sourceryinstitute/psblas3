@@ -315,7 +315,7 @@ subroutine psb_dalloc_vect(x, desc_a,info,n)
     goto 9999
   endif
   call x%zero()
-  write(0,*) 'Allocated X ',x%get_nrows(),nr
+
   call psb_erractionrestore(err_act)
   return
 

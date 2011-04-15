@@ -26,7 +26,7 @@ LIBFILE=$(LIBDIR)/$(LIBNAME)
 
 default: lib
 
-lib: $(OBJS)
+lib:  $(OBJS)
 	$(AR) $(LIBDIR)/$(LIBNAME) $(OBJS)
 	$(RANLIB) $(LIBDIR)/$(LIBNAME)
 

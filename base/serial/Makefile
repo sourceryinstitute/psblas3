@@ -12,7 +12,7 @@ LIBDIR=..
 MODDIR=../modules
 FINCLUDES=$(FMFLAG)$(LIBDIR) $(FMFLAG)$(MODDIR) $(FMFLAG).
 
-lib: auxd  f77d impld lib1
+lib: auxd  f77d impld lib1 $(FOBJS)
 	$(AR) $(LIBDIR)/$(LIBNAME) $(FOBJS)
 	$(RANLIB) $(LIBDIR)/$(LIBNAME)
 
