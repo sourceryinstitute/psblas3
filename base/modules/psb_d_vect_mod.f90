@@ -23,8 +23,23 @@ module psb_d_vect_mod
     procedure, pass(x) :: ins      => d_base_ins
   end type psb_d_vect
 
+  interface psb_d_vect_
+    module procedure constructor
+  end interface psb_d_vect_
+
 contains
   
+  function constructor(x) result(this)
+    real(psb_dpk_)   :: x(:)
+    type(psb_d_vect) :: this
+    integer :: info
+
+    this%v = x
+    call this%asb(size(x),info)
+
+  end function constructor
+    
+
   function d_base_get_nrows(x) result(res)
     implicit none 
     class(psb_d_vect), intent(in) :: x
