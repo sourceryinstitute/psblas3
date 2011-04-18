@@ -18,6 +18,7 @@ module psb_d_vect_mod
     procedure, pass(x) :: all      => d_base_all
     procedure, pass(x) :: zero     => d_base_zero
     procedure, pass(x) :: asb      => d_base_asb
+    procedure, pass(x) :: sync     => d_base_sync
     procedure, pass(x) :: free     => d_base_free
     procedure, pass(x) :: ins      => d_base_ins
   end type psb_d_vect
@@ -160,6 +161,17 @@ contains
          & call psb_realloc(n,x%v,info)
     
   end subroutine d_base_asb
+
+  subroutine d_base_sync(x)
+    implicit none 
+    class(psb_d_vect), intent(inout) :: x
+    
+    !
+    ! The base version does nothing, it's just
+    ! a placeholder.
+    ! 
+    
+  end subroutine d_base_sync
 
   subroutine d_base_free(x, info)
     use psi_serial_mod

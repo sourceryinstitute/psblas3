@@ -664,6 +664,8 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
 
   deallocate(aux,stat=info)
 
+  call x%sync()
+
   if(info /= psb_success_) then
      call psb_errpush(info,name)
      goto 9999
