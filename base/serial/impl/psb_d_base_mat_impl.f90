@@ -1239,7 +1239,7 @@ subroutine psb_d_base_vect_mv(alpha,a,x,beta,y,info,trans)
   implicit none 
   class(psb_d_base_sparse_mat), intent(in) :: a
   real(psb_dpk_), intent(in)       :: alpha, beta
-  class(psb_d_vect), intent(in)    :: x
+  class(psb_d_vect), intent(inout) :: x
   class(psb_d_vect), intent(inout) :: y
   integer, intent(out)             :: info
   character, optional, intent(in)  :: trans

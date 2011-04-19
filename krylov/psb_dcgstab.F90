@@ -411,7 +411,7 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
   type(psb_dspmat_type), intent(in)  :: a
   class(psb_dprec_type), Intent(in)  :: prec 
   Type(psb_desc_type), Intent(in)    :: desc_a
-  class(psb_d_vect), Intent(in)      :: b
+  class(psb_d_vect), Intent(inout)   :: b
   class(psb_d_vect), Intent(inout)   :: x
   Real(psb_dpk_), Intent(in)         :: eps
   integer, intent(out)               :: info

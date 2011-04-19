@@ -196,7 +196,7 @@ contains
     integer, intent(in)               :: stopc, trace,itmax
     type(psb_dspmat_type), intent(in) :: a
     real(psb_dpk_), intent(in)        :: eps
-    class(psb_d_vect), intent(in)      :: b
+    class(psb_d_vect), intent(inout)  :: b
     type(psb_desc_type), intent(in)   :: desc_a
     type(psb_itconv_type)             :: stopdat
     integer, intent(out)              :: info
@@ -260,13 +260,13 @@ contains
   function psb_d_check_conv_vect(methdname,it,x,r,desc_a,stopdat,info) result(res)
     use psb_base_mod
     implicit none 
-    character(len=*), intent(in)    :: methdname
-    integer, intent(in)             :: it
-    class(psb_d_vect), intent(in)    :: x, r
-    type(psb_desc_type), intent(in) :: desc_a
-    type(psb_itconv_type)           :: stopdat
-    logical                         :: res
-    integer, intent(out)            :: info
+    character(len=*), intent(in)     :: methdname
+    integer, intent(in)              :: it
+    class(psb_d_vect), intent(inout) :: x, r
+    type(psb_desc_type), intent(in)  :: desc_a
+    type(psb_itconv_type)            :: stopdat
+    logical                          :: res
+    integer, intent(out)             :: info
 
     integer                         :: ictxt, me, np, err_act
     character(len=20)               :: name

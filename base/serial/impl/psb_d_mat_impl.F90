@@ -1832,10 +1832,10 @@ subroutine psb_d_csmv_vect(alpha,a,x,beta,y,info,trans)
   implicit none 
   class(psb_dspmat_type), intent(in) :: a
   real(psb_dpk_), intent(in)       :: alpha, beta
-  class(psb_d_vect), intent(in)    :: x
+  class(psb_d_vect), intent(inout) :: x
   class(psb_d_vect), intent(inout) :: y
-  integer, intent(out)            :: info
-  character, optional, intent(in) :: trans
+  integer, intent(out)             :: info
+  character, optional, intent(in)  :: trans
   Integer :: err_act
   character(len=20)  :: name='psb_csmv'
   logical, parameter :: debug=.false.

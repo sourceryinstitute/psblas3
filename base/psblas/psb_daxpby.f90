@@ -36,7 +36,7 @@ subroutine psb_daxpby_vect(alpha, x, beta, y,&
      & desc_a, info)
   use psb_base_mod, psb_protect_name => psb_daxpby_vect
   implicit none                    
-  class(psb_d_vect), intent (in)      ::  x
+  class(psb_d_vect), intent (inout)   ::  x
   class(psb_d_vect), intent (inout)   ::  y
   real(psb_dpk_), intent (in)         :: alpha, beta
   type(psb_desc_type), intent (in)    :: desc_a

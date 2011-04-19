@@ -57,7 +57,7 @@ function psb_ddot_vect(x, y, desc_a,info) result(res)
   use psb_d_psblas_mod, psb_protect_name => psb_ddot_vect
   implicit none 
   real(psb_dpk_)                   :: res
-  class(psb_d_vect), intent(in)    :: x, y
+  class(psb_d_vect), intent(inout)    :: x, y
   type(psb_desc_type), intent(in)  :: desc_a
   integer, intent(out)             :: info
   

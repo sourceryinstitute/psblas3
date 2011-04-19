@@ -36,7 +36,7 @@ module psb_d_psblas_mod
       use psb_descriptor_type, only : psb_desc_type, psb_dpk_
       use psb_d_base_mat_mod, only : psb_d_vect
       real(psb_dpk_)                   :: res
-      class(psb_d_vect), intent(in)    :: x, y
+      class(psb_d_vect), intent(inout) :: x, y
       type(psb_desc_type), intent(in)  :: desc_a
       integer, intent(out)             :: info
     end function psb_ddot_vect
@@ -79,7 +79,7 @@ module psb_d_psblas_mod
          & desc_a, info)
       use psb_descriptor_type, only : psb_desc_type, psb_dpk_
       use psb_d_base_mat_mod, only : psb_d_vect
-      class(psb_d_vect), intent (in)      :: x
+      class(psb_d_vect), intent (inout)   :: x
       class(psb_d_vect), intent (inout)   :: y
       real(psb_dpk_), intent (in)         :: alpha, beta
       type(psb_desc_type), intent (in)    :: desc_a
@@ -126,7 +126,7 @@ module psb_d_psblas_mod
       use psb_descriptor_type, only : psb_desc_type, psb_dpk_
       use psb_d_base_mat_mod, only : psb_d_vect
       real(psb_dpk_)                      :: res
-      class(psb_d_vect), intent (in)      :: x
+      class(psb_d_vect), intent (inout)   :: x
       type(psb_desc_type), intent (in)    :: desc_a
       integer, intent(out)                :: info
     end function psb_damax_d_vect
@@ -155,7 +155,7 @@ module psb_d_psblas_mod
       use psb_descriptor_type, only : psb_desc_type, psb_dpk_
       use psb_d_base_mat_mod, only : psb_d_vect
       real(psb_dpk_)                      :: res
-      class(psb_d_vect), intent (in)      :: x
+      class(psb_d_vect), intent (inout)   :: x
       type(psb_desc_type), intent (in)    :: desc_a
       integer, intent(out)                :: info
     end function psb_dasum_d_vect
@@ -214,7 +214,7 @@ module psb_d_psblas_mod
       use psb_descriptor_type, only : psb_desc_type, psb_dpk_
       use psb_d_base_mat_mod, only : psb_d_vect
       real(psb_dpk_)                      :: res
-      class(psb_d_vect), intent (in)      :: x
+      class(psb_d_vect), intent (inout)   :: x
       type(psb_desc_type), intent (in)    :: desc_a
       integer, intent(out)                :: info
     end function psb_dnrm2_d_vect

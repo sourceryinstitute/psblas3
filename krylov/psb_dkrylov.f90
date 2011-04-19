@@ -252,7 +252,7 @@ Subroutine psb_dkrylov_vect(method,a,prec,b,x,eps,desc_a,info,itmax,iter,err,itr
   Type(psb_dspmat_type), Intent(in)  :: a
   Type(psb_desc_type), Intent(in)    :: desc_a
   class(psb_dprec_type), intent(in)  :: prec 
-  class(psb_d_vect), Intent(in)      :: b
+  class(psb_d_vect), Intent(inout)   :: b
   class(psb_d_vect), Intent(inout)   :: x
   Real(psb_dpk_), Intent(in)         :: eps
   integer, intent(out)               :: info
@@ -297,10 +297,10 @@ Subroutine psb_dkrylov_vect(method,a,prec,b,x,eps,desc_a,info,itmax,iter,err,itr
       use psb_prec_mod, only : psb_dprec_type
       type(psb_dspmat_type), intent(in)  :: a
       type(psb_desc_type), intent(in)    :: desc_a
-      class(psb_d_vect), Intent(in)      :: b
+      class(psb_d_vect), Intent(inout)   :: b
       class(psb_d_vect), Intent(inout)   :: x
-      real(psb_dpk_), intent(in)       :: eps
-      class(psb_dprec_type), intent(in)   :: prec
+      real(psb_dpk_), intent(in)         :: eps
+      class(psb_dprec_type), intent(in)  :: prec
       integer, intent(out)               :: info
       integer, optional, intent(in)      :: itmax, itrace,istop
       integer, optional, intent(out)     :: iter

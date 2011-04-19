@@ -21,13 +21,37 @@ module psb_d_vect_mod
     procedure, pass(x) :: sync     => d_base_sync
     procedure, pass(x) :: free     => d_base_free
     procedure, pass(x) :: ins      => d_base_ins
+    procedure, pass(x) :: bld      => d_base_bld
+    procedure, pass(x) :: cpy_vect => d_base_cpy_vect
+    generic, public    :: assignment(=) => cpy_vect
   end type psb_d_vect
 
+  public  :: psb_d_vect_
+  private :: constructor
   interface psb_d_vect_
     module procedure constructor
   end interface psb_d_vect_
 
 contains
+  
+  subroutine d_base_bld(x,this)
+    real(psb_dpk_), intent(in) :: this(:)
+    class(psb_d_vect), intent(inout) :: x
+    integer :: info
+
+    x%v  = this 
+
+  end subroutine d_base_bld
+    
+  subroutine d_base_cpy_vect(this,x)
+    real(psb_dpk_), allocatable, intent(out) :: this(:)
+    class(psb_d_vect), intent(in) :: x
+    integer :: info
+
+    this = x%v 
+
+  end subroutine d_base_cpy_vect
+    
   
   function constructor(x) result(this)
     real(psb_dpk_)   :: x(:)
@@ -50,7 +74,7 @@ contains
 
   function d_base_dot_v(n,x,y) result(res)
     implicit none 
-    class(psb_d_vect), intent(in) :: x, y
+    class(psb_d_vect), intent(inout) :: x, y
     integer, intent(in)           :: n
     real(psb_dpk_)                :: res
     real(psb_dpk_), external      :: ddot
@@ -72,7 +96,7 @@ contains
 
   function d_base_dot_a(n,x,y) result(res)
     implicit none 
-    class(psb_d_vect), intent(in) :: x
+    class(psb_d_vect), intent(inout) :: x
     real(psb_dpk_), intent(in)    :: y(:)
     integer, intent(in)           :: n
     real(psb_dpk_)                :: res
@@ -86,7 +110,7 @@ contains
     use psi_serial_mod
     implicit none 
     integer, intent(in)               :: m
-    class(psb_d_vect), intent(in)     :: x
+    class(psb_d_vect), intent(inout)  :: x
     class(psb_d_vect), intent(inout)  :: y
     real(psb_dpk_), intent (in)       :: alpha, beta
     integer, intent(out)              :: info
@@ -115,7 +139,7 @@ contains
 
   function d_base_nrm2(n,x) result(res)
     implicit none 
-    class(psb_d_vect), intent(in) :: x
+    class(psb_d_vect), intent(inout) :: x
     integer, intent(in)           :: n
     real(psb_dpk_)                :: res
     real(psb_dpk_), external      :: dnrm2
@@ -126,7 +150,7 @@ contains
   
   function d_base_amax(n,x) result(res)
     implicit none 
-    class(psb_d_vect), intent(in) :: x
+    class(psb_d_vect), intent(inout) :: x
     integer, intent(in)           :: n
     real(psb_dpk_)                :: res
     
@@ -136,7 +160,7 @@ contains
 
   function d_base_asum(n,x) result(res)
     implicit none 
-    class(psb_d_vect), intent(in) :: x
+    class(psb_d_vect), intent(inout) :: x
     integer, intent(in)           :: n
     real(psb_dpk_)                :: res
     
