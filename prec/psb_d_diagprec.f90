@@ -80,9 +80,10 @@ contains
         goto 9999      
       end if
     end if
-
-    ww(1:nrow) = x%v(1:nrow)*prec%d(1:nrow)
-    call psb_geaxpby(alpha,ww,beta,y%v,desc_data,info)
+    
+    call x%mlt(ww,prec%d(1:nrow),info)
+    if (info == 0) call y%axpby(nrow,alpha,ww,beta,info)
+!!$    if (info == 0) call psb_geaxpby(alpha,ww,beta,y,desc_data,info)
 
     if (size(work) < x%get_nrows()) then 
       deallocate(ww,stat=info)
@@ -212,7 +213,7 @@ contains
   end subroutine psb_d_diag_precinit
 
 
-  subroutine psb_d_diag_precbld(a,desc_a,prec,info,upd,mold,afmt)
+  subroutine psb_d_diag_precbld(a,desc_a,prec,info,upd,amold,afmt,vmold)
     
     use psb_base_mod
     Implicit None
@@ -223,7 +224,8 @@ contains
     integer, intent(out)                      :: info
     character, intent(in), optional           :: upd
     character(len=*), intent(in), optional    :: afmt
-    class(psb_d_base_sparse_mat), intent(in), optional :: mold
+    class(psb_d_base_sparse_mat), intent(in), optional :: amold
+    class(psb_d_vect), intent(in), optional   :: vmold
     Integer :: err_act, nrow,i
     character(len=20)  :: name='d_diag_precbld'
 

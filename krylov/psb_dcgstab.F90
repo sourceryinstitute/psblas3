@@ -272,6 +272,10 @@ Subroutine psb_dcgstab(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,istop)
       rho_old = rho    
       rho     = psb_gedot(q,r,desc_a,info)
 
+      if (debug_level >= psb_debug_ext_)&
+           & write(debug_unit,*) me,' ',trim(name),&
+           & ' Rho: ',rho
+
       if (rho == dzero) then
          if (debug_level >= psb_debug_ext_) &
               & write(debug_unit,*) me,' ',trim(name),&
@@ -290,18 +294,27 @@ Subroutine psb_dcgstab(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,istop)
 #ifdef MPE_KRYLOV
       imerr = MPE_Log_event( ifctb, 0, "st PREC" )
 #endif
+      if (debug_level >= psb_debug_inner_) write(0,*) 'P: ',p
       call prec%apply(p,f,desc_a,info,work=aux)
+      if (debug_level >= psb_debug_inner_)  write(0,*) 'F: ',f
 #ifdef MPE_KRYLOV
       imerr = MPE_Log_event( ifcte, 0, "ed PREC" )
       imerr = MPE_Log_event( immb, 0, "st SPMM" )
 #endif
       call psb_spmm(done,a,f,dzero,v,desc_a,info,&
            & work=aux)
+      if (debug_level >= psb_debug_inner_)  write(0,*) 'Q: ',q
+      if (debug_level >= psb_debug_inner_)  write(0,*) 'V: ',v
+
 #ifdef MPE_KRYLOV
       imerr = MPE_Log_event( imme, 0, "ed SPMM" )
 #endif
 
       sigma = psb_gedot(q,v,desc_a,info)
+
+      if (debug_level >= psb_debug_ext_)&
+           & write(debug_unit,*) me,' ',trim(name),&
+           & ' Sigma: ',sigma
       if (sigma == dzero) then
          if (debug_level >= psb_debug_ext_) &
               & write(debug_unit,*) me,' ',trim(name),&
@@ -312,6 +325,9 @@ Subroutine psb_dcgstab(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,istop)
       alpha = rho/sigma
       call psb_geaxpby(done,r,dzero,s,desc_a,info)
       if (info == psb_success_) call psb_geaxpby(-alpha,v,done,s,desc_a,info)
+      if (debug_level >= psb_debug_ext_)&
+           & write(debug_unit,*) me,' ',trim(name),&
+           & ' alpha: ',alpha
 
       if(info /= psb_success_) then
          call psb_errpush(psb_err_from_subroutine_,name,a_err='psb_geaxpby')
@@ -349,6 +365,10 @@ Subroutine psb_dcgstab(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,istop)
       tau   = psb_gedot(t,s,desc_a,info)
       omega = tau/sigma
 
+
+      if (debug_level >= psb_debug_ext_)&
+           & write(debug_unit,*) me,' ',trim(name),&
+           & ' sigma, tau, omega: ',sigma, tau, omega
       if (omega == dzero) then
          if (debug_level >= psb_debug_ext_) &
               & write(debug_unit,*) me,' ',trim(name),&
@@ -422,7 +442,7 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
   Real(psb_dpk_), allocatable, target   :: aux(:),wwrk(:,:)
 !!$  Real(psb_dpk_), Pointer  :: q(:),&
 !!$       & r(:), p(:), v(:), s(:), t(:), z(:), f(:)
-  class(psb_d_vect), allocatable :: q, r, p, v, s, t, z, f, bb
+  class(psb_d_vect), allocatable :: q, r, p, v, s, t, z, f
 
   Integer       :: itmax_, naux, mglob, it,itrace_,&
        & np,me, n_row, n_col
@@ -486,7 +506,6 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
   if (info == psb_success_) allocate(t,mold=x,stat=info)
   if (info == psb_success_) allocate(z,mold=x,stat=info)
   if (info == psb_success_) allocate(f,mold=x,stat=info)
-  if (info == psb_success_) allocate(bb,mold=x,stat=info)
 
 
   if (info == psb_success_) call psb_geall(q,desc_a,info) 
@@ -497,9 +516,7 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
   if (info == psb_success_) call psb_geall(t,desc_a,info)
   if (info == psb_success_) call psb_geall(z,desc_a,info)
   if (info == psb_success_) call psb_geall(f,desc_a,info)
-  if (info == psb_success_) call psb_geall(bb,desc_a,info)
 
-  if (info == psb_success_)  bb%v(1:n_row) = b%v(1:n_row)
   if (info == psb_success_) call psb_geasb(q,desc_a,info) 
   if (info == psb_success_) call psb_geasb(r,desc_a,info)
   if (info == psb_success_) call psb_geasb(p,desc_a,info)
@@ -508,7 +525,6 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
   if (info == psb_success_) call psb_geasb(t,desc_a,info)
   if (info == psb_success_) call psb_geasb(z,desc_a,info)
   if (info == psb_success_) call psb_geasb(f,desc_a,info)
-  if (info == psb_success_) call psb_geasb(bb,desc_a,info)
 
   
   if (info /= psb_success_) then 
@@ -574,6 +590,10 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
       rho_old = rho    
       rho     = psb_gedot(q,r,desc_a,info)
 
+      if (debug_level >= psb_debug_ext_)&
+           & write(debug_unit,*) me,' ',trim(name),&
+           & ' Rho: ',rho
+
       if (rho == dzero) then
          if (debug_level >= psb_debug_ext_) &
               & write(debug_unit,*) me,' ',trim(name),&
@@ -588,14 +608,31 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
         call psb_geaxpby(-omega,v,done,p,desc_a,info)
         call psb_geaxpby(done,r,beta,p,desc_a,info)
       End If
-
-
+      if (debug_level >= psb_debug_inner_) then 
+        call p%sync()
+        write(0,*) 'P: ',p%v
+      end if
       call prec%apply(p,f,desc_a,info,work=aux)
+      if (debug_level >= psb_debug_inner_) then 
+        call f%sync()
+        write(0,*) 'F: ',f%v
+      end if
       call psb_spmm(done,a,f,dzero,v,desc_a,info,&
            & work=aux)
 
+      if (debug_level >= psb_debug_inner_) then 
+        call v%sync();        call q%sync();
+        write(0,*) 'Q: ',q%v
+        write(0,*) 'V: ',v%v
+      end if
 
       sigma = psb_gedot(q,v,desc_a,info)
+
+      if (debug_level >= psb_debug_ext_)&
+           & write(debug_unit,*) me,' ',trim(name),&
+           & ' Sigma: ',sigma
+
+
       if (sigma == dzero) then
          if (debug_level >= psb_debug_ext_) &
               & write(debug_unit,*) me,' ',trim(name),&
@@ -606,6 +643,10 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
       alpha = rho/sigma
       call psb_geaxpby(done,r,dzero,s,desc_a,info)
       if (info == psb_success_) call psb_geaxpby(-alpha,v,done,s,desc_a,info)
+      if (debug_level >= psb_debug_ext_)&
+           & write(debug_unit,*) me,' ',trim(name),&
+           & ' alpha: ',alpha
+
 
       if(info /= psb_success_) then
          call psb_errpush(psb_err_from_subroutine_,name,a_err='psb_geaxpby')
@@ -634,6 +675,11 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
       
       tau   = psb_gedot(t,s,desc_a,info)
       omega = tau/sigma
+
+      if (debug_level >= psb_debug_ext_)&
+           & write(debug_unit,*) me,' ',trim(name),&
+           & ' sigma, tau, omega: ',sigma, tau, omega
+
 
       if (omega == dzero) then
          if (debug_level >= psb_debug_ext_) &

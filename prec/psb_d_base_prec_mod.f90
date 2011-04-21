@@ -176,7 +176,7 @@ contains
     return
   end subroutine psb_d_base_precinit
 
-  subroutine psb_d_base_precbld(a,desc_a,prec,info,upd,mold,afmt)
+  subroutine psb_d_base_precbld(a,desc_a,prec,info,upd,amold,afmt,vmold)
     
     use psb_base_mod
     Implicit None
@@ -187,7 +187,8 @@ contains
     integer, intent(out)                      :: info
     character, intent(in), optional           :: upd
     character(len=*), intent(in), optional    :: afmt
-    class(psb_d_base_sparse_mat), intent(in), optional :: mold
+    class(psb_d_base_sparse_mat), intent(in), optional :: amold
+    class(psb_d_vect), intent(in), optional   :: vmold
     Integer :: err_act, nrow
     character(len=20)  :: name='d_base_precbld'
 
