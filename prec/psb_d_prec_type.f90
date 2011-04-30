@@ -178,7 +178,7 @@ contains
   subroutine d_apply2_vect(prec,x,y,desc_data,info,trans,work)
     use psb_base_mod
     type(psb_desc_type),intent(in)    :: desc_data
-    class(psb_dprec_type), intent(in) :: prec
+    class(psb_dprec_type), intent(inout) :: prec
     class(psb_d_vect),intent(inout)   :: x
     class(psb_d_vect),intent(inout)   :: y
     integer, intent(out)              :: info

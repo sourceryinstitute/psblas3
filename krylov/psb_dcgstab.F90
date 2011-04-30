@@ -429,7 +429,7 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
   use psb_krylov_mod
   implicit none
   type(psb_dspmat_type), intent(in)  :: a
-  class(psb_dprec_type), Intent(in)  :: prec 
+  class(psb_dprec_type), Intent(inout)  :: prec 
   Type(psb_desc_type), Intent(in)    :: desc_a
   class(psb_d_vect), Intent(inout)   :: b
   class(psb_d_vect), Intent(inout)   :: x
@@ -564,12 +564,12 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
 
     if (info == psb_success_) call psb_spmm(-done,a,x,done,r,desc_a,info,work=aux)
     if (info == psb_success_) call psb_geaxpby(done,r,dzero,q,desc_a,info)
+    return
     if (info /= psb_success_) then 
        info=psb_err_from_subroutine_
        call psb_errpush(info,name,a_err='Init residual')
        goto 9999
     end if
-
     ! Perhaps we already satisfy the convergence criterion...
     if (psb_check_conv(methdname,itx,x,r,desc_a,stopdat,info)) exit restart
     if (info /= psb_success_) Then 

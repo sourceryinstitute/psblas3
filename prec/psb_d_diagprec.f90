@@ -4,6 +4,7 @@ module psb_d_diagprec
   
   type, extends(psb_d_base_prec_type) :: psb_d_diag_prec_type
     real(psb_dpk_), allocatable :: d(:)
+    class(psb_d_vect), allocatable :: dv
   contains
     procedure, pass(prec) :: d_apply_v => psb_d_diag_apply_vect
     procedure, pass(prec) :: d_apply   => psb_d_diag_apply
@@ -29,7 +30,7 @@ contains
   subroutine psb_d_diag_apply_vect(alpha,prec,x,beta,y,desc_data,info,trans,work)
     use psb_base_mod
     type(psb_desc_type),intent(in)    :: desc_data
-    class(psb_d_diag_prec_type), intent(in)  :: prec
+    class(psb_d_diag_prec_type), intent(inout)  :: prec
     class(psb_d_vect),intent(inout)   :: x
     real(psb_dpk_),intent(in)         :: alpha, beta
     class(psb_d_vect),intent(inout)   :: y
@@ -39,6 +40,7 @@ contains
     Integer :: err_act, nrow
     character(len=20)  :: name='d_diag_prec_apply'
     real(psb_dpk_), pointer :: ww(:)
+    class(psb_d_vect), allocatable :: dw
 
     call psb_erractionsave(err_act)
 
@@ -81,8 +83,12 @@ contains
       end if
     end if
     
-    call x%mlt(ww,prec%d(1:nrow),info)
-    if (info == 0) call y%axpby(nrow,alpha,ww,beta,info)
+    allocate(dw, mold=x, stat=info) 
+    call dw%bld(x%get_nrows())
+    if (info == 0) call dw%axpby(nrow,done,x,dzero,info) 
+    if (info == 0) call dw%mlt(prec%dv,info)
+    if (info == 0) call y%axpby(nrow,alpha,dw,beta,info)
+!!$      call x%mlt(ww,prec%d(1:nrow),info)
 !!$    if (info == 0) call psb_geaxpby(alpha,ww,beta,y,desc_data,info)
 
     if (size(work) < x%get_nrows()) then 
@@ -261,7 +267,17 @@ contains
         prec%d(i) = done/prec%d(i)
       endif
     end do
-
+    if (present(vmold)) then 
+      allocate(prec%dv,mold=vmold,stat=info) 
+    else
+      allocate(psb_d_vect :: prec%dv,stat=info) 
+    end if
+    if (info == 0) then 
+      call prec%dv%bld(prec%d)
+    else 
+      write(0,*) 'Error on precbld ',info
+    end if
+    
     call psb_erractionrestore(err_act)
     return
 

@@ -25,27 +25,39 @@ module psb_d_vect_mod
     procedure, pass(x) :: sync     => d_base_sync
     procedure, pass(x) :: free     => d_base_free
     procedure, pass(x) :: ins      => d_base_ins
-    procedure, pass(x) :: bld      => d_base_bld
+    procedure, pass(x) :: bld_x    => d_base_bld_x
+    procedure, pass(x) :: bld_n    => d_base_bld_n
+    generic, public    :: bld => bld_x, bld_n
     procedure, pass(x) :: cpy_vect => d_base_cpy_vect
     generic, public    :: assignment(=) => cpy_vect
   end type psb_d_vect
 
   public  :: psb_d_vect_
-  private :: constructor
+  private :: constructor, size_const
   interface psb_d_vect_
-    module procedure constructor
+    module procedure constructor, size_const
   end interface psb_d_vect_
 
 contains
   
-  subroutine d_base_bld(x,this)
+  subroutine d_base_bld_x(x,this)
     real(psb_dpk_), intent(in) :: this(:)
     class(psb_d_vect), intent(inout) :: x
     integer :: info
 
     x%v  = this 
 
-  end subroutine d_base_bld
+  end subroutine d_base_bld_x
+    
+  
+  subroutine d_base_bld_n(x,n)
+    integer, intent(in) :: n
+    class(psb_d_vect), intent(inout) :: x
+    integer :: info
+
+    call x%asb(n,info)
+
+  end subroutine d_base_bld_n
     
   subroutine d_base_cpy_vect(this,x)
     real(psb_dpk_), allocatable, intent(out) :: this(:)
@@ -67,12 +79,24 @@ contains
 
   end function constructor
     
+  
+  function size_const(n) result(this)
+    integer, intent(in) :: n
+    type(psb_d_vect) :: this
+    integer :: info
+
+    call this%asb(n,info)
+    if (info /= 0) then 
+      write(0,*) 'Allocation failure ',n
+    end if
+  end function size_const
+    
 
   function d_base_get_nrows(x) result(res)
     implicit none 
     class(psb_d_vect), intent(in) :: x
     integer :: res
-    res = 0
+    res = -1
     if (allocated(x%v)) res = size(x%v)
   end function d_base_get_nrows
 

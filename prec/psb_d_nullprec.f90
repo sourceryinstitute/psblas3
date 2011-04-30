@@ -27,7 +27,7 @@ contains
   subroutine psb_d_null_apply_vect(alpha,prec,x,beta,y,desc_data,info,trans,work)
     use psb_base_mod
     type(psb_desc_type),intent(in)    :: desc_data
-    class(psb_d_null_prec_type), intent(in)  :: prec
+    class(psb_d_null_prec_type), intent(inout)  :: prec
     class(psb_d_vect),intent(inout)   :: x
     real(psb_dpk_),intent(in)         :: alpha, beta
     class(psb_d_vect),intent(inout)   :: y

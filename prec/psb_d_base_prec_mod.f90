@@ -39,7 +39,7 @@ module psb_d_base_prec_mod
   use psb_base_mod, only : psb_dpk_, psb_spk_, psb_long_int_k_,&
        & psb_desc_type, psb_sizeof, psb_free, psb_cdfree,&
        & psb_erractionsave, psb_erractionrestore, psb_error, psb_get_errstatus,&
-       & psb_dspmat_type
+       & psb_dspmat_type, psb_d_vect
 
   
   use psb_prec_const_mod
@@ -75,7 +75,7 @@ contains
   subroutine psb_d_base_apply_vect(alpha,prec,x,beta,y,desc_data,info,trans,work)
     use psb_base_mod
     type(psb_desc_type),intent(in)    :: desc_data
-    class(psb_d_base_prec_type), intent(in)  :: prec
+    class(psb_d_base_prec_type), intent(inout)  :: prec
     real(psb_dpk_),intent(in)         :: alpha, beta
     class(psb_d_vect),intent(inout)   :: x
     class(psb_d_vect),intent(inout)   :: y
