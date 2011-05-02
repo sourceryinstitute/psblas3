@@ -564,7 +564,6 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
 
     if (info == psb_success_) call psb_spmm(-done,a,x,done,r,desc_a,info,work=aux)
     if (info == psb_success_) call psb_geaxpby(done,r,dzero,q,desc_a,info)
-    return
     if (info /= psb_success_) then 
        info=psb_err_from_subroutine_
        call psb_errpush(info,name,a_err='Init residual')
