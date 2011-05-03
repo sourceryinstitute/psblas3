@@ -91,6 +91,12 @@ contains
 !!$      call x%mlt(ww,prec%d(1:nrow),info)
 !!$    if (info == 0) call psb_geaxpby(alpha,ww,beta,y,desc_data,info)
 
+    call dw%free(info) 
+    if (info /= psb_success_) then 
+      call psb_errpush(psb_err_from_subroutine_,name,a_err='Deallocate')
+      goto 9999      
+    end if
+
     if (size(work) < x%get_nrows()) then 
       deallocate(ww,stat=info)
       if (info /= psb_success_) then 
