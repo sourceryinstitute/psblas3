@@ -14,8 +14,9 @@ module psb_d_vect_mod
     generic, public    :: axpby    => axpby_v, axpby_a
     procedure, pass(y) :: mlt_v    => d_base_mlt_v
     procedure, pass(y) :: mlt_a    => d_base_mlt_a
-    procedure, pass(y) :: mlt_a_2  => d_base_mlt_a_2
-    generic, public    :: mlt      => mlt_v, mlt_a, mlt_a_2
+    procedure, pass(z) :: mlt_a_2  => d_base_mlt_a_2
+    procedure, pass(z) :: mlt_v_2  => d_base_mlt_v_2
+    generic, public    :: mlt      => mlt_v, mlt_a, mlt_a_2, mlt_v_2
     procedure, pass(x) :: nrm2     => d_base_nrm2
     procedure, pass(x) :: amax     => d_base_amax
     procedure, pass(x) :: asum     => d_base_asum
@@ -204,24 +205,40 @@ contains
   end subroutine d_base_mlt_a
 
 
-  subroutine d_base_mlt_a_2(z,x, y, info)
+  subroutine d_base_mlt_a_2(x,y,z,info)
     use psi_serial_mod
     implicit none 
-    real(psb_dpk_), intent(out)       :: z(:)
+    real(psb_dpk_), intent(in)        :: y(:)
     real(psb_dpk_), intent(in)        :: x(:)
-    class(psb_d_vect), intent(inout)  :: y
+    class(psb_d_vect), intent(inout)  :: z
     integer, intent(out)              :: info
     integer :: i, n
 
     info = 0    
-    n = min(size(y%v), size(x), size(z))
+    n = min(size(z%v), size(x), size(y))
 !!$    write(0,*) 'Mlt_a_2: ',n
     do i=1, n 
-      z(i) = y%v(i)*x(i)
+      z%v(i) = y(i)*x(i)
 !!$      write(0,*) 'Mlt_a_2: ',i,z(i),y%v(i),x(i)
     end do
     
   end subroutine d_base_mlt_a_2
+
+  subroutine d_base_mlt_v_2(x,y, z, info)
+    use psi_serial_mod
+    implicit none 
+    class(psb_d_vect), intent(inout)  :: x
+    class(psb_d_vect), intent(inout)  :: y
+    class(psb_d_vect), intent(inout)  :: z
+    integer, intent(out)              :: info    
+    integer :: i, n
+
+    info = 0
+    
+    call z%mlt(x%v,y%v,info)
+
+  end subroutine d_base_mlt_v_2
+
 
 
   function d_base_nrm2(n,x) result(res)

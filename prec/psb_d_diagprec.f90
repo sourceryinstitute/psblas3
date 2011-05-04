@@ -85,8 +85,12 @@ contains
     
     allocate(dw, mold=x, stat=info) 
     call dw%bld(x%get_nrows())
-    if (info == 0) call dw%axpby(nrow,done,x,dzero,info) 
-    if (info == 0) call dw%mlt(prec%dv,info)
+    if (.true.) then 
+      if (info == 0) call dw%mlt(prec%dv,x,info)
+    else
+      if (info == 0) call dw%axpby(nrow,done,x,dzero,info) 
+      if (info == 0) call dw%mlt(prec%dv,info)
+    end if
     if (info == 0) call y%axpby(nrow,alpha,dw,beta,info)
 !!$      call x%mlt(ww,prec%d(1:nrow),info)
 !!$    if (info == 0) call psb_geaxpby(alpha,ww,beta,y,desc_data,info)
