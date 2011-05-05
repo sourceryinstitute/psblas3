@@ -83,23 +83,26 @@ contains
       end if
     end if
     
-    allocate(dw, mold=x, stat=info) 
-    call dw%bld(x%get_nrows())
-    if (.true.) then 
-      if (info == 0) call dw%mlt(prec%dv,x,info)
-    else
-      if (info == 0) call dw%axpby(nrow,done,x,dzero,info) 
-      if (info == 0) call dw%mlt(prec%dv,info)
-    end if
-    if (info == 0) call y%axpby(nrow,alpha,dw,beta,info)
+!!$      allocate(dw, mold=x, stat=info) 
+!!$      call dw%bld(x%get_nrows())
+!!$      if (.true.) then 
+!!$        if (info == 0) call dw%mlt(prec%dv,x,info)
+!!$      else
+!!$        if (info == 0) call dw%axpby(nrow,done,x,dzero,info) 
+!!$        if (info == 0) call dw%mlt(prec%dv,info)
+!!$      end if
+!!$      if (info == 0) call y%axpby(nrow,alpha,dw,beta,info)
+
+    call y%mlt(alpha,prec%dv,x,beta,info)
+
 !!$      call x%mlt(ww,prec%d(1:nrow),info)
 !!$    if (info == 0) call psb_geaxpby(alpha,ww,beta,y,desc_data,info)
 
-    call dw%free(info) 
-    if (info /= psb_success_) then 
-      call psb_errpush(psb_err_from_subroutine_,name,a_err='Deallocate')
-      goto 9999      
-    end if
+!!$    call dw%free(info) 
+!!$    if (info /= psb_success_) then 
+!!$      call psb_errpush(psb_err_from_subroutine_,name,a_err='Deallocate')
+!!$      goto 9999      
+!!$    end if
 
     if (size(work) < x%get_nrows()) then 
       deallocate(ww,stat=info)

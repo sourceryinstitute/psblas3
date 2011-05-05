@@ -205,9 +205,10 @@ contains
   end subroutine d_base_mlt_a
 
 
-  subroutine d_base_mlt_a_2(x,y,z,info)
+  subroutine d_base_mlt_a_2(alpha,x,y,beta,z,info)
     use psi_serial_mod
     implicit none 
+    real(psb_dpk_), intent(in)        :: alpha,beta
     real(psb_dpk_), intent(in)        :: y(:)
     real(psb_dpk_), intent(in)        :: x(:)
     class(psb_d_vect), intent(inout)  :: z
@@ -217,16 +218,65 @@ contains
     info = 0    
     n = min(size(z%v), size(x), size(y))
 !!$    write(0,*) 'Mlt_a_2: ',n
-    do i=1, n 
-      z%v(i) = y(i)*x(i)
-!!$      write(0,*) 'Mlt_a_2: ',i,z(i),y%v(i),x(i)
-    end do
-    
+    if (alpha == dzero) then 
+      if (beta == done) then 
+        return 
+      else
+        do i=1, n
+          z%v(i) = beta*z%v(i)
+        end do
+      end if
+    else
+      if (alpha == done) then 
+        if (beta == dzero) then 
+          do i=1, n 
+            z%v(i) = y(i)*x(i)
+          end do
+        else if (beta == done) then 
+          do i=1, n 
+            z%v(i) = z%v(i) + y(i)*x(i)
+          end do
+        else 
+          do i=1, n 
+            z%v(i) = beta*z%v(i) + y(i)*x(i)
+          end do
+        end if
+      else if (alpha == -done) then 
+        if (beta == dzero) then 
+          do i=1, n 
+            z%v(i) = -y(i)*x(i)
+          end do
+        else if (beta == done) then 
+          do i=1, n 
+            z%v(i) = z%v(i) - y(i)*x(i)
+          end do
+        else 
+          do i=1, n 
+            z%v(i) = beta*z%v(i) - y(i)*x(i)
+          end do
+        end if
+      else
+        if (beta == dzero) then 
+          do i=1, n 
+            z%v(i) = alpha*y(i)*x(i)
+          end do
+        else if (beta == done) then 
+          do i=1, n 
+            z%v(i) = z%v(i) + alpha*y(i)*x(i)
+          end do
+        else 
+          do i=1, n 
+            z%v(i) = beta*z%v(i) + alpha*y(i)*x(i)
+          end do
+        end if
+      end if
+    end if
   end subroutine d_base_mlt_a_2
 
-  subroutine d_base_mlt_v_2(x,y, z, info)
+  subroutine d_base_mlt_v_2(alpha,x,y,beta,z,info)
     use psi_serial_mod
     implicit none 
+    real(psb_dpk_), intent(in)        :: alpha,beta
     class(psb_d_vect), intent(inout)  :: x
     class(psb_d_vect), intent(inout)  :: y
     class(psb_d_vect), intent(inout)  :: z
@@ -235,7 +285,7 @@ contains
 
     info = 0
     
-    call z%mlt(x%v,y%v,info)
+    call z%mlt(alpha,x%v,y%v,beta,info)
 
   end subroutine d_base_mlt_v_2
 
