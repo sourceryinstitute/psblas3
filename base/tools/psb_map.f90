@@ -263,6 +263,21 @@ subroutine psb_d_map_X2Y(alpha,x,beta,y,map,info,work)
 end subroutine psb_d_map_X2Y
 
 
+subroutine psb_d_map_X2Y_vect(alpha,x,beta,y,map,info,work)
+  use psb_base_mod, psb_protect_name => psb_d_map_X2Y_vect
+  implicit none 
+  type(psb_dlinmap_type), intent(in) :: map
+  real(psb_dpk_), intent(in)     :: alpha,beta
+  class(psb_d_vect), intent(inout)  :: x,y
+  integer, intent(out)           :: info 
+  real(psb_dpk_), optional       :: work(:)
+  
+  info = 700 
+
+  return
+end subroutine psb_d_map_X2Y_vect
+
+
 !
 ! Takes a vector x from space map%p_desc_Y and maps it onto
 ! map%p_desc_X under map%map_Y2X possibly with communication
@@ -340,6 +355,19 @@ subroutine psb_d_map_Y2X(alpha,x,beta,y,map,info,work)
   end select
 
 end subroutine psb_d_map_Y2X
+
+subroutine psb_d_map_Y2X_vect(alpha,x,beta,y,map,info,work)
+  use psb_base_mod, psb_protect_name => psb_d_map_Y2X_vect
+  implicit none 
+  type(psb_dlinmap_type), intent(in) :: map
+  real(psb_dpk_), intent(in)     :: alpha,beta
+  class(psb_d_vect), intent(inout)  :: x,y
+  integer, intent(out)           :: info 
+  real(psb_dpk_), optional       :: work(:)
+
+  info = 700 
+  return
+end subroutine psb_d_map_Y2X_vect
 
 
 !
