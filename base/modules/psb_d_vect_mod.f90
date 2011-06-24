@@ -16,7 +16,9 @@ module psb_d_vect_mod
     procedure, pass(y) :: mlt_a    => d_base_mlt_a
     procedure, pass(z) :: mlt_a_2  => d_base_mlt_a_2
     procedure, pass(z) :: mlt_v_2  => d_base_mlt_v_2
-    generic, public    :: mlt      => mlt_v, mlt_a, mlt_a_2, mlt_v_2
+    procedure, pass(z) :: mlt_va   => d_base_mlt_va
+    procedure, pass(z) :: mlt_av   => d_base_mlt_av
+    generic, public    :: mlt      => mlt_v, mlt_a, mlt_a_2, mlt_v_2, mlt_av, mlt_va
     procedure, pass(x) :: nrm2     => d_base_nrm2
     procedure, pass(x) :: amax     => d_base_amax
     procedure, pass(x) :: asum     => d_base_asum
@@ -289,6 +291,37 @@ contains
 
   end subroutine d_base_mlt_v_2
 
+  subroutine d_base_mlt_av(alpha,x,y,beta,z,info)
+    use psi_serial_mod
+    implicit none 
+    real(psb_dpk_), intent(in)        :: alpha,beta
+    real(psb_dpk_), intent(in)        :: x(:)
+    class(psb_d_vect), intent(inout)  :: y
+    class(psb_d_vect), intent(inout)  :: z
+    integer, intent(out)              :: info    
+    integer :: i, n
+
+    info = 0
+    
+    call z%mlt(alpha,x,y%v,beta,info)
+
+  end subroutine d_base_mlt_av
+
+  subroutine d_base_mlt_va(alpha,x,y,beta,z,info)
+    use psi_serial_mod
+    implicit none 
+    real(psb_dpk_), intent(in)        :: alpha,beta
+    real(psb_dpk_), intent(in)        :: y(:)
+    class(psb_d_vect), intent(inout)  :: x
+    class(psb_d_vect), intent(inout)  :: z
+    integer, intent(out)              :: info    
+    integer :: i, n
+
+    info = 0
+    
+    call z%mlt(alpha,y,x,beta,info)
+
+  end subroutine d_base_mlt_va
 
 
   function d_base_nrm2(n,x) result(res)

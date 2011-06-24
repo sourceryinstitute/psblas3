@@ -453,6 +453,7 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
   Integer            :: istop_
   Real(psb_dpk_)     :: alpha, beta, rho, rho_old, sigma, omega, tau
   type(psb_itconv_type) :: stopdat
+  real(psb_dpk_), external :: ddot
 
   character(len=20)           :: name
   character(len=*), parameter :: methdname='BiCGStab'
@@ -588,10 +589,14 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
 
       rho_old = rho    
       rho     = psb_gedot(q,r,desc_a,info)
-
+      
+      if (debug_level >= psb_debug_ext_) then 
+        call q%sync()
+        call r%sync()
+      end if
       if (debug_level >= psb_debug_ext_)&
            & write(debug_unit,*) me,' ',trim(name),&
-           & ' Rho: ',rho
+           & ' Rho: ',rho, ddot(n_row,q%v,1,r%v,1)
 
       if (rho == dzero) then
          if (debug_level >= psb_debug_ext_) &
@@ -607,29 +612,22 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
         call psb_geaxpby(-omega,v,done,p,desc_a,info)
         call psb_geaxpby(done,r,beta,p,desc_a,info)
       End If
-      if (debug_level >= psb_debug_inner_) then 
-        call p%sync()
-        write(0,*) 'P: ',p%v
-      end if
+
       call prec%apply(p,f,desc_a,info,work=aux)
-      if (debug_level >= psb_debug_inner_) then 
-        call f%sync()
-        write(0,*) 'F: ',f%v
-      end if
+
       call psb_spmm(done,a,f,dzero,v,desc_a,info,&
            & work=aux)
 
-      if (debug_level >= psb_debug_inner_) then 
-        call v%sync();        call q%sync();
-        write(0,*) 'Q: ',q%v
-        write(0,*) 'V: ',v%v
-      end if
 
       sigma = psb_gedot(q,v,desc_a,info)
 
+      if (debug_level >= psb_debug_ext_) then 
+        call q%sync()
+        call v%sync()
+      end if
       if (debug_level >= psb_debug_ext_)&
            & write(debug_unit,*) me,' ',trim(name),&
-           & ' Sigma: ',sigma
+           & ' Sigma: ',sigma, ddot(n_row,q%v,1,v%v,1)
 
 
       if (sigma == dzero) then
@@ -675,9 +673,14 @@ Subroutine psb_dcgstab_vect(a,prec,b,x,eps,desc_a,info,itmax,iter,err,itrace,ist
       tau   = psb_gedot(t,s,desc_a,info)
       omega = tau/sigma
 
+      if (debug_level >= psb_debug_ext_) then 
+        call t%sync()
+        call s%sync()
+      end if
       if (debug_level >= psb_debug_ext_)&
            & write(debug_unit,*) me,' ',trim(name),&
-           & ' sigma, tau, omega: ',sigma, tau, omega
+           & ' sigma, tau, omega: ',sigma, tau, omega&
+           &, ddot(n_row,t%v,1,t%v,1), ddot(n_row,t%v,1,s%v,1)
 
 
       if (omega == dzero) then

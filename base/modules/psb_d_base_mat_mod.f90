@@ -66,12 +66,14 @@ module psb_d_base_mat_mod
     procedure, pass(a) :: d_csmv       => psb_d_base_csmv
     procedure, pass(a) :: d_csmm       => psb_d_base_csmm
     generic, public    :: csmm         => d_csmm, d_csmv, d_sp_mv
+    procedure, pass(a) :: d_in_sv      => psb_d_base_inner_vect_sv
     procedure, pass(a) :: d_inner_cssv => psb_d_base_inner_cssv    
     procedure, pass(a) :: d_inner_cssm => psb_d_base_inner_cssm
-    generic, public    :: inner_cssm   => d_inner_cssm, d_inner_cssv
+    generic, public    :: inner_cssm   => d_inner_cssm, d_inner_cssv, d_in_sv
+    procedure, pass(a) :: d_vect_cssv  => psb_d_base_vect_cssv
     procedure, pass(a) :: d_cssv       => psb_d_base_cssv
     procedure, pass(a) :: d_cssm       => psb_d_base_cssm
-    generic, public    :: cssm         => d_cssm, d_cssv
+    generic, public    :: cssm         => d_cssm, d_cssv, d_vect_cssv
     procedure, pass(a) :: d_scals      => psb_d_base_scals
     procedure, pass(a) :: d_scal       => psb_d_base_scal
     generic, public    :: scal         => d_scals, d_scal 
@@ -237,6 +239,17 @@ module psb_d_base_mat_mod
   end interface
   
   interface 
+    subroutine psb_d_base_inner_vect_sv(alpha,a,x,beta,y,info,trans) 
+      import :: psb_d_base_sparse_mat, psb_dpk_,  psb_d_vect
+      class(psb_d_base_sparse_mat), intent(in) :: a
+      real(psb_dpk_), intent(in)       :: alpha, beta
+      class(psb_d_vect), intent(inout) :: x, y
+      integer, intent(out)             :: info
+      character, optional, intent(in)  :: trans
+    end subroutine psb_d_base_inner_vect_sv
+  end interface
+  
+  interface 
     subroutine psb_d_base_cssm(alpha,a,x,beta,y,info,trans,scale,d)
       import :: psb_d_base_sparse_mat, psb_dpk_
       class(psb_d_base_sparse_mat), intent(in) :: a
@@ -258,6 +271,18 @@ module psb_d_base_mat_mod
       character, optional, intent(in) :: trans, scale
       real(psb_dpk_), intent(in), optional :: d(:)
     end subroutine psb_d_base_cssv
+  end interface
+  
+  interface 
+    subroutine psb_d_base_vect_cssv(alpha,a,x,beta,y,info,trans,scale,d)
+      import :: psb_d_base_sparse_mat, psb_dpk_,psb_d_vect
+      class(psb_d_base_sparse_mat), intent(in) :: a
+      real(psb_dpk_), intent(in)       :: alpha, beta
+      class(psb_d_vect), intent(inout) :: x,y
+      integer, intent(out)             :: info
+      character, optional, intent(in)  :: trans, scale
+      real(psb_dpk_), intent(in), optional :: d(:)
+    end subroutine psb_d_base_vect_cssv
   end interface
   
   interface 
