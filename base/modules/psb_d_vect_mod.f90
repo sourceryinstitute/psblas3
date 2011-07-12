@@ -48,7 +48,14 @@ contains
     class(psb_d_vect), intent(inout) :: x
     integer :: info
 
-    x%v  = this 
+    if (allocated(x%v)) then 
+      if (size(x%v) /= size(this)) deallocate(x%v,stat=info)
+    end if
+    if (.not.allocated(x%v)) then 
+      allocate(x%v(size(this)),stat=info)
+    end if
+
+    x%v(:)  = this(:)
 
   end subroutine d_base_bld_x
     
