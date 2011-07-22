@@ -192,8 +192,8 @@ program ppde
   call psb_barrier(ictxt)
   t2 = psb_wtime() - t1
   call psb_amx(ictxt,t2)
-  call psb_krylov(kmethd,a,prec,bv,xxv,eps,desc_a,info,& 
-       & itmax=itmax,iter=iter,err=err,itrace=itrace,istop=istopc,irst=irst)     
+!!$  call psb_krylov(kmethd,a,prec,bv,xxv,eps,desc_a,info,& 
+!!$       & itmax=itmax,iter=iter,err=err,itrace=itrace,istop=istopc,irst=irst)     
   amatsize = psb_sizeof(a)
   descsize = psb_sizeof(desc_a)
   precsize = psb_sizeof(prec)
