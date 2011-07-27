@@ -114,8 +114,11 @@ CONTAINS
     ! IT IS ASSUMED THAT THE GRAPH HAS AT MOST 50 CONNECTED COMPONENTS.
     ! COMMON /CC/ XCC, SIZEG(50), STPT(50)
     ! COMMON /LVLW/ NHIGH(100), NLOW(100), NACUM(100)
-    DIMENSION CCSTOR(1), IOLD(NE)
-    DIMENSION NDSTK(NR,IDEGE), LVL(NE), LVLS1(1), LVLS2(1), RENUM(NE+1), NDEG(NE)
+    DIMENSION CCSTOR(NR), IOLD(NR)
+    DIMENSION NDSTK(NR,IDEGE), LVL(NR), LVLS1(NR), LVLS2(NR), RENUM(NR+1), NDEG(NR)
+!!$    integer :: stnode, rvnode, stnum, sbnum
+!!$    integer :: ndstk(nr,iedge), iold(nr), renum(nr+1), ndeg(nr) 
+!!$    integer :: lvl(nr), lvls1(nr), lvls2(nr), ccstor(nr)    
 
     n     = ne
     ideg  = idege
