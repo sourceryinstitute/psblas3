@@ -53,8 +53,9 @@ module psb_gps_mod
   !
 CONTAINS
   !
-  SUBROUTINE psb_gps_reduce(NDSTK, NR, IOLD, RENUM, NDEG, LVL, LVLS1, LVLS2,&
-       & CCSTOR, IBW2, IPF2,NE,IDPTHE,IDEGE)
+!!$  SUBROUTINE psb_gps_reduce(NDSTK, NR, IOLD, RENUM, NDEG, LVL, LVLS1, LVLS2,&
+!!$       & CCSTOR, IBW2, IPF2,NE,IDPTHE,IDEGE)
+  SUBROUTINE psb_gps_reduce(NDSTK, NR, IDEGE, IOLD, RENUM, NDEG,ibw2,ipf2,IDPTHE)
     !  SUBROUTINE REDUCE DETERMINES A ROW AND COLUMN PERMUTATION WHICH,
     !  WHEN APPLIED TO A GIVEN SPARSE MATRIX, PRODUCES A PERMUTED
     !  MATRIX WITH A SMALLER BANDWIDTH AND PROFILE.
@@ -120,7 +121,7 @@ CONTAINS
 !!$    integer :: ndstk(nr,iedge), iold(nr), renum(nr+1), ndeg(nr) 
 !!$    integer :: lvl(nr), lvls1(nr), lvls2(nr), ccstor(nr)    
 
-    n     = ne
+    n     = nr
     ideg  = idege
     idpth = 0
 
