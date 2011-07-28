@@ -429,7 +429,7 @@ contains
     if (info == psb_success_) call psb_geall(xv,desc_a,info)
     if (info == psb_success_) call psb_geall(xxv,desc_a,info)
     if (info == psb_success_) call psb_geall(bv,desc_a,info)
-    nlr = psb_cd_get_local_rows(desc_a)
+    nlr = desc_a%get_local_rows()
     call psb_barrier(ictxt)
     talc = psb_wtime()-t0
 

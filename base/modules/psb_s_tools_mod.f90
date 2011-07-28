@@ -234,7 +234,7 @@ Module psb_s_tools_mod
 !!$
 !!$    integer :: nrow_in, nrow_out, ncol_in, info, ictxt
 !!$
-!!$    ictxt = psb_cd_get_context(descin)
+!!$    ictxt = descin%get_context()
 !!$    call psb_cdcpy(descin,cd_xt,info)
 !!$    if (info == psb_success_) call psb_cd_reinit(cd_xt,info)
 !!$    if (info /= psb_success_) then 
@@ -244,9 +244,9 @@ Module psb_s_tools_mod
 !!$      stop
 !!$    end if
 !!$
-!!$    nrow_in  = psb_cd_get_local_rows(cd_xt)
-!!$    ncol_in  = psb_cd_get_local_cols(cd_xt)
-!!$    nrow_out = psb_cd_get_local_rows(descout)
+!!$    nrow_in  = cd_xt%get_local_rows()
+!!$    ncol_in  = cd_xt%get_local_cols()
+!!$    nrow_out = descout%get_local_rows()
 !!$
 !!$    call a_map%csall(nrow_out,ncol_in,info)
 !!$
@@ -281,10 +281,10 @@ Module psb_s_tools_mod
 !!$
 !!$    integer :: nrow_in, nrow_out, ncol_in, info, ictxt
 !!$
-!!$    ictxt = psb_cd_get_context(descin)
+!!$    ictxt = descin%get_context()
 !!$
 !!$    call psb_cdasb(cd_xt,info)
-!!$    call a_map%set_ncols(psb_cd_get_local_cols(cd_xt))
+!!$    call a_map%set_ncols(cd_xt%get_local_cols())
 !!$    call a_map%cscnv(info,type=afmt)
 !!$
 !!$  end subroutine psb_slinmap_asb

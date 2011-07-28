@@ -72,7 +72,7 @@ function psb_dasum (x,desc_a, info, jx)
 
   asum=0.d0
 
-  ictxt=psb_cd_get_context(desc_a)
+  ictxt=desc_a%get_context()
 
   call psb_info(ictxt, me, np)
   if (np == -1) then
@@ -88,7 +88,7 @@ function psb_dasum (x,desc_a, info, jx)
     ijx = 1
   endif
 
-  m = psb_cd_get_global_rows(desc_a)
+  m = desc_a%get_global_rows()
 
   ! check vector correctness
   call psb_chkvect(m,1,size(x,1),ix,ijx,desc_a,info,iix,jjx)
@@ -107,8 +107,8 @@ function psb_dasum (x,desc_a, info, jx)
 
   ! compute local max
   if ((m /= 0)) then
-    if(psb_cd_get_local_rows(desc_a) > 0) then
-      asum=dasum(psb_cd_get_local_rows(desc_a)-iix+1,x(iix:,jjx),ione)
+    if(desc_a%get_local_rows() > 0) then
+      asum=dasum(desc_a%get_local_rows()-iix+1,x(iix:,jjx),ione)
 
       ! adjust asum because overlapped elements are computed more than once
       do i=1,size(desc_a%ovrlap_elem,1)
@@ -214,7 +214,7 @@ function psb_dasumv (x,desc_a, info)
 
   asum=0.d0
 
-  ictxt=psb_cd_get_context(desc_a)
+  ictxt=desc_a%get_context()
 
   call psb_info(ictxt, me, np)
   if (np == -1) then
@@ -226,7 +226,7 @@ function psb_dasumv (x,desc_a, info)
   ix = 1
   jx=1
 
-  m = psb_cd_get_global_rows(desc_a)
+  m = desc_a%get_global_rows()
 
   ! check vector correctness
   call psb_chkvect(m,1,size(x),ix,jx,desc_a,info,iix,jjx)
@@ -245,8 +245,8 @@ function psb_dasumv (x,desc_a, info)
 
   ! compute local max
   if ((m /= 0)) then
-    if(psb_cd_get_local_rows(desc_a) > 0) then
-      asum=dasum(psb_cd_get_local_rows(desc_a),x,ione)
+    if(desc_a%get_local_rows() > 0) then
+      asum=dasum(desc_a%get_local_rows(),x,ione)
       ! adjust asum because overlapped elements are computed more than once
       do i=1,size(desc_a%ovrlap_elem,1)
         idx  = desc_a%ovrlap_elem(i,1)
@@ -310,7 +310,7 @@ function psb_dasum_d_vect(x, desc_a, info) result(res)
 
   asum=0.d0
 
-  ictxt=psb_cd_get_context(desc_a)
+  ictxt=desc_a%get_context()
 
   call psb_info(ictxt, me, np)
   if (np == -1) then
@@ -322,7 +322,7 @@ function psb_dasum_d_vect(x, desc_a, info) result(res)
   ix = 1
   jx = 1
 
-  m = psb_cd_get_global_rows(desc_a)
+  m = desc_a%get_global_rows()
 
   call psb_chkvect(m,1,x%get_nrows(),ix,jx,desc_a,info,iix,jjx)
   if(info /= psb_success_) then
@@ -339,8 +339,8 @@ function psb_dasum_d_vect(x, desc_a, info) result(res)
   end if
 
   ! compute local max
-  if ((psb_cd_get_local_rows(desc_a) > 0).and.(m /= 0)) then
-    asum=x%asum(psb_cd_get_local_rows(desc_a))
+  if ((desc_a%get_local_rows() > 0).and.(m /= 0)) then
+    asum=x%asum(desc_a%get_local_rows())
   else 
     asum = dzero
   end if
@@ -431,7 +431,7 @@ subroutine psb_dasumvs(res,x,desc_a, info)
 
   asum=0.d0
 
-  ictxt=psb_cd_get_context(desc_a)
+  ictxt=desc_a%get_context()
 
   call psb_info(ictxt, me, np)
   if (np == -1) then
@@ -443,7 +443,7 @@ subroutine psb_dasumvs(res,x,desc_a, info)
   ix = 1
   jx = 1
 
-  m = psb_cd_get_global_rows(desc_a)
+  m = desc_a%get_global_rows()
 
   ! check vector correctness
   call psb_chkvect(m,1,size(x),ix,jx,desc_a,info,iix,jjx)
@@ -462,8 +462,8 @@ subroutine psb_dasumvs(res,x,desc_a, info)
 
   ! compute local max
   if ((m /= 0)) then
-    if(psb_cd_get_local_rows(desc_a) > 0) then
-      asum=dasum(psb_cd_get_local_rows(desc_a),x,ione)
+    if(desc_a%get_local_rows() > 0) then
+      asum=dasum(desc_a%get_local_rows(),x,ione)
 
       ! adjust asum because overlapped elements are computed more than once
       do i=1,size(desc_a%ovrlap_elem,1)
