@@ -109,20 +109,22 @@ function psb_s_spdot_srtd(nv1,iv1,v1,nv2,iv2,v2) result(dot)
   integer :: i,j,k, ip1, ip2
 
   dot = szero 
+  if ((nv1 == 0).or.(nv2 == 0)) return
   ip1 = 1
   ip2 = 1
-
   do 
-    if (ip1 > nv1) exit
-    if (ip2 > nv2) exit
     if (iv1(ip1) == iv2(ip2)) then 
       dot = dot + v1(ip1)*v2(ip2)
       ip1 = ip1 + 1
+      if (ip1 > nv1) return
       ip2 = ip2 + 1
+      if (ip2 > nv2) return
     else if (iv1(ip1) < iv2(ip2)) then 
       ip1 = ip1 + 1 
+      if (ip1 > nv1) return
     else
       ip2 = ip2 + 1 
+      if (ip2 > nv2) return
     end if
   end do
 
@@ -238,40 +240,57 @@ function psb_d_spdot_srtd(nv1,iv1,v1,nv2,iv2,v2) result(dot)
   real(psb_dpk_), intent(in) :: v1(*), v2(*)
   real(psb_dpk_)      :: dot
 
+!!$  real(psb_dpk_)  :: vv1(nv1+nv2),vv2(nv1+nv2)
   integer :: i,j,k, ip1, ip2, im1, im2, ix1, ix2
 
   dot = dzero 
+  if ((nv1 == 0).or.(nv2 == 0)) return
   ip1 = 1
   ip2 = 1
-  if (nv1 == 0) return
-  if (nv2 == 0) return
-  im1 = iv1(nv1)
-  im2 = iv2(nv2)
-  ix1 = iv1(ip1)
-  ix2 = iv2(ip2)
-  do 
-    if (ix1>im2) exit
-    if (ix2>im1) exit
+  if (.true.) then 
+    do 
+      if (iv1(ip1) == iv2(ip2)) then 
+        dot = dot + v1(ip1)*v2(ip2)
+        ip1 = ip1 + 1
+        if (ip1 > nv1) return
+        ip2 = ip2 + 1
+        if (ip2 > nv2) return
+      else if (iv1(ip1) < iv2(ip2)) then 
+        ip1 = ip1 + 1 
+        if (ip1 > nv1) return
+      else
+        ip2 = ip2 + 1 
+        if (ip2 > nv2) return
+      end if
+    end do
+  else if (.false.) then 
+    im1 = iv1(nv1)
+    im2 = iv2(nv2)
+    ix1 = iv1(ip1)
+    ix2 = iv2(ip2)
+    do 
+      if (ix1>im2) exit
+      if (ix2>im1) exit
 
-    if (ix1 == ix2) then 
-      dot = dot + v1(ip1)*v2(ip2)
-      ip1 = ip1 + 1
-      if (ip1 > nv1) exit
-      ix1 = iv1(ip1)
-      ip2 = ip2 + 1
-      if (ip2 > nv2) exit
-      ix2 = iv2(ip2)
-    else if (ix1 < ix2) then 
-      ip1 = ip1 + 1 
-      if (ip1 > nv1) exit
-      ix1 = iv1(ip1)
-    else
-      ip2 = ip2 + 1 
-      if (ip2 > nv2) exit
-      ix2 = iv2(ip2)
-    end if
-  end do
-
+      if (ix1 == ix2) then 
+        dot = dot + v1(ip1)*v2(ip2)
+        ip1 = ip1 + 1
+        if (ip1 > nv1) exit
+        ix1 = iv1(ip1)
+        ip2 = ip2 + 1
+        if (ip2 > nv2) exit
+        ix2 = iv2(ip2)
+      else if (ix1 < ix2) then 
+        ip1 = ip1 + 1 
+        if (ip1 > nv1) exit
+        ix1 = iv1(ip1)
+      else
+        ip2 = ip2 + 1 
+        if (ip2 > nv2) exit
+        ix2 = iv2(ip2)
+      end if
+    end do
+  end if
 end function psb_d_spdot_srtd
 
 subroutine psb_c_nspaxpby(nz,iz,z,alpha, nx, ix, x, beta, ny,iy,y,info)

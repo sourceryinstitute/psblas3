@@ -376,10 +376,10 @@ subroutine dhb_read(a, iret, iunit, filename,b,g,x,mtitle)
   if (rhscrd > 0) read(infile,fmt=fmt11)rhstype,nrhs,nrhsix
 
   call acsc%allocate(nrow,ncol,nnzero)
-  if (ircode /= 0 ) then 
-    write(psb_err_unit,*) 'Memory allocation failed'
-    goto 993
-  end if
+!!$  if (ircode /= 0 ) then 
+!!$    write(psb_err_unit,*) 'Memory allocation failed'
+!!$    goto 993
+!!$  end if
 
   if (present(mtitle)) mtitle=mtitle_
 
@@ -457,8 +457,8 @@ subroutine dhb_read(a, iret, iunit, filename,b,g,x,mtitle)
       end do
       call acoo%set_nzeros(nzr)
       call acoo%fix(ircode)
-      if (ircode == 0) call a%mv_from(acoo)
-      if (ircode /= 0) goto 993
+      call a%mv_from(acoo)
+!!$      if (ircode /= 0) goto 993
 
     else
       write(psb_err_unit,*) 'read_matrix: matrix type not yet supported'
