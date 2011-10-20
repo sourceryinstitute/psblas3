@@ -139,3 +139,53 @@ contains
   end subroutine psb_mat_renum_gps
 
 end subroutine psb_d_mat_renum
+
+subroutine psb_d_cmp_bwpf(mat,bwl,bwu,prf,info)
+  use psb_base_mod
+  use psb_renum_mod, psb_protect_name => psb_d_cmp_bwpf
+  implicit none 
+  type(psb_dspmat_type), intent(in) :: mat
+  integer, intent(out) :: bwl, bwu
+  integer, intent(out) :: prf
+  integer, intent(out) :: info
+  !
+  integer, allocatable :: irow(:), icol(:)
+  real(psb_dpk_), allocatable :: val(:)
+  integer :: nz
+  integer :: i, j, lrbu, lrbl
+  
+  info = psb_success_
+  bwl = 0
+  bwu = 0
+  prf = 0
+  select type (aa=>mat%a)
+  class is (psb_d_csr_sparse_mat)
+    do i=1, aa%get_nrows()
+      lrbl = 0
+      lrbu = 0
+      do j = aa%irp(i), aa%irp(i+1) - 1
+        lrbl = max(lrbl,i-aa%ja(j))
+        lrbu = max(lrbu,aa%ja(j)-i)
+      end do
+      prf = prf + lrbl+lrbu
+      bwu  = max(bwu,lrbu)
+      bwl  = max(bwl,lrbu)
+    end do
+    
+  class default
+    do i=1, aa%get_nrows()
+      lrbl = 0
+      lrbu = 0
+      call aa%csget(i,i,nz,irow,icol,val,info)
+      if (info /= psb_success_) return
+      do j=1, nz
+        lrbl = max(lrbl,i-icol(j))
+        lrbu = max(lrbu,icol(j)-i)
+      end do
+      prf = prf + lrbl+lrbu
+      bwu  = max(bwu,lrbu)
+      bwl  = max(bwl,lrbu)
+    end do
+  end select
+  
+end subroutine psb_d_cmp_bwpf

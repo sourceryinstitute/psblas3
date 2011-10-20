@@ -132,6 +132,7 @@ module psb_d_mat_mod
 
     ! Computational routines 
     procedure, pass(a) :: get_diag => psb_d_get_diag
+    procedure, pass(a) :: maxval   => psb_d_maxval
     procedure, pass(a) :: csnmi    => psb_d_csnmi
     procedure, pass(a) :: csnm1    => psb_d_csnm1
     procedure, pass(a) :: rowsum   => psb_d_rowsum
@@ -650,6 +651,14 @@ module psb_d_mat_mod
     end subroutine psb_d_cssv_vect
   end interface
 
+  interface 
+    function psb_d_maxval(a) result(res)
+      import :: psb_dspmat_type, psb_dpk_
+      class(psb_dspmat_type), intent(in) :: a
+      real(psb_dpk_)         :: res
+    end function psb_d_maxval
+  end interface
+  
   interface 
     function psb_d_csnmi(a) result(res)
       import :: psb_dspmat_type, psb_dpk_

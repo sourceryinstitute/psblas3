@@ -1201,6 +1201,36 @@ end subroutine psb_d_base_scal
 
 
 
+function psb_d_base_maxval(a) result(res)
+  use psb_error_mod
+  use psb_const_mod
+  use psb_d_base_mat_mod, psb_protect_name => psb_d_base_maxval
+
+  implicit none 
+  class(psb_d_base_sparse_mat), intent(in) :: a
+  real(psb_dpk_)         :: res
+
+  Integer :: err_act, info
+  character(len=20)  :: name='maxval'
+  logical, parameter :: debug=.false.
+
+  call psb_get_erraction(err_act)
+  ! This is the base version. If we get here
+  ! it means the derived class is incomplete,
+  ! so we throw an error.
+  info = psb_err_missing_override_method_
+  call psb_errpush(info,name,a_err=a%get_fmt())
+
+  if (err_act /= psb_act_ret_) then
+    call psb_error()
+  end if
+  res = -done
+
+  return
+
+end function psb_d_base_maxval
+
+
 function psb_d_base_csnmi(a) result(res)
   use psb_error_mod
   use psb_const_mod

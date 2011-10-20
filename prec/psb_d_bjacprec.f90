@@ -17,12 +17,14 @@ module psb_d_bjacprec
     procedure, pass(prec) :: precdescr => psb_d_bjac_precdescr
     procedure, pass(prec) :: dump      => psb_d_bjac_dump
     procedure, pass(prec) :: sizeof    => psb_d_bjac_sizeof
+    procedure, pass(prec) :: get_nzeros => psb_d_bjac_get_nzeros
+
   end type psb_d_bjac_prec_type
 
   private :: psb_d_bjac_apply, psb_d_bjac_precbld, psb_d_bjac_precseti,&
        & psb_d_bjac_precsetr, psb_d_bjac_precsetc, psb_d_bjac_sizeof,&
        & psb_d_bjac_precinit, psb_d_bjac_precfree, psb_d_bjac_precdescr,&
-       & psb_d_bjac_dump, psb_d_bjac_apply_vect
+       & psb_d_bjac_dump, psb_d_bjac_apply_vect, psb_d_bjac_get_nzeros
   
 
   character(len=15), parameter, private :: &
@@ -739,7 +741,7 @@ contains
   end subroutine psb_d_bjac_dump
 
   function psb_d_bjac_sizeof(prec) result(val)
-    use psb_base_mod
+    use psb_base_mod, only : psb_long_int_k_
     class(psb_d_bjac_prec_type), intent(in) :: prec
     integer(psb_long_int_k_) :: val
     
@@ -753,5 +755,21 @@ contains
     endif
     return
   end function psb_d_bjac_sizeof
+
+  function psb_d_bjac_get_nzeros(prec) result(val)
+    use psb_base_mod, only : psb_long_int_k_
+    class(psb_d_bjac_prec_type), intent(in) :: prec
+    integer(psb_long_int_k_) :: val
+    
+    val = 0
+    if (allocated(prec%d)) then 
+      val = val + size(prec%d)
+    endif
+    if (allocated(prec%av)) then 
+      val = val + prec%av(psb_l_pr_)%get_nzeros()
+      val = val + prec%av(psb_u_pr_)%get_nzeros()
+    endif
+    return
+  end function psb_d_bjac_get_nzeros
 
 end module psb_d_bjacprec

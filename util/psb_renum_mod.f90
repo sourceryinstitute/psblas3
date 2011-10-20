@@ -13,5 +13,15 @@ module psb_renum_mod
       integer, allocatable, optional, intent(out) :: perm(:)
     end subroutine psb_d_mat_renum
   end interface psb_mat_renum
+  
+  interface psb_cmp_bwpf
+    subroutine psb_d_cmp_bwpf(mat,bwl,bwu,prf,info)
+      import  psb_dspmat_type
+      type(psb_dspmat_type), intent(in) :: mat
+      integer, intent(out) :: bwl, bwu
+      integer, intent(out) :: prf
+      integer, intent(out) :: info
+    end subroutine psb_d_cmp_bwpf
+  end interface psb_cmp_bwpf
 
 end module psb_renum_mod

@@ -52,6 +52,7 @@ module psb_d_prec_type
     procedure, pass(prec)               :: d_apply2v
     procedure, pass(prec)               :: d_apply1v
     generic, public                     :: apply => d_apply2v, d_apply1v, d_apply2_vect
+    procedure, pass(prec)               :: get_nzeros => psb_d_get_nzeros
   end type psb_dprec_type
 
   interface psb_precfree
@@ -375,5 +376,16 @@ contains
     return
     
   end subroutine d_apply1v
+
+  function psb_d_get_nzeros(prec) result(res)
+    class(psb_dprec_type), intent(in) :: prec
+    integer(psb_long_int_k_) :: res
+    
+    res = 0
+    if (allocated(prec%prec)) &
+         & res = prec%prec%get_nzeros()
+    
+  end function psb_d_get_nzeros
+  
 
 end module psb_d_prec_type

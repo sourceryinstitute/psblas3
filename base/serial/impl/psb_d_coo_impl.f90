@@ -1365,6 +1365,31 @@ subroutine psb_d_coo_csmm(alpha,a,x,beta,y,info,trans)
 
 end subroutine psb_d_coo_csmm
 
+function psb_d_coo_maxval(a) result(res)
+  use psb_error_mod
+  use psb_d_base_mat_mod, psb_protect_name => psb_d_coo_maxval
+  implicit none 
+  class(psb_d_coo_sparse_mat), intent(in) :: a
+  real(psb_dpk_)         :: res
+
+  integer   :: i,j,k,m,n, nnz, ir, jc, nc, info
+  real(psb_dpk_) :: acc
+  real(psb_dpk_), allocatable :: vt(:)
+  logical   :: tra
+  Integer :: err_act
+  character(len=20)  :: name='d_coo_csnmi'
+  logical, parameter :: debug=.false.
+
+
+  res = -done 
+  nnz = a%get_nzeros()
+  if (allocated(a%val)) then 
+    nnz = min(nnz,size(a%val))
+    res = maxval(abs(a%val(1:nnz)))
+  end if
+end function psb_d_coo_maxval
+
+
 function psb_d_coo_csnmi(a) result(res)
   use psb_error_mod
   use psb_d_base_mat_mod, psb_protect_name => psb_d_coo_csnmi
