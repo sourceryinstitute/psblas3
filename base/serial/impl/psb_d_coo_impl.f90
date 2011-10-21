@@ -1381,7 +1381,7 @@ function psb_d_coo_maxval(a) result(res)
   logical, parameter :: debug=.false.
 
 
-  res = -done 
+  res = dzero
   nnz = a%get_nzeros()
   if (allocated(a%val)) then 
     nnz = min(nnz,size(a%val))
