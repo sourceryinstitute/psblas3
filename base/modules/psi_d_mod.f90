@@ -80,7 +80,7 @@ module psi_d_mod
       integer, intent(in)   :: idx(:),totxch,totsnd,totrcv
     end subroutine psi_dswapidxv
     subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,&
-         & totxch,totsnd,totrcv,work,info)
+         & totxch,totsnd,totrcv,psidx,pridx,work,info)
       use psb_const_mod
       use psb_d_base_vect_mod
       integer, intent(in)   :: ictxt,icomm,flag
@@ -88,7 +88,7 @@ module psi_d_mod
       class(psb_d_base_vect_type) :: y
       real(psb_dpk_)        :: beta
       real(psb_dpk_),target :: work(:)
-      integer, intent(in)   :: idx(:),totxch,totsnd,totrcv
+      integer, intent(in)   :: idx(:),totxch,totsnd,totrcv,psidx(:),pridx(:)
     end subroutine psi_dswapidx_vect
   end interface
 

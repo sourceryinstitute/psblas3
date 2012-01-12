@@ -202,8 +202,10 @@ module psb_descriptor_type
     integer, allocatable  :: halo_index(:)
     integer, allocatable  :: ext_index(:)
     integer, allocatable  :: ovrlap_index(:)
-    integer, allocatable  :: ovrlap_elem(:,:)
     integer, allocatable  :: ovr_mst_idx(:)
+    integer, allocatable  :: hsidx(:), hridx(:)
+    ! ========== 
+    integer, allocatable  :: ovrlap_elem(:,:)
     integer, allocatable  :: bnd_elem(:)
     class(psb_indx_map), allocatable :: indxmap
     integer, allocatable  :: lprm(:)
@@ -518,7 +520,7 @@ contains
 
 
 
-  subroutine psb_cd_get_list(data,desc,ipnt,totxch,idxr,idxs,info)
+  subroutine psb_cd_get_list(data,desc,ipnt,totxch,idxr,idxs,info,pisdx,pirdx)
     use psb_const_mod
     use psb_error_mod
     use psb_penv_mod
@@ -528,7 +530,8 @@ contains
     integer, pointer             :: ipnt(:)
     class(psb_desc_type), target  :: desc
     integer, intent(out)         :: totxch,idxr,idxs,info
-    
+    integer, pointer, optional   :: pisdx(:), pirdx(:)    
+
     !locals
     integer             :: np,me,ictxt,err_act, debug_level,debug_unit
     logical, parameter  :: debug=.false.,debugprt=.false.
@@ -546,6 +549,8 @@ contains
     select case(data) 
     case(psb_comm_halo_) 
       ipnt   => desc%halo_index
+      if (present(pisdx)) pisdx => desc%hsidx
+      if (present(pirdx)) pirdx => desc%hridx
     case(psb_comm_ovr_) 
       ipnt   => desc%ovrlap_index
     case(psb_comm_ext_) 
@@ -612,7 +617,7 @@ contains
     name = 'psb_cdfree'
 
 
-    ictxt=psb_cd_get_context(desc)
+    ictxt=desc%get_context()
 
     call psb_info(ictxt, me, np)
     !     ....verify blacs grid correctness..
@@ -703,6 +708,14 @@ contains
         goto 9999
       end if
     end if
+    
+    if (allocated(desc%hsidx)) then 
+      ! UNREGISTER AND DEALLOCATE
+    end if
+    if (allocated(desc%hridx)) then 
+      ! UNPIN
+    end if
+
 
     call desc%nullify()
 

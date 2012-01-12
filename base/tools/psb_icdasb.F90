@@ -129,12 +129,12 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
          & write(debug_unit,*) me,' ',trim(name),': Final conversion'
     ! Then convert and put them back where they belong.    
     call psi_cnv_dsc(halo_index,ovrlap_index,ext_index,desc_a,info) 
-
+    
     if (info /= psb_success_) then
       call psb_errpush(psb_err_from_subroutine_,name,a_err='psi_cnv_dsc')
       goto 9999
     end if
-
+    
     deallocate(ovrlap_index, halo_index, ext_index, stat=info)
     if (info /= psb_success_) then
       info =psb_err_alloc_dealloc_
@@ -152,7 +152,10 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
 !!$    desc_a%matrix_data(psb_n_col_) = desc_a%indxmap%get_lc()
 !!$    ! Ok, register into MATRIX_DATA 
 !!$    desc_a%matrix_data(psb_dec_type_) = psb_desc_asb_
+   
+    ! Add regeneration of hsidx hridx
 
+    
   else
     info = psb_err_spmat_invalid_state_
     call psb_errpush(info,name)
