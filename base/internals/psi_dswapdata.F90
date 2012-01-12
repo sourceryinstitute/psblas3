@@ -1116,7 +1116,7 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,wo
        & idx_pt, snd_pt, rcv_pt, n, pnti, data_
 
   integer, allocatable, dimension(:) :: bsdidx, brvidx,&
-       & sdsz, rvsz, prcid, rvhd, sdhd
+       & sdsz, rvsz, prcid, rvhd, sdhd, isdidx, irvidx
   integer :: int_err(5)
   logical :: swap_mpi, swap_sync, swap_send, swap_recv,&
        & albf,do_send,do_recv
@@ -1210,6 +1210,11 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,wo
     end if
     albf=.true.
   end if
+  allocate(isdidx(totsnd_),irvidx(totrcv_), stat=info)
+  if(info /= psb_success_) then
+    call psb_errpush(psb_err_alloc_dealloc_,name)
+    goto 9999
+  end if
 
 
   if (do_send) then
@@ -1221,11 +1226,12 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,wo
       nerv = idx(pnti+psb_n_elem_recv_)
       nesd = idx(pnti+nerv+psb_n_elem_send_)
       idx_pt = 1+pnti+nerv+psb_n_elem_send_
-      call y%gth(nesd,idx(idx_pt:idx_pt+nesd-1),&
-           & sndbuf(snd_pt:snd_pt+nesd-1))
+      isdidx(snd_pt:snd_pt+nesd-1) = idx(idx_pt:idx_pt+nesd-1)
       snd_pt = snd_pt + nesd 
       pnti   = pnti + nerv + nesd + 3
     end do
+    if (snd_pt > 1)    call y%gth(snd_pt-1,isdidx,sndbuf)
+!!$    write(0,*) me,' Sndbuf ',sndbuf(1:snd_pt-1)
 
   end if
 
@@ -1410,12 +1416,13 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,wo
       nerv = idx(pnti+psb_n_elem_recv_)
       nesd = idx(pnti+nerv+psb_n_elem_send_)
       idx_pt = 1+pnti+psb_n_elem_recv_
-      call y%sct(nerv,idx(idx_pt:idx_pt+nerv-1),&
-           & rcvbuf(rcv_pt:rcv_pt+nerv-1),beta)
+      irvidx(rcv_pt:rcv_pt+nerv-1) = idx(idx_pt:idx_pt+nerv-1)
       rcv_pt = rcv_pt + nerv
       snd_pt = snd_pt + nesd
       pnti   = pnti + nerv + nesd + 3
     end do
+    if (rcv_pt > 1) call y%sct(rcv_pt-1,irvidx,rcvbuf,beta)
+!!$    write(0,*) me,' Rcvbuf ',rcvbuf(1:rcv_pt-1)    
 
   end if
 
