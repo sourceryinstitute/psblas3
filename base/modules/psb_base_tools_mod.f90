@@ -413,7 +413,7 @@ module psb_cd_if_tools_mod
   interface psb_icdasb
     subroutine psb_icdasb(desc,info,ext_hv)
       use psb_descriptor_type
-      Type(psb_desc_type), intent(inout) :: desc
+      Type(psb_desc_type), intent(inout), target :: desc
       integer, intent(out)               :: info
       logical, intent(in),optional       :: ext_hv
     end subroutine psb_icdasb
