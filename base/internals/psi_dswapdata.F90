@@ -1225,23 +1225,26 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
 !!$  end if
   if (allocated(sndbuf)) then 
     if (size(sndbuf) < totsnd_) then
-       ! unregister
+	call unregister_addr(sndbuf,info)
       deallocate(sndbuf)
     end if
   end if
   if (allocated(rcvbuf)) then 
     if (size(rcvbuf) < totrcv_) then
        ! unregister
+	call unregister_addr(rcvbuf,info)
       deallocate(rcvbuf)
     end if
   end if
   if (.not.allocated(sndbuf)) then 
     allocate(sndbuf(totsnd_), stat=info)
     ! Register
+    call register_addr(sndbuf,info)
   end if
   if (.not.allocated(rcvbuf)) then 
-    allocate(rcvbuf(totsnd_), stat=info)
+    allocate(rcvbuf(totrcv_), stat=info)
     !| Register
+    call register_addr(rcvbuf,info)
   end if
 
 
@@ -1450,6 +1453,7 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
     pnti   = 1
     snd_pt = 1
     rcv_pt = 1
+    if (.false.) then 
     do i=1, totxch
       proc_to_comm = idx(pnti+psb_proc_id_)
       nerv = idx(pnti+psb_n_elem_recv_)
@@ -1460,7 +1464,10 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
       snd_pt = snd_pt + nesd
       pnti   = pnti + nerv + nesd + 3
     end do
-    if (rcv_pt > 1) call y%sct(rcv_pt-1,irvidx,rcvbuf,beta)
+      if (rcv_pt > 1) call y%sct(rcv_pt-1,irvidx,rcvbuf,beta)
+    else
+      call y%sct(size(pridx),pridx,rcvbuf,beta)
+    end if
 !!$    write(0,*) me,' Rcvbuf ',rcvbuf(1:rcv_pt-1)    
 
   end if
@@ -1491,5 +1498,60 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
     return
   end if
   return
+
+contains
+subroutine register_addr(v, info)
+    use iso_c_binding
+    real(psb_dpk_), allocatable, intent(in), target  :: v(:)
+    integer, intent(out)             :: info
+    
+    type(c_ptr)     :: cptr
+    interface 
+      function hostRegister(buffer, n) &
+           & result(res) bind(c,name='hostRegister')
+        use iso_c_binding   
+        integer(c_int)  :: res
+        integer(c_int), value:: n
+        type(c_ptr), value :: buffer
+      end function hostRegister
+    end interface
+    
+    info = 0
+    if (.not.allocated(v)) then
+      info = -1
+      return
+    end if
+    cptr = c_loc(v)
+    info = hostRegister(cptr,size(v))
+
+  end subroutine register_addr
+
+
+  subroutine unregister_addr(v, info)
+    use iso_c_binding
+    real(psb_dpk_), allocatable, intent(in), target  :: v(:)
+    integer, intent(out)             :: info
+    
+    type(c_ptr)     :: cptr
+    interface 
+      function hostUnregister(buffer) &
+           & result(res) bind(c,name='hostUnregister')
+        use iso_c_binding   
+        integer(c_int)  :: res
+        type(c_ptr), value :: buffer
+      end function hostUnregister
+    end interface
+    
+    info = 0
+    if (.not.allocated(v)) then
+      info = -1
+      return
+    end if
+    cptr = c_loc(v)
+    info = hostUnregister(cptr)
+
+  end subroutine unregister_addr
+
+
 end subroutine psi_dswapidx_vect
 

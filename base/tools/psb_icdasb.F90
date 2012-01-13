@@ -69,8 +69,8 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
   character(len=20)   :: name
   integer	      :: idxs, idxr, totxch, pnti, snd_pt, rcv_pt, nesd, nerv, idx_pt,proc_to_comm,totsnd, totrcv
   integer, pointer    :: idx(:)
-  integer, pointer    :: p_hsidx
-  integer, pointer    :: p_hridx
+  integer, pointer    :: p_hsidx(:)
+  integer, pointer    :: p_hridx(:)
 !!$  type(c_ptr)	      :: cptr_hsidx
 !!$  type(c_ptr)	      :: cptr_hridx
 
@@ -165,9 +165,10 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
     idx => desc_a%halo_index
 
     call psb_get_xch_idx(idx,totxch,totsnd,totrcv)
-
     pnti   = 1
     snd_pt = 1
+    allocate(desc_a%hsidx(totsnd),desc_a%hridx(totrcv),stat=info)
+
     do i=1, totxch
         nerv = idx(pnti+psb_n_elem_recv_)
         nesd = idx(pnti+nerv+psb_n_elem_send_)
@@ -177,7 +178,6 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
         pnti   = pnti + nerv + nesd + 3
     end do
     !hsidx ready
-
     pnti   = 1
     snd_pt = 1
     rcv_pt = 1
@@ -199,8 +199,10 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
 !!$    cptr_hsidx = c_loc(desc_a%hsidx)
 !!$    cptr_hridx = c_loc(desc_a%hridx)
 !!$
+    write(*,*) 'Prima della registrazione in psb_icdasb'
     call register_addr(desc_a%hsidx,info)
     call register_addr(desc_a%hridx,info)
+    write(*,*) 'Dopo registrazione in psb_icdasb'
 !!$    call get_c_addr(cptr_hsidx,desc_a%hsidx,info)
 !!$    info = hostRegister(cptr_hsidx,size(desc_a%hsidx))
 
@@ -255,6 +257,32 @@ contains
     info = hostRegister(cptr,size(v))
 
   end subroutine register_addr
+
+
+  subroutine unregister_addr(v, info)
+    use iso_c_binding
+    integer, allocatable, intent(in), target  :: v(:)
+    integer, intent(out)             :: info
+    
+    type(c_ptr)     :: cptr
+    interface 
+      function hostUnregister(buffer) &
+           & result(res) bind(c,name='hostUnregister')
+        use iso_c_binding   
+        integer(c_int)  :: res
+        type(c_ptr), value :: buffer
+      end function hostUnregister
+    end interface
+    
+    info = 0
+    if (.not.allocated(v)) then
+      info = -1
+      return
+    end if
+    cptr = c_loc(v)
+    info = hostUnregister(cptr)
+
+  end subroutine unregister_addr
    
 
 end subroutine psb_icdasb

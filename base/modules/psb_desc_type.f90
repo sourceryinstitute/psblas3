@@ -203,6 +203,7 @@ module psb_descriptor_type
     integer, allocatable  :: ext_index(:)
     integer, allocatable  :: ovrlap_index(:)
     integer, allocatable  :: ovr_mst_idx(:)
+    !integer, allocatable, dimension(:)  :: hsidx, hridx
     integer, allocatable  :: hsidx(:), hridx(:)
     ! ========== 
     integer, allocatable  :: ovrlap_elem(:,:)
