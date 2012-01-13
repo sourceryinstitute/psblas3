@@ -520,7 +520,7 @@ contains
 
 
 
-  subroutine psb_cd_get_list(data,desc,ipnt,totxch,idxr,idxs,info,pisdx,pirdx)
+  subroutine psb_cd_get_list(data,desc,ipnt,totxch,idxr,idxs,info,psidx,pridx)
     use psb_const_mod
     use psb_error_mod
     use psb_penv_mod
@@ -530,7 +530,7 @@ contains
     integer, pointer             :: ipnt(:)
     class(psb_desc_type), target  :: desc
     integer, intent(out)         :: totxch,idxr,idxs,info
-    integer, pointer, optional   :: pisdx(:), pirdx(:)    
+    integer, pointer, optional   :: psidx(:), pridx(:)    
 
     !locals
     integer             :: np,me,ictxt,err_act, debug_level,debug_unit
@@ -549,8 +549,8 @@ contains
     select case(data) 
     case(psb_comm_halo_) 
       ipnt   => desc%halo_index
-      if (present(pisdx)) pisdx => desc%hsidx
-      if (present(pirdx)) pirdx => desc%hridx
+      if (present(psidx)) psidx => desc%hsidx
+      if (present(pridx)) pridx => desc%hridx
     case(psb_comm_ovr_) 
       ipnt   => desc%ovrlap_index
     case(psb_comm_ext_) 

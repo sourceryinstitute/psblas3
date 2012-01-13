@@ -54,7 +54,7 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
   include 'mpif.h'
 #endif
   !...Parameters....
-  type(psb_desc_type), intent(inout), target :: desc_a !Added target statement
+  type(psb_desc_type), intent(inout), target :: desc_a !Added target attribute
   integer, intent(out)               :: info
   logical, intent(in), optional      :: ext_hv
 
@@ -71,19 +71,8 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
   integer, pointer    :: idx(:)
   integer, pointer    :: p_hsidx
   integer, pointer    :: p_hridx
-  type(c_ptr)	      :: ptr_hsidx
-  type(c_ptr)	      :: ptr_hridx
-
-
-  interface registerPinnedMemory
-     function hostRegister(buffer, n) &
-      & result(res) bind(c,name='hostRegister')
-	use iso_c_binding
-	integer(c_int)      	:: res
-	integer(c_int), value	:: n
-	type(c_ptr), value  	:: buffer
-     end function hostRegister
-  end interface registerPinnedMemory
+!!$  type(c_ptr)	      :: cptr_hsidx
+!!$  type(c_ptr)	      :: cptr_hridx
 
   info = psb_success_
   int_err(1) = 0
@@ -207,13 +196,17 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
 
     !p_hsidx => desc_a%hsidx
     !p_hridx => desc_a%hridx
-    ptr_hsidx = c_loc(desc_a%hsidx)
-    ptr_hridx = c_loc(desc_a%hridx)
+!!$    cptr_hsidx = c_loc(desc_a%hsidx)
+!!$    cptr_hridx = c_loc(desc_a%hridx)
+!!$
+    call register_addr(desc_a%hsidx,info)
+    call register_addr(desc_a%hridx,info)
+!!$    call get_c_addr(cptr_hsidx,desc_a%hsidx,info)
+!!$    info = hostRegister(cptr_hsidx,size(desc_a%hsidx))
 
-    !info = hostRegister(ptr_hsidx,size(desc_a%hsidx));
-    !info = hostRegister(ptr_hridx,size(desc_a%hridx));
-
-    
+!!$    call get_c_addr(cptr_hridx,desc_a%hridx,info)
+!!$    info = hostRegister(cptr_hridx,size(desc_a%hridx))
+!!$    
   else
     info = psb_err_spmat_invalid_state_
     call psb_errpush(info,name)
@@ -235,5 +228,33 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
     call psb_error(ictxt)
   end if
   return
+
+contains
+  subroutine register_addr(v, info)
+    use iso_c_binding
+    integer, allocatable, intent(in), target  :: v(:)
+    integer, intent(out)             :: info
+    
+    type(c_ptr)     :: cptr
+    interface 
+      function hostRegister(buffer, n) &
+           & result(res) bind(c,name='hostRegister')
+        use iso_c_binding   
+        integer(c_int)  :: res
+        integer(c_int), value:: n
+        type(c_ptr), value :: buffer
+      end function hostRegister
+    end interface
+    
+    info = 0
+    if (.not.allocated(v)) then
+      info = -1
+      return
+    end if
+    cptr = c_loc(v)
+    info = hostRegister(cptr,size(v))
+
+  end subroutine register_addr
+   
 
 end subroutine psb_icdasb
