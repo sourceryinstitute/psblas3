@@ -45,6 +45,7 @@
 subroutine psb_icdasb(desc_a,info,ext_hv)
   use psb_base_mod, psb_protect_name => psb_icdasb
   use psi_mod
+  use iso_c_binding 
 #ifdef MPI_MOD
   use mpi
 #endif
@@ -53,7 +54,7 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
   include 'mpif.h'
 #endif
   !...Parameters....
-  type(psb_desc_type), intent(inout) :: desc_a
+  type(psb_desc_type), intent(inout), target :: desc_a !Added target statement
   integer, intent(out)               :: info
   logical, intent(in), optional      :: ext_hv
 
@@ -66,6 +67,23 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
   logical             :: ext_hv_
   integer             :: debug_level, debug_unit
   character(len=20)   :: name
+  integer	      :: idxs, idxr, totxch, pnti, snd_pt, rcv_pt, nesd, nerv, idx_pt,proc_to_comm,totsnd, totrcv
+  integer, pointer    :: idx(:)
+  integer, pointer    :: p_hsidx
+  integer, pointer    :: p_hridx
+  type(c_ptr)	      :: ptr_hsidx
+  type(c_ptr)	      :: ptr_hridx
+
+
+  interface registerPinnedMemory
+     function hostRegister(buffer, n) &
+      & result(res) bind(c,name='hostRegister')
+	use iso_c_binding
+	integer(c_int)      	:: res
+	integer(c_int), value	:: n
+	type(c_ptr), value  	:: buffer
+     end function hostRegister
+  end interface registerPinnedMemory
 
   info = psb_success_
   int_err(1) = 0
@@ -154,6 +172,46 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
 !!$    desc_a%matrix_data(psb_dec_type_) = psb_desc_asb_
    
     ! Add regeneration of hsidx hridx
+
+    idx => desc_a%halo_index
+
+    call psb_get_xch_idx(idx,totxch,totsnd,totrcv)
+
+    pnti   = 1
+    snd_pt = 1
+    do i=1, totxch
+        nerv = idx(pnti+psb_n_elem_recv_)
+        nesd = idx(pnti+nerv+psb_n_elem_send_)
+        idx_pt = 1+pnti+nerv+psb_n_elem_send_
+        desc_a%hsidx(snd_pt:snd_pt+nesd-1) = idx(idx_pt:idx_pt+nesd-1)
+        snd_pt = snd_pt + nesd 
+        pnti   = pnti + nerv + nesd + 3
+    end do
+    !hsidx ready
+
+    pnti   = 1
+    snd_pt = 1
+    rcv_pt = 1
+    do i=1, totxch
+      proc_to_comm = idx(pnti+psb_proc_id_)
+      nerv = idx(pnti+psb_n_elem_recv_)
+      nesd = idx(pnti+nerv+psb_n_elem_send_)
+      idx_pt = 1+pnti+psb_n_elem_recv_
+      desc_a%hridx(rcv_pt:rcv_pt+nerv-1) = idx(idx_pt:idx_pt+nerv-1)
+      rcv_pt = rcv_pt + nerv
+      snd_pt = snd_pt + nesd
+      pnti   = pnti + nerv + nesd + 3
+    end do
+
+    ! Register hridx and hsidx
+
+    !p_hsidx => desc_a%hsidx
+    !p_hridx => desc_a%hridx
+    ptr_hsidx = c_loc(desc_a%hsidx)
+    ptr_hridx = c_loc(desc_a%hridx)
+
+    !info = hostRegister(ptr_hsidx,size(desc_a%hsidx));
+    !info = hostRegister(ptr_hridx,size(desc_a%hridx));
 
     
   else

@@ -1065,7 +1065,7 @@ subroutine psi_dswapdata_vect(flag,beta,y,desc_a,work,info,data)
     data_ = psb_comm_halo_
   end if
 
-  call desc_a%get_list(data_,d_idx,totxch,idxr,idxs,info,psidx=d_psidx, pridx=d_pridx) 
+  call desc_a%get_list(data_,d_idx,totxch,idxr,idxs,info,pisdx=d_psidx, pirdx=d_pridx) 
   if (info /= psb_success_) then 
     call psb_errpush(psb_err_internal_error_,name,a_err='psb_cd_get_list')
     goto 9999
@@ -1123,13 +1123,15 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
        & albf,do_send,do_recv
   logical, parameter :: usersend=.false.
 
-  interface 
-    function register(pnt) result(res) bind(C,name='register')
-      use iso_c_binding
-      integer(c_int) :: res
-      type(c_ptr), value :: pnt 
-    end function register
-  end interface
+  interface registerPinnedMemory
+     function hostRegister(buffer, n) &
+      & result(res) bind(c,name='hostRegister')
+	use iso_c_binding
+	integer(c_int)      	:: res
+	integer(c_int), value	:: n
+	type(c_ptr), value  	:: buffer
+     end function hostRegister
+  end interface registerPinnedMemory
   
 !!$  real(psb_dpk_), pointer, dimension(:) :: sndbuf, rcvbuf
   real(psb_dpk_), allocatable, save  :: sndbuf(:), rcvbuf(:)
