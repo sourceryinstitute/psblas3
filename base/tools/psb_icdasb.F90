@@ -167,6 +167,7 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
     call psb_get_xch_idx(idx,totxch,totsnd,totrcv)
     pnti   = 1
     snd_pt = 1
+
     allocate(desc_a%hsidx(totsnd),desc_a%hridx(totrcv),stat=info)
 
     do i=1, totxch
@@ -194,21 +195,9 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
 
     ! Register hridx and hsidx
 
-    !p_hsidx => desc_a%hsidx
-    !p_hridx => desc_a%hridx
-!!$    cptr_hsidx = c_loc(desc_a%hsidx)
-!!$    cptr_hridx = c_loc(desc_a%hridx)
-!!$
-    write(*,*) 'Prima della registrazione in psb_icdasb'
     call register_addr(desc_a%hsidx,info)
     call register_addr(desc_a%hridx,info)
-    write(*,*) 'Dopo registrazione in psb_icdasb'
-!!$    call get_c_addr(cptr_hsidx,desc_a%hsidx,info)
-!!$    info = hostRegister(cptr_hsidx,size(desc_a%hsidx))
 
-!!$    call get_c_addr(cptr_hridx,desc_a%hridx,info)
-!!$    info = hostRegister(cptr_hridx,size(desc_a%hridx))
-!!$    
   else
     info = psb_err_spmat_invalid_state_
     call psb_errpush(info,name)
@@ -243,7 +232,7 @@ contains
            & result(res) bind(c,name='hostRegister')
         use iso_c_binding   
         integer(c_int)  :: res
-        integer(c_int), value:: n
+        integer(c_long), value:: n
         type(c_ptr), value :: buffer
       end function hostRegister
     end interface
@@ -254,7 +243,7 @@ contains
       return
     end if
     cptr = c_loc(v)
-    info = hostRegister(cptr,size(v))
+    info = hostRegister(cptr,sizeof(v))!size(v)
 
   end subroutine register_addr
 

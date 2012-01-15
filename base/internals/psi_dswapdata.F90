@@ -1133,7 +1133,7 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
      end function hostRegister
   end interface registerPinnedMemory
   
-!!$  real(psb_dpk_), pointer, dimension(:) :: sndbuf, rcvbuf
+  !real(psb_dpk_), allocatable :: sndbuf(:), rcvbuf(:)
   real(psb_dpk_), allocatable, save  :: sndbuf(:), rcvbuf(:)
 
 #ifdef HAVE_VOLATILE
@@ -1511,7 +1511,7 @@ subroutine register_addr(v, info)
            & result(res) bind(c,name='hostRegister')
         use iso_c_binding   
         integer(c_int)  :: res
-        integer(c_int), value:: n
+        integer(c_long), value:: n
         type(c_ptr), value :: buffer
       end function hostRegister
     end interface
@@ -1522,7 +1522,7 @@ subroutine register_addr(v, info)
       return
     end if
     cptr = c_loc(v)
-    info = hostRegister(cptr,size(v))
+    info = hostRegister(cptr,sizeof(v))!size(v)
 
   end subroutine register_addr
 
