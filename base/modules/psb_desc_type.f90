@@ -205,6 +205,7 @@ module psb_descriptor_type
     integer, allocatable  :: ovr_mst_idx(:)
     !integer, allocatable, dimension(:)  :: hsidx, hridx
     integer, allocatable  :: hsidx(:), hridx(:)
+    integer, pointer  :: dev_hsidx(:), dev_hridx(:)
     ! ========== 
     integer, allocatable  :: ovrlap_elem(:,:)
     integer, allocatable  :: bnd_elem(:)
@@ -521,7 +522,7 @@ contains
 
 
 
-  subroutine psb_cd_get_list(data,desc,ipnt,totxch,idxr,idxs,info,psidx,pridx)
+  subroutine psb_cd_get_list(data,desc,ipnt,totxch,idxr,idxs,info,psidx,pridx,s_psidx,s_pridx)
     use psb_const_mod
     use psb_error_mod
     use psb_penv_mod
@@ -532,7 +533,7 @@ contains
     class(psb_desc_type), target  :: desc
     integer, intent(out)         :: totxch,idxr,idxs,info
     integer, pointer, optional   :: psidx(:), pridx(:)    
-
+    integer, optional,intent(out):: s_psidx,s_pridx
     !locals
     integer             :: np,me,ictxt,err_act, debug_level,debug_unit
     logical, parameter  :: debug=.false.,debugprt=.false.
@@ -550,8 +551,12 @@ contains
     select case(data) 
     case(psb_comm_halo_) 
       ipnt   => desc%halo_index
-      if (present(psidx)) psidx => desc%hsidx
-      if (present(pridx)) pridx => desc%hridx
+      !if (present(psidx)) psidx => desc%hsidx
+      !if (present(pridx)) pridx => desc%hridx
+      if (present(psidx)) psidx => desc%dev_hsidx
+      if (present(pridx)) pridx => desc%dev_hridx
+      if (present(s_psidx)) s_psidx = size(desc%hsidx)
+      if (present(s_pridx)) s_pridx = size(desc%hridx)
     case(psb_comm_ovr_) 
       ipnt   => desc%ovrlap_index
     case(psb_comm_ext_) 

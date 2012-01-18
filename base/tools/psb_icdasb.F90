@@ -194,9 +194,9 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
     end do
 
     ! Register hridx and hsidx
-
-    call register_addr(desc_a%hsidx,info)
-    call register_addr(desc_a%hridx,info)
+    call set_idx(desc_a%hsidx,desc_a%hridx,desc_a%dev_hsidx,desc_a%dev_hridx,info);
+    !call register_addr(desc_a%hsidx,info)
+    !call register_addr(desc_a%hridx,info)
 
   else
     info = psb_err_spmat_invalid_state_
@@ -221,6 +221,41 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
   return
 
 contains
+
+  subroutine set_idx(sidx,ridx,dev_hsidx,dev_hridx,info)
+    use iso_c_binding
+    implicit none
+      integer, intent(out)  :: info
+      integer, allocatable, intent(in), target  :: sidx(:)
+      integer, allocatable, intent(in), target  :: ridx(:)
+      integer, pointer, intent(inout) :: dev_hsidx(:)
+      integer, pointer, intent(inout) :: dev_hridx(:)
+      type(c_ptr)     :: cptr_s, cptr_r
+	interface 
+	  function setIndex(i_send,i_recv,dev_send,dev_recv,n_send,n_recv) &
+	      & result(res) bind(c,name='indexesSetting')
+	    use iso_c_binding   
+	    integer(c_int)  :: res
+	    integer(c_int)	:: i_send(*)
+	    integer(c_int)	:: i_recv(*)
+	    type(c_ptr)		:: dev_send
+	    type(c_ptr)		:: dev_recv
+	    integer(c_int), value	:: n_send
+	    integer(c_int), value	:: n_recv
+	  end function setIndex
+	end interface
+
+      write(*,*) 'Dentro set_idx'
+      !cptr_s = c_loc(dev_hsidx) 
+      !cptr_r = c_loc(dev_hridx) 
+
+      info = setIndex(sidx,ridx,cptr_s,cptr_r,size(sidx),size(ridx))
+
+      call c_f_pointer(cptr_s,dev_hsidx,[size(sidx)])
+      call c_f_pointer(cptr_r,dev_hridx,[size(ridx)])
+
+  end subroutine set_idx
+
   subroutine register_addr(v, info)
     use iso_c_binding
     integer, allocatable, intent(in), target  :: v(:)

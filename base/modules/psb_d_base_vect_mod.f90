@@ -720,9 +720,11 @@ contains
     integer :: n, idx(:)
     real(psb_dpk_) ::  y(:)
     class(psb_d_base_vect_type) :: x
+
+    write(*,*) 'Dentro d_base_gthzv'
     
     call x%sync()
-    call psi_gth(n,idx,x%v,y)
+    !call psi_gth(n,idx,x%v,y)
 
   end subroutine d_base_gthzv
 
@@ -738,7 +740,7 @@ contains
     class(psb_d_base_vect_type) :: y
     
     call y%sync()
-    call psi_sct(n,idx,x,beta,y%v)
+    !call psi_sct(n,idx,x,beta,y%v)
 
   end subroutine d_base_sctb
 

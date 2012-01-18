@@ -1035,7 +1035,7 @@ subroutine psi_dswapdata_vect(flag,beta,y,desc_a,work,info,data)
   integer, optional           :: data
 
   ! locals
-  integer  :: ictxt, np, me, icomm, idxs, idxr, totxch, data_, err_act
+  integer  :: ictxt, np, me, icomm, idxs, idxr, totxch, data_, err_act, size_psidx, size_pridx
   integer, pointer :: d_idx(:), d_psidx(:), d_pridx(:)
   character(len=20)  :: name
 
@@ -1065,7 +1065,7 @@ subroutine psi_dswapdata_vect(flag,beta,y,desc_a,work,info,data)
     data_ = psb_comm_halo_
   end if
 
-  call desc_a%get_list(data_,d_idx,totxch,idxr,idxs,info,psidx=d_psidx, pridx=d_pridx) 
+  call desc_a%get_list(data_,d_idx,totxch,idxr,idxs,info,psidx=d_psidx, pridx=d_pridx,s_psidx=size_psidx,s_pridx=size_pridx)
   if (info /= psb_success_) then 
     call psb_errpush(psb_err_internal_error_,name,a_err='psb_cd_get_list')
     goto 9999
@@ -1087,7 +1087,7 @@ subroutine psi_dswapdata_vect(flag,beta,y,desc_a,work,info,data)
 end subroutine psi_dswapdata_vect
 
 
-subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,psidx,pridx,work,info)
+subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,psidx,pridx,s_psidx,s_pridx,work,info)
 
   use psi_mod, psb_protect_name => psi_dswapidx_vect
   use psb_error_mod
@@ -1109,7 +1109,7 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
   real(psb_dpk_)           :: beta
   real(psb_dpk_), target   :: work(:)
   integer, intent(in)         :: idx(:),totxch,totsnd, totrcv, psidx(:),pridx(:) 
-
+  integer, optional, intent(in)	      :: s_psidx,s_pridx
   ! locals
   integer  :: np, me, nesd, nerv,&
        & proc_to_comm, p2ptag, p2pstat(mpi_status_size),&
@@ -1271,7 +1271,7 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
       end do
       if (snd_pt > 1)    call y%gth(snd_pt-1,isdidx,sndbuf)
     else
-      call y%gth(size(psidx),psidx,sndbuf)
+      call y%gth(s_psidx,psidx,sndbuf)
     end if
 !!$    write(0,*) me,' Sndbuf ',sndbuf(1:snd_pt-1)
 
@@ -1466,7 +1466,7 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
     end do
       if (rcv_pt > 1) call y%sct(rcv_pt-1,irvidx,rcvbuf,beta)
     else
-      call y%sct(size(pridx),pridx,rcvbuf,beta)
+      call y%sct(s_pridx,pridx,rcvbuf,beta)
     end if
 !!$    write(0,*) me,' Rcvbuf ',rcvbuf(1:rcv_pt-1)    
 
