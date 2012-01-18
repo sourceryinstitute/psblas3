@@ -40,6 +40,7 @@ module psb_descriptor_type
   use psb_hash_mod 
   use psb_desc_const_mod
   use psb_indx_map_mod
+  use iso_c_binding
 
   implicit none
 
@@ -205,7 +206,8 @@ module psb_descriptor_type
     integer, allocatable  :: ovr_mst_idx(:)
     !integer, allocatable, dimension(:)  :: hsidx, hridx
     integer, allocatable  :: hsidx(:), hridx(:)
-    integer, pointer  :: dev_hsidx(:), dev_hridx(:)
+    !integer, pointer  :: dev_hsidx(:), dev_hridx(:)
+    type(c_ptr)           :: dev_hsidx, dev_hridx
     ! ========== 
     integer, allocatable  :: ovrlap_elem(:,:)
     integer, allocatable  :: bnd_elem(:)
