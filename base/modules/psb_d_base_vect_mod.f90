@@ -715,16 +715,15 @@ contains
   !
   ! shortcut alpha=1 beta=0
   ! 
-  subroutine d_base_gthzv(n,idx,x,y)
+  subroutine d_base_gthzv(n,idx,x,y,g_me)
     use psi_serial_mod
     integer :: n, idx(:)
     real(psb_dpk_) ::  y(:)
     class(psb_d_base_vect_type) :: x
-
-    write(*,*) 'Dentro d_base_gthzv'
+    integer, optional :: g_me
     
     call x%sync()
-    !call psi_gth(n,idx,x%v,y)
+    call psi_gth(n,idx,x%v,y)
 
   end subroutine d_base_gthzv
 
@@ -733,14 +732,15 @@ contains
   ! Y(IDX(:)) = beta*Y(IDX(:)) + X(:)
   ! 
   
-  subroutine d_base_sctb(n,idx,x,beta,y)
+  subroutine d_base_sctb(n,idx,x,beta,y,s_me)
     use psi_serial_mod
     integer :: n, idx(:)
     real(psb_dpk_) :: beta, x(:)
     class(psb_d_base_vect_type) :: y
-    
+    integer, optional :: s_me
+  
     call y%sync()
-    !call psi_sct(n,idx,x,beta,y%v)
+    call psi_sct(n,idx,x,beta,y%v)
 
   end subroutine d_base_sctb
 

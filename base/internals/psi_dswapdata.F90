@@ -1035,7 +1035,7 @@ subroutine psi_dswapdata_vect(flag,beta,y,desc_a,work,info,data)
   integer, optional           :: data
 
   ! locals
-  integer  :: ictxt, np, me, icomm, idxs, idxr, totxch, data_, err_act, size_psidx, size_pridx
+  integer  :: ictxt, np, me, icomm, idxs, idxr, totxch, data_, err_act
   integer, pointer :: d_idx(:), d_psidx(:), d_pridx(:)
   character(len=20)  :: name
 
@@ -1065,7 +1065,7 @@ subroutine psi_dswapdata_vect(flag,beta,y,desc_a,work,info,data)
     data_ = psb_comm_halo_
   end if
 
-  call desc_a%get_list(data_,d_idx,totxch,idxr,idxs,info,psidx=d_psidx, pridx=d_pridx,s_psidx=size_psidx,s_pridx=size_pridx)
+  call desc_a%get_list(data_,d_idx,totxch,idxr,idxs,info,psidx=d_psidx, pridx=d_pridx) 
   if (info /= psb_success_) then 
     call psb_errpush(psb_err_internal_error_,name,a_err='psb_cd_get_list')
     goto 9999
@@ -1087,7 +1087,7 @@ subroutine psi_dswapdata_vect(flag,beta,y,desc_a,work,info,data)
 end subroutine psi_dswapdata_vect
 
 
-subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,psidx,pridx,s_psidx,s_pridx,work,info)
+subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,psidx,pridx,work,info)
 
   use psi_mod, psb_protect_name => psi_dswapidx_vect
   use psb_error_mod
@@ -1109,7 +1109,7 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
   real(psb_dpk_)           :: beta
   real(psb_dpk_), target   :: work(:)
   integer, intent(in)         :: idx(:),totxch,totsnd, totrcv, psidx(:),pridx(:) 
-  integer, optional, intent(in)	      :: s_psidx,s_pridx
+
   ! locals
   integer  :: np, me, nesd, nerv,&
        & proc_to_comm, p2ptag, p2pstat(mpi_status_size),&
@@ -1133,8 +1133,8 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
      end function hostRegister
   end interface registerPinnedMemory
   
-  !real(psb_dpk_), allocatable :: sndbuf(:), rcvbuf(:)
-  real(psb_dpk_), allocatable, save  :: sndbuf(:), rcvbuf(:)
+  real(psb_dpk_),pointer,dimension(:) :: sndbuf, rcvbuf
+  !real(psb_dpk_), allocatable, save  :: sndbuf(:), rcvbuf(:)
 
 #ifdef HAVE_VOLATILE
   volatile :: sndbuf, rcvbuf
@@ -1211,41 +1211,41 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
 
   totrcv_ = max(totrcv_,1)
   totsnd_ = max(totsnd_,1)
-!!$  if((totrcv_+totsnd_) < size(work)) then
-!!$    sndbuf => work(1:totsnd_)
-!!$    rcvbuf => work(totsnd_+1:totsnd_+totrcv_)
-!!$    albf=.false.
-!!$  else
-!!$    allocate(sndbuf(totsnd_),rcvbuf(totrcv_), stat=info)
-!!$    if(info /= psb_success_) then
-!!$      call psb_errpush(psb_err_alloc_dealloc_,name)
-!!$      goto 9999
-!!$    end if
-!!$    albf=.true.
-!!$  end if
-  if (allocated(sndbuf)) then 
-    if (size(sndbuf) < totsnd_) then
-	call unregister_addr(sndbuf,info)
-      deallocate(sndbuf)
+  if((totrcv_+totsnd_) < size(work)) then
+    sndbuf => work(1:totsnd_)
+    rcvbuf => work(totsnd_+1:totsnd_+totrcv_)
+    albf=.false.
+  else
+    allocate(sndbuf(totsnd_),rcvbuf(totrcv_), stat=info)
+    if(info /= psb_success_) then
+      call psb_errpush(psb_err_alloc_dealloc_,name)
+      goto 9999
     end if
+    albf=.true.
   end if
-  if (allocated(rcvbuf)) then 
-    if (size(rcvbuf) < totrcv_) then
+!  if (allocated(sndbuf)) then 
+!    if (size(sndbuf) < totsnd_) then
+!	call unregister_addr(sndbuf,info)
+!      deallocate(sndbuf)
+!    end if
+!  end if
+!  if (allocated(rcvbuf)) then 
+!    if (size(rcvbuf) < totrcv_) then
        ! unregister
-	call unregister_addr(rcvbuf,info)
-      deallocate(rcvbuf)
-    end if
-  end if
-  if (.not.allocated(sndbuf)) then 
-    allocate(sndbuf(totsnd_), stat=info)
-    ! Register
-    call register_addr(sndbuf,info)
-  end if
-  if (.not.allocated(rcvbuf)) then 
-    allocate(rcvbuf(totrcv_), stat=info)
-    !| Register
-    call register_addr(rcvbuf,info)
-  end if
+!	call unregister_addr(rcvbuf,info)
+!      deallocate(rcvbuf)
+!    end if
+!  end if
+!  if (.not.allocated(sndbuf)) then 
+!    allocate(sndbuf(totsnd_), stat=info)
+!    ! Register
+!    call register_addr(sndbuf,info)
+!  end if
+!  if (.not.allocated(rcvbuf)) then 
+!    allocate(rcvbuf(totrcv_), stat=info)
+!    !| Register
+!    call register_addr(rcvbuf,info)
+!  end if
 
 
   allocate(isdidx(totsnd_),irvidx(totrcv_), stat=info)
@@ -1271,7 +1271,7 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
       end do
       if (snd_pt > 1)    call y%gth(snd_pt-1,isdidx,sndbuf)
     else
-      call y%gth(s_psidx,psidx,sndbuf)
+      call y%gth(size(psidx),psidx,sndbuf,g_me=me)
     end if
 !!$    write(0,*) me,' Sndbuf ',sndbuf(1:snd_pt-1)
 
@@ -1466,7 +1466,7 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
     end do
       if (rcv_pt > 1) call y%sct(rcv_pt-1,irvidx,rcvbuf,beta)
     else
-      call y%sct(s_pridx,pridx,rcvbuf,beta)
+      call y%sct(size(pridx),pridx,rcvbuf,beta,s_me=me)
     end if
 !!$    write(0,*) me,' Rcvbuf ',rcvbuf(1:rcv_pt-1)    
 
@@ -1482,7 +1482,7 @@ subroutine psi_dswapidx_vect(ictxt,icomm,flag,beta,y,idx,totxch,totsnd,totrcv,ps
     call psb_errpush(psb_err_alloc_dealloc_,name)
     goto 9999
   end if
-!!$  if(albf) deallocate(sndbuf,rcvbuf,stat=info)
+  if(albf) deallocate(sndbuf,rcvbuf,stat=info)
   if(info /= psb_success_) then
     call psb_errpush(psb_err_alloc_dealloc_,name)
     goto 9999

@@ -71,90 +71,89 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
   integer, pointer    :: idx(:)
   integer, pointer    :: p_hsidx(:)
   integer, pointer    :: p_hridx(:)
-  type(c_ptr)	      :: cptr_hsidx
-  type(c_ptr)	      :: cptr_hridx
-  
+!!$  type(c_ptr)	      :: cptr_hsidx
+!!$  type(c_ptr)	      :: cptr_hridx
+
   info = psb_success_
   int_err(1) = 0
   name = 'psb_cdasb'
 
-!!$  call psb_erractionsave(err_act)
-!!$  debug_unit  = psb_get_debug_unit()
-!!$  debug_level = psb_get_debug_level()
-!!$
-!!$  ictxt   = desc_a%get_context()
-!!$  dectype = desc_a%get_dectype()
-!!$  n_row   = desc_a%get_local_rows()
-!!$  n_col   = desc_a%get_local_cols()
-!!$  call psb_get_mpicomm(ictxt,icomm )
-!!$
-!!$  ! check on blacs grid 
-!!$  call psb_info(ictxt, me, np)
-!!$  if (np == -1) then
-!!$    info = psb_err_context_error_
-!!$    call psb_errpush(info,name)
-!!$    goto 9999
-!!$  endif
-!!$
-!!$  if (.not.psb_is_ok_desc(desc_a)) then 
-!!$    info = psb_err_spmat_invalid_state_
-!!$    int_err(1) = dectype
-!!$    call psb_errpush(info,name)
-!!$    goto 9999
-!!$  endif
-!!$
-!!$  info = psb_get_errstatus()
-!!$  if (info /= psb_success_) then 
-!!$    ! Something went wrong in cdins/spins
-!!$    ! signal and exit
-!!$    info = psb_err_wrong_ins_
-!!$    call psb_errpush(info,name)
-!!$    goto 9999
-!!$  end if
-!!$
-!!$  if (present(ext_hv)) then 
-!!$    ext_hv_ = ext_hv
-!!$  else
-!!$    ext_hv_ = .false.
-!!$  end if
-!!$  if (debug_level >= psb_debug_ext_) &
-!!$       & write(debug_unit, *) me,' ',trim(name),': start'
-!!$
-!!$  if (allocated(desc_a%indxmap)) then 
-!!$    call psi_ldsc_pre_halo(desc_a,ext_hv_,info)
-!!$    if (info /= psb_success_) then
-!!$      call psb_errpush(psb_err_from_subroutine_,name,a_err='ldsc_pre_halo')
-!!$      goto 9999
-!!$    end if
-!!$
-!!$    ! Take out the lists for ovrlap, halo and ext...
-!!$    call psb_move_alloc(desc_a%ovrlap_index,ovrlap_index,info)
-!!$    call psb_move_alloc(desc_a%halo_index,halo_index,info)
-!!$    call psb_move_alloc(desc_a%ext_index,ext_index,info)
-!!$
-!!$    if (debug_level >= psb_debug_ext_) &
-!!$         & write(debug_unit,*) me,' ',trim(name),': Final conversion'
-!!$    ! Then convert and put them back where they belong.    
-!!$    call psi_cnv_dsc(halo_index,ovrlap_index,ext_index,desc_a,info) 
-!!$    
-!!$    if (info /= psb_success_) then
-!!$      call psb_errpush(psb_err_from_subroutine_,name,a_err='psi_cnv_dsc')
-!!$      goto 9999
-!!$    end if
-!!$    
-!!$    deallocate(ovrlap_index, halo_index, ext_index, stat=info)
-!!$    if (info /= psb_success_) then
-!!$      info =psb_err_alloc_dealloc_
-!!$      call psb_errpush(info,name)
-!!$      goto 9999
-!!$    end if
-!!$
-!!$    call desc_a%indxmap%asb(info)
-!!$    if (info /= psb_success_) then 
-!!$      write(0,*) 'Error from internal indxmap asb ',info
-!!$      info = psb_success_
-!!$    end if
+  call psb_erractionsave(err_act)
+  debug_unit  = psb_get_debug_unit()
+  debug_level = psb_get_debug_level()
 
+  ictxt   = desc_a%get_context()
+  dectype = desc_a%get_dectype()
+  n_row   = desc_a%get_local_rows()
+  n_col   = desc_a%get_local_cols()
+  call psb_get_mpicomm(ictxt,icomm )
+
+  ! check on blacs grid 
+  call psb_info(ictxt, me, np)
+  if (np == -1) then
+    info = psb_err_context_error_
+    call psb_errpush(info,name)
+    goto 9999
+  endif
+
+  if (.not.psb_is_ok_desc(desc_a)) then 
+    info = psb_err_spmat_invalid_state_
+    int_err(1) = dectype
+    call psb_errpush(info,name)
+    goto 9999
+  endif
+
+  info = psb_get_errstatus()
+  if (info /= psb_success_) then 
+    ! Something went wrong in cdins/spins
+    ! signal and exit
+    info = psb_err_wrong_ins_
+    call psb_errpush(info,name)
+    goto 9999
+  end if
+
+  if (present(ext_hv)) then 
+    ext_hv_ = ext_hv
+  else
+    ext_hv_ = .false.
+  end if
+  if (debug_level >= psb_debug_ext_) &
+       & write(debug_unit, *) me,' ',trim(name),': start'
+
+  if (allocated(desc_a%indxmap)) then 
+    call psi_ldsc_pre_halo(desc_a,ext_hv_,info)
+    if (info /= psb_success_) then
+      call psb_errpush(psb_err_from_subroutine_,name,a_err='ldsc_pre_halo')
+      goto 9999
+    end if
+
+    ! Take out the lists for ovrlap, halo and ext...
+    call psb_move_alloc(desc_a%ovrlap_index,ovrlap_index,info)
+    call psb_move_alloc(desc_a%halo_index,halo_index,info)
+    call psb_move_alloc(desc_a%ext_index,ext_index,info)
+
+    if (debug_level >= psb_debug_ext_) &
+         & write(debug_unit,*) me,' ',trim(name),': Final conversion'
+    ! Then convert and put them back where they belong.    
+    call psi_cnv_dsc(halo_index,ovrlap_index,ext_index,desc_a,info) 
+    
+    if (info /= psb_success_) then
+      call psb_errpush(psb_err_from_subroutine_,name,a_err='psi_cnv_dsc')
+      goto 9999
+    end if
+    
+    deallocate(ovrlap_index, halo_index, ext_index, stat=info)
+    if (info /= psb_success_) then
+      info =psb_err_alloc_dealloc_
+      call psb_errpush(info,name)
+      goto 9999
+    end if
+
+    call desc_a%indxmap%asb(info)
+    if (info /= psb_success_) then 
+      write(0,*) 'Error from internal indxmap asb ',info
+      info = psb_success_
+    end if
 
 !!$    desc_a%matrix_data(psb_n_row_) = desc_a%indxmap%get_lr()    
 !!$    desc_a%matrix_data(psb_n_col_) = desc_a%indxmap%get_lc()
@@ -165,7 +164,7 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
 
     idx => desc_a%halo_index
 
-!!$    call psb_get_xch_idx(idx,totxch,totsnd,totrcv)
+    call psb_get_xch_idx(idx,totxch,totsnd,totrcv)
     pnti   = 1
     snd_pt = 1
 
@@ -195,59 +194,15 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
     end do
 
     ! Register hridx and hsidx
-    call set_idx(desc_a%hsidx,desc_a%hridx,desc_a%dev_hsidx,desc_a%dev_hridx,info);
+    call set_idx(desc_a%hsidx,desc_a%hridx,info);
     !call register_addr(desc_a%hsidx,info)
     !call register_addr(desc_a%hridx,info)
 
-!!$  else
-!!$    info = psb_err_spmat_invalid_state_
-!!$    call psb_errpush(info,name)
-!!$    goto 9999
-!!$  endif
-!!$
-!!$  if (debug_level >= psb_debug_ext_) &
-!!$       & write(debug_unit,*) me,' ',trim(name),': Done'
-!!$
-!!$  call psb_erractionrestore(err_act)
-!!$  return
-!!$
-!!$9999 continue
-!!$  call psb_erractionrestore(err_act)
-!!$
-!!$  if (err_act == psb_act_ret_) then
-!!$    return
-!!$  else
-!!$    call psb_error(ictxt)
-!!$  end if
-!!$  return
-!!$
-!!$contains
-!!$  subroutine register_addr(v, info)
-!!$    use iso_c_binding
-!!$    integer, allocatable, intent(in), target  :: v(:)
-!!$    integer, intent(out)             :: info
-!!$    
-!!$    type(c_ptr)     :: cptr
-!!$    interface 
-!!$      function hostRegister(buffer, n) &
-!!$           & result(res) bind(c,name='hostRegister')
-!!$        use iso_c_binding   
-!!$        integer(c_int)  :: res
-!!$        integer(c_int), value:: n
-!!$        type(c_ptr), value :: buffer
-!!$      end function hostRegister
-!!$    end interface
-!!$    
-!!$    info = 0
-!!$    if (.not.allocated(v)) then
-!!$      info = -1
-!!$      return
-!!$    end if
-!!$    cptr = c_loc(v)
-!!$    info = hostRegister(cptr,size(v))
-!!$
-!!$  end subroutine register_addr
-!!$   
+  else
+    info = psb_err_spmat_invalid_state_
+    call psb_errpush(info,name)
+    goto 9999
+  endif
 
   if (debug_level >= psb_debug_ext_) &
        & write(debug_unit,*) me,' ',trim(name),': Done'
@@ -267,35 +222,33 @@ subroutine psb_icdasb(desc_a,info,ext_hv)
 
 contains
 
-  subroutine set_idx(sidx,ridx,dev_hsidx,dev_hridx,info)
-    use iso_c_binding
-    implicit none
-      integer, intent(out)  :: info
-      integer, allocatable, intent(in), target  :: sidx(:)
-      integer, allocatable, intent(in), target  :: ridx(:)
-      type(c_ptr), intent(inout) :: dev_hsidx
-      type(c_ptr), intent(inout) :: dev_hridx
-      type(c_ptr)     :: cptr_s, cptr_r
-      interface 
-        function setIndex(i_send,i_recv,dev_send,dev_recv,n_send,n_recv) &
-             & result(res) bind(c,name='indexesSetting')
-          use iso_c_binding   
-          integer(c_int)  :: res
-          integer(c_int)	:: i_send(*)
-          integer(c_int)	:: i_recv(*)
-          type(c_ptr)		:: dev_send
-          type(c_ptr)		:: dev_recv
-          integer(c_int), value	:: n_send
-          integer(c_int), value	:: n_recv
-        end function setIndex
-      end interface
-      
-      write(*,*) 'Dentro set_idx'
-      !cptr_s = c_loc(dev_hsidx) 
-      !cptr_r = c_loc(dev_hridx) 
+  subroutine set_idx(sidx,ridx,info)
+      use iso_c_binding
+      implicit none
+	integer, intent(out)  :: info
+	integer, allocatable, intent(in), target  :: sidx(:)
+	integer, allocatable, intent(in), target  :: ridx(:)
 
-      info = setIndex(sidx,ridx,dev_hsidx,dev_hridx,size(sidx),size(ridx))
+	  interface 
+	    function setIndex(i_send,i_recv,id,n_send,n_recv,n) &
+		& result(res) bind(c,name='indexesSetting')
+	      use iso_c_binding   
+	      integer(c_int)  		:: res
+	      integer(c_int)		:: i_send(*)
+	      integer(c_int)		:: i_recv(*)
+	      integer(c_int), value	:: id
+	      integer(c_int), value	:: n_send
+	      integer(c_int), value	:: n_recv
+	      integer(c_int), value	:: n
+	    end function setIndex
+	  end interface
 
+	write(*,*) 'Dentro set_idx'
+	!cptr_s = c_loc(dev_hsidx) 
+	!cptr_r = c_loc(dev_hridx) 
+	call psb_info(ictxt,me,np)
+
+	info = setIndex(sidx,ridx,me,size(sidx),size(ridx),np)
 
   end subroutine set_idx
 
@@ -320,6 +273,7 @@ contains
       info = -1
       return
     end if
+    write(*,*) 'Count index',size(v),sizeof(v)
     cptr = c_loc(v)
     info = hostRegister(cptr,sizeof(v))!size(v)
 
