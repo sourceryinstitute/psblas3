@@ -30,7 +30,7 @@
 !!$ 
 !!$  
 !
-! package: psb_base_mat_mod
+! File: psb_base_mat_mod
 !
 ! This module contains the definition of the very basic object
 ! psb_base_sparse_mat holding some information common to all matrix
@@ -41,22 +41,6 @@
 ! short/long precision; as such, it only contains information that is
 ! inherently integer in nature.
 !
-! The methods associated to this class can be grouped into three sets:
-! 1) Fully implemented methods: some methods such as get_nrows or
-!    set_nrows can be fully implemented at this level.
-! 2) Partially implemented methods: Some methods have an
-!    implementation that is split between this level and the leaf
-!    level. For example, the matrix transposition can be partially
-!    done at this level (swapping of the rows and columns dimensions)
-!    but it has to be completed by a method defined at the leaf level
-!    (for actually transposing the row and column indices).
-! 3) Other methods: There are a number of methods that are defined
-!    (i.e their interface is defined) but not implemented at this
-!    level. This methods will be overwritten at the leaf level with
-!    an actual implementation. If it is not the case, the method
-!    defined at this level will raise an error. These methods are
-!    defined in the serial/f03/psb_base_mat_impl.f03 file
-!
 !
 
 module psb_base_mat_mod
@@ -65,42 +49,69 @@ module psb_base_mat_mod
   use psi_serial_mod
   
   !
-  ! type psb_base_sparse_mat: the basic data about your matrix
-  !            This class is extended twice, to provide the various
-  !            data variations S/D/C/Z and to implement the actual
-  !            storage formats. The grandchild classes are then
-  !            encapsulated to implement the STATE design pattern.
-  !            We have an ambiguity in that the inner class has a
-  !            "state" variable; we hope the context will make it clear. 
+  !> \namespace  psb_base_mod  \class  psb_base_sparse_mat
+  !!  The basic data about your matrix
+  !!   This class is extended twice, to provide the various
+  !!   data variations S/D/C/Z and to implement the actual
+  !!   storage formats. The grandchild classes are then
+  !!   encapsulated to implement the STATE design pattern.
+  !!   We have an ambiguity in that the inner class has a
+  !!   "state" variable; we hope the context will make it clear. 
+  !!
+  !!
+  !! The methods associated to this class can be grouped into three sets:
+  !! -  Fully implemented methods: some methods such as get_nrows or
+  !!    set_nrows can be fully implemented at this level.
+  !! -  Partially implemented methods: Some methods have an
+  !!    implementation that is split between this level and the leaf
+  !!    level. For example, the matrix transposition can be partially
+  !!    done at this level (swapping of the rows and columns dimensions)
+  !!    but it has to be completed by a method defined at the leaf level
+  !!    (for actually transposing the row and column indices).
+  !! -  Other methods: There are a number of methods that are defined
+  !!    (i.e their interface is defined) but not implemented at this
+  !!    level. This methods will be overwritten at the leaf level with
+  !!    an actual implementation. If it is not the case, the method
+  !!    defined at this level will raise an error. These methods are
+  !!    defined in the serial/impl/psb_base_mat_impl.f90 file
+  !!
+  !! Attributes:
+  !! - M:        number of rows
+  !! - N:        number of columns
+  !! - STATE:    null:   pristine
+  !!            build:  it's being filled with entries
+  !!            assembled: ready to use in computations
+  !!            update: accepts coefficients but only
+  !!                    in already existing entries
+  !!            The transitions among the states are detailed in
+  !!            psb_T_mat_mod
+  !!            
+  !! - TRIANGLE: is it triangular?
+  !! - UPPER:    If it is triangular, is it upper (otherwise lower)?
+  !! - UNITD:    If it is triangular, is the diagonal assumed to 
+  !!            be unitary and not stored explicitly?
+  !! - SORTED:   are the entries guaranteed to be sorted? 
+  !!
+  !! - DUPLICATE: How duplicate entries are to be handled when
+  !!            transitioning from the BUILD to the ASSEMBLED state. 
+  !!            While many formats would allow for duplicate
+  !!            entries, it is much better to constrain the matrices
+  !!            NOT to have duplicate entries, except while in the
+  !!            BUILD state; in our overall design, only COO matrices
+  !!            can ever be in the BUILD state, hence all other formats
+  !!            cannot have duplicate entries.
   !
-  !  M:        number of rows
-  !  N:        number of columns
-  !  STATE:    null:   pristine
-  !            build:  it's being filled with entries
-  !            assembled: ready to use in computations
-  !            update: accepts coefficients but only
-  !                    in already existing entries
-  !            The transitions among the states are detailed in
-  !            psb_T_mat_mod
-  !            
-  !  TRIANGLE: is it triangular?
-  !  UPPER:    If it is triangular, is it upper (otherwise lower)?
-  !  UNITD:    If it is triangular, is the diagonal assumed to 
-  !            be unitary and not stored explicitly?
-  !  SORTED:   are the entries guaranteed to be sorted? 
-  !
-  ! DUPLICATE: How duplicate entries are to be handled when
-  !            transitioning from the BUILD to the ASSEMBLED state. 
-  !            While many formats would allow for duplicate
-  !            entries, it is much better to constrain the matrices
-  !            NOT to have duplicate entries, except while in the
-  !            BUILD state; in our overall design, only COO matrices
-  !            can ever be in the BUILD state, hence all other formats
-  !            cannot have duplicate entries.
-  ! 
+
   type  :: psb_base_sparse_mat
-    integer, private     :: m, n
-    integer, private     :: state, duplicate 
+    !> Row size
+    integer, private     :: m
+    !> Col size
+    integer, private     :: n 
+    !> Matrix state: null, build, assembled, update
+    integer, private     :: state
+    !> How to treat duplicate elements
+    integer, private     :: duplicate 
+    !> Various logical properties. 
     logical, private     :: triangle, upper, unitd, sorted
   contains 
 
@@ -178,9 +189,8 @@ module psb_base_mat_mod
  
   end type psb_base_sparse_mat
 
-  !
-  ! GET_NZ_ROW:
-  !    
+  !  Function: psb_base_get_nz_row
+  !  Interface for  the get_nz_row method: 
   !    count(A(idx,:)/=0) 
   !
   interface 
@@ -193,8 +203,8 @@ module psb_base_mat_mod
   end interface
   
   !
-  ! GET_NZEROS: 
-  !    
+  !  Function: psb_base_get_nzeros
+  !  Interface for  the get_nzeros method: 
   !    count(A(:,:)/=0) 
   !
   interface 

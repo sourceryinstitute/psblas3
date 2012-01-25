@@ -58,6 +58,10 @@ module psb_d_base_mat_mod
   use psb_base_mat_mod
   use psb_d_base_vect_mod
 
+
+  !> \namespace  psb_base_mod  \class  psb_d_base_sparse_mat
+  !! \extends psb_base_mod::psb_base_sparse_mat
+
   type, extends(psb_base_sparse_mat) :: psb_d_base_sparse_mat
   contains
     !

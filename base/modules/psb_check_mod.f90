@@ -29,7 +29,7 @@
 !!$  POSSIBILITY OF SUCH DAMAGE.
 !!$ 
 !!$  
-! File: psb_check_mod.f90
+! File: psb_check_mod
 
 module psb_check_mod
 
