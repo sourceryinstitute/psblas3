@@ -50,7 +50,7 @@ psb_error_mod.o: psb_const_mod.o
 psb_realloc_mod.o:  psb_error_mod.o
 $(UTILS_MODS): $(BASIC_MODS)
 
-psi_comm_buffers_mod.o: psb_const_mod.o
+psb_string_mod.o psb_desc_const_mod.o psi_comm_buffers_mod.o: psb_const_mod.o
 psi_penv_mod.o: psi_comm_buffers_mod.o 
 psi_bcast_mod.o psi_reduce_mod.o psi_p2p_mod.o: psi_penv_mod.o	
 
@@ -93,6 +93,7 @@ psb_hash_map_mod.o psb_list_map_mod.o psb_repl_map_mod.o psb_gen_block_map_mod.o
 psb_glist_map_mod.o: psb_list_map_mod.o
 psb_hash_map_mod.o: psb_hash_mod.o psb_sort_mod.o
 psb_hash_mod.o: psb_realloc_mod.o psb_const_mod.o
+psb_gen_block_map_mod.o: psb_hash_mod.o
 psb_linmap_mod.o: psb_s_linmap_mod.o psb_d_linmap_mod.o psb_c_linmap_mod.o psb_z_linmap_mod.o 
 psb_s_linmap_mod.o: psb_base_linmap_mod.o psb_s_mat_mod.o psb_s_vect_mod.o
 psb_d_linmap_mod.o: psb_base_linmap_mod.o psb_d_mat_mod.o psb_d_vect_mod.o

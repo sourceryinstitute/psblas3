@@ -41,6 +41,7 @@ module psb_const_mod
   integer, parameter  :: ndig=8
 #endif
   integer, parameter  :: psb_int_k_ = selected_int_kind(ndig)
+  integer, parameter  :: psb_ipk_ = psb_int_k_ 
   ! This is an 8-byte  integer, and normally different from default integer. 
   integer, parameter  :: longndig=12
   integer, parameter  :: psb_long_int_k_ = selected_int_kind(longndig)
