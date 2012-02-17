@@ -30,43 +30,6 @@
 !!$ 
 !!$  
 !
-! package: psb_d_mat_mod
-!
-! This module contains the definition of the psb_d_sparse type which
-! is a generic container for a sparse matrix and it is mostly meant to
-! provide a mean of switching, at run-time, among different formats,
-! potentially unknown at the library compile-time by adding a layer of
-! indirection. This type encapsulates the psb_d_base_sparse_mat class
-! inside another class which is the one visible to the user. 
-! Most methods of the psb_d_mat_mod simply call the methods of the
-! encapsulated class.
-! The exceptions are mainly cscnv and cp_from/cp_to; these provide
-! the functionalities to have the encapsulated class change its
-! type dynamically, and to extract/input an inner object.
-!
-! A sparse matric has a state corresponding to its progression
-! through the application life.
-! In particular, computational methods can only be invoked when
-! the matrix is in the ASSEMBLED state, whereas the other states are
-! dedicated to operations on the internal matrix data. 
-! A sparse matrix can move between states according to the 
-! following state transition table. Associated with these states are
-! the possible dynamic types of the inner matrix object.
-! Only COO matrices can ever be in the BUILD state, whereas
-! the ASSEMBLED and UPDATE state can be entered by any class. 
-! 
-! In           Out        Method    
-!| ----------------------------------
-!| Null         Build      csall
-!| Build        Build      csput
-!| Build        Assembled  cscnv
-!| Assembled    Assembled  cscnv
-!| Assembled    Update     reinit
-!| Update       Update     csput
-!| Update       Assembled  cscnv
-!| *            unchanged  reall 
-!| Assembled    Null       free
-! 
 
 
 module psb_d_mat_mod
@@ -75,6 +38,42 @@ module psb_d_mat_mod
   use psb_d_csr_mat_mod, only : psb_d_csr_sparse_mat
   use psb_d_csc_mat_mod, only : psb_d_csc_sparse_mat
 
+  !
+  !> \namespace  psb_base_mod  \class  psb_dspmat_type
+  !!  The outer sparse matrix class.
+  !! This class defines the  container for a sparse matrix and it is mostly meant to
+  !! provide a mean of switching, at run-time, among different formats,
+  !! potentially unknown at the library compile-time by adding a layer of
+  !! indirection. This type encapsulates the psb_d_base_sparse_mat class;
+  !! Most methods of the psb_dspmat_type simply call the methods of the
+  !! encapsulated class.
+  !! The exceptions are mainly cscnv and cp_from/cp_to; these provide
+  !! the functionalities to have the encapsulated class change its
+  !! type dynamically, and to extract/input an inner object.
+  !
+  !! A sparse matric has a state corresponding to its progression
+  !! through the application life.
+  !! In particular, computational methods can only be invoked when
+  !! the matrix is in the ASSEMBLED state, whereas the other states are
+  !! dedicated to operations on the internal matrix data. 
+  !! A sparse matrix can move between states according to the 
+  !! following state transition table. Associated with these states are
+  !! the possible dynamic types of the inner matrix object.
+  !! Only COO matrices can ever be in the BUILD state, whereas
+  !! the ASSEMBLED and UPDATE state can be entered by any class. 
+  !! 
+  !!   In           Out        Method    
+  !! | ----------------------------------
+  !! | Null         Build      csall
+  !! | Build        Build      csput
+  !! | Build        Assembled  cscnv
+  !! | Assembled    Assembled  cscnv
+  !! | Assembled    Update     reinit
+  !! | Update       Update     csput
+  !! | Update       Assembled  cscnv
+  !! | *            unchanged  reall 
+  !! | Assembled    Null       free
+  
   type :: psb_dspmat_type
 
     class(psb_d_base_sparse_mat), allocatable  :: a 
@@ -186,7 +185,7 @@ module psb_d_mat_mod
 
   interface psb_sizeof
     module procedure psb_d_sizeof
-  end interface
+  end interface psb_sizeof
 
 
   ! == ===================================
@@ -210,7 +209,7 @@ module psb_d_mat_mod
       integer, intent(in) :: m
     end subroutine psb_d_set_nrows
   end interface
-  
+
   interface 
     subroutine psb_d_set_ncols(n,a) 
       import :: psb_dspmat_type
@@ -218,7 +217,7 @@ module psb_d_mat_mod
       integer, intent(in) :: n
     end subroutine psb_d_set_ncols
   end interface
-  
+
   interface 
     subroutine  psb_d_set_dupl(n,a) 
       import :: psb_dspmat_type
@@ -226,35 +225,35 @@ module psb_d_mat_mod
       integer, intent(in) :: n
     end subroutine psb_d_set_dupl
   end interface
-  
+
   interface 
     subroutine psb_d_set_null(a) 
       import :: psb_dspmat_type
       class(psb_dspmat_type), intent(inout) :: a
     end subroutine psb_d_set_null
   end interface
-  
+
   interface 
     subroutine psb_d_set_bld(a) 
       import :: psb_dspmat_type
       class(psb_dspmat_type), intent(inout) :: a
     end subroutine psb_d_set_bld
   end interface
-  
+
   interface 
     subroutine psb_d_set_upd(a) 
       import :: psb_dspmat_type
       class(psb_dspmat_type), intent(inout) :: a
     end subroutine psb_d_set_upd
   end interface
-  
+
   interface 
     subroutine psb_d_set_asb(a) 
       import :: psb_dspmat_type
       class(psb_dspmat_type), intent(inout) :: a
     end subroutine psb_d_set_asb
   end interface
-  
+
   interface 
     subroutine psb_d_set_sorted(a,val) 
       import :: psb_dspmat_type
@@ -262,7 +261,7 @@ module psb_d_mat_mod
       logical, intent(in), optional :: val
     end subroutine psb_d_set_sorted
   end interface
-  
+
   interface 
     subroutine psb_d_set_triangle(a,val) 
       import :: psb_dspmat_type
@@ -270,7 +269,7 @@ module psb_d_mat_mod
       logical, intent(in), optional :: val
     end subroutine psb_d_set_triangle
   end interface
-  
+
   interface 
     subroutine psb_d_set_unit(a,val) 
       import :: psb_dspmat_type
@@ -278,7 +277,7 @@ module psb_d_mat_mod
       logical, intent(in), optional :: val
     end subroutine psb_d_set_unit
   end interface
-  
+
   interface 
     subroutine psb_d_set_lower(a,val) 
       import :: psb_dspmat_type
@@ -286,7 +285,7 @@ module psb_d_mat_mod
       logical, intent(in), optional :: val
     end subroutine psb_d_set_lower
   end interface
-  
+
   interface 
     subroutine psb_d_set_upper(a,val) 
       import :: psb_dspmat_type
@@ -294,7 +293,7 @@ module psb_d_mat_mod
       logical, intent(in), optional :: val
     end subroutine psb_d_set_upper
   end interface
-  
+
   interface 
     subroutine psb_d_sparse_print(iout,a,iv,head,ivr,ivc)
       import :: psb_dspmat_type
@@ -316,7 +315,7 @@ module psb_d_mat_mod
       integer, intent(in), optional     :: ivr(:), ivc(:)
     end subroutine psb_d_n_sparse_print
   end interface
-  
+
   interface 
     subroutine psb_d_get_neigh(a,idx,neigh,n,info,lev)
       import :: psb_dspmat_type
@@ -328,7 +327,7 @@ module psb_d_mat_mod
       integer, optional, intent(in)      :: lev 
     end subroutine psb_d_get_neigh
   end interface
-  
+
   interface 
     subroutine psb_d_csall(nr,nc,a,info,nz) 
       import :: psb_dspmat_type
@@ -338,7 +337,7 @@ module psb_d_mat_mod
       integer, intent(in), optional   :: nz
     end subroutine psb_d_csall
   end interface
-  
+
   interface 
     subroutine psb_d_reallocate_nz(nz,a) 
       import :: psb_dspmat_type
@@ -346,21 +345,21 @@ module psb_d_mat_mod
       class(psb_dspmat_type), intent(inout) :: a
     end subroutine psb_d_reallocate_nz
   end interface
-  
+
   interface 
     subroutine psb_d_free(a) 
       import :: psb_dspmat_type
       class(psb_dspmat_type), intent(inout) :: a
     end subroutine psb_d_free
   end interface
-  
+
   interface 
     subroutine psb_d_trim(a) 
       import :: psb_dspmat_type
       class(psb_dspmat_type), intent(inout) :: a
     end subroutine psb_d_trim
   end interface
-  
+
   interface 
     subroutine psb_d_csput(nz,ia,ja,val,a,imin,imax,jmin,jmax,info,gtl) 
       import :: psb_dspmat_type, psb_dpk_
@@ -371,10 +370,10 @@ module psb_d_mat_mod
       integer, intent(in), optional   :: gtl(:)
     end subroutine psb_d_csput
   end interface
-  
+
   interface 
     subroutine psb_d_csgetptn(imin,imax,a,nz,ia,ja,info,&
-       & jmin,jmax,iren,append,nzin,rscale,cscale)
+         & jmin,jmax,iren,append,nzin,rscale,cscale)
       import :: psb_dspmat_type, psb_dpk_
       class(psb_dspmat_type), intent(in) :: a
       integer, intent(in)                  :: imin,imax
@@ -387,7 +386,7 @@ module psb_d_mat_mod
       logical, intent(in), optional        :: rscale,cscale
     end subroutine psb_d_csgetptn
   end interface
-  
+
   interface 
     subroutine psb_d_csgetrow(imin,imax,a,nz,ia,ja,val,info,&
          & jmin,jmax,iren,append,nzin,rscale,cscale)
@@ -404,10 +403,10 @@ module psb_d_mat_mod
       logical, intent(in), optional        :: rscale,cscale
     end subroutine psb_d_csgetrow
   end interface
-  
+
   interface 
     subroutine psb_d_csgetblk(imin,imax,a,b,info,&
-       & jmin,jmax,iren,append,rscale,cscale)
+         & jmin,jmax,iren,append,rscale,cscale)
       import :: psb_dspmat_type, psb_dpk_
       class(psb_dspmat_type), intent(in) :: a
       class(psb_dspmat_type), intent(out) :: b
@@ -419,10 +418,10 @@ module psb_d_mat_mod
       logical, intent(in), optional        :: rscale,cscale
     end subroutine psb_d_csgetblk
   end interface
-  
+
   interface 
     subroutine psb_d_csclip(a,b,info,&
-       & imin,imax,jmin,jmax,rscale,cscale)
+         & imin,imax,jmin,jmax,rscale,cscale)
       import :: psb_dspmat_type, psb_dpk_
       class(psb_dspmat_type), intent(in) :: a
       class(psb_dspmat_type), intent(out) :: b
@@ -431,10 +430,10 @@ module psb_d_mat_mod
       logical, intent(in), optional        :: rscale,cscale
     end subroutine psb_d_csclip
   end interface
-  
+
   interface 
     subroutine psb_d_b_csclip(a,b,info,&
-       & imin,imax,jmin,jmax,rscale,cscale)
+         & imin,imax,jmin,jmax,rscale,cscale)
       import :: psb_dspmat_type, psb_dpk_, psb_d_coo_sparse_mat
       class(psb_dspmat_type), intent(in) :: a
       type(psb_d_coo_sparse_mat), intent(out) :: b
@@ -443,7 +442,7 @@ module psb_d_mat_mod
       logical, intent(in), optional        :: rscale,cscale
     end subroutine psb_d_b_csclip
   end interface
-  
+
   interface 
     subroutine psb_d_mold(a,b)
       import :: psb_dspmat_type, psb_d_base_sparse_mat
@@ -451,14 +450,14 @@ module psb_d_mat_mod
       class(psb_d_base_sparse_mat), allocatable, intent(out) :: b
     end subroutine psb_d_mold
   end interface
-  
+
   interface 
     subroutine psb_d_transp_1mat(a)
       import :: psb_dspmat_type
       class(psb_dspmat_type), intent(inout) :: a
     end subroutine psb_d_transp_1mat
   end interface
-  
+
   interface 
     subroutine psb_d_transp_2mat(a,b)
       import :: psb_dspmat_type
@@ -466,14 +465,14 @@ module psb_d_mat_mod
       class(psb_dspmat_type), intent(out) :: b
     end subroutine psb_d_transp_2mat
   end interface
-  
+
   interface 
     subroutine psb_d_transc_1mat(a)
       import :: psb_dspmat_type
       class(psb_dspmat_type), intent(inout) :: a
     end subroutine psb_d_transc_1mat
   end interface
-  
+
   interface 
     subroutine psb_d_transc_2mat(a,b)
       import :: psb_dspmat_type
@@ -481,14 +480,14 @@ module psb_d_mat_mod
       class(psb_dspmat_type), intent(out) :: b
     end subroutine psb_d_transc_2mat
   end interface
-  
+
   interface 
     subroutine psb_d_reinit(a,clear)
       import :: psb_dspmat_type
       class(psb_dspmat_type), intent(inout) :: a   
       logical, intent(in), optional :: clear
     end subroutine psb_d_reinit
-    
+
   end interface
 
 
@@ -516,7 +515,7 @@ module psb_d_mat_mod
       class(psb_d_base_sparse_mat), intent(in), optional :: mold
     end subroutine psb_d_cscnv
   end interface
-  
+
 
   interface 
     subroutine psb_d_cscnv_ip(a,iinfo,type,mold,dupl)
@@ -528,7 +527,7 @@ module psb_d_mat_mod
       class(psb_d_base_sparse_mat), intent(in), optional :: mold
     end subroutine psb_d_cscnv_ip
   end interface
-  
+
 
   interface 
     subroutine psb_d_cscnv_base(a,b,info,dupl)
@@ -539,7 +538,7 @@ module psb_d_mat_mod
       integer,optional, intent(in)           :: dupl
     end subroutine psb_d_cscnv_base
   end interface
-  
+
   !
   ! Produce a version of the matrix with diagonal cut
   ! out; passes through a COO buffer. 
@@ -552,7 +551,7 @@ module psb_d_mat_mod
       integer,intent(out)                  :: info
     end subroutine psb_d_clip_d
   end interface
-  
+
   interface 
     subroutine psb_d_clip_d_ip(a,info)
       import :: psb_dspmat_type
@@ -560,7 +559,7 @@ module psb_d_mat_mod
       integer,intent(out)                  :: info
     end subroutine psb_d_clip_d_ip
   end interface
-  
+
   !
   ! These four interfaces cut through the
   ! encapsulation between spmat_type and base_sparse_mat.
@@ -572,7 +571,7 @@ module psb_d_mat_mod
       class(psb_d_base_sparse_mat), intent(inout) :: b
     end subroutine psb_d_mv_from
   end interface
-  
+
   interface 
     subroutine psb_d_cp_from(a,b)
       import :: psb_dspmat_type, psb_dpk_, psb_d_base_sparse_mat
@@ -580,7 +579,7 @@ module psb_d_mat_mod
       class(psb_d_base_sparse_mat), intent(in) :: b
     end subroutine psb_d_cp_from
   end interface
-  
+
   interface 
     subroutine psb_d_mv_to(a,b)
       import :: psb_dspmat_type, psb_dpk_, psb_d_base_sparse_mat
@@ -588,7 +587,7 @@ module psb_d_mat_mod
       class(psb_d_base_sparse_mat), intent(out) :: b
     end subroutine psb_d_mv_to
   end interface
-  
+
   interface 
     subroutine psb_d_cp_to(a,b)
       import :: psb_dspmat_type, psb_dpk_, psb_d_base_sparse_mat    
@@ -596,7 +595,7 @@ module psb_d_mat_mod
       class(psb_d_base_sparse_mat), intent(out) :: b
     end subroutine psb_d_cp_to
   end interface
-  
+
   !
   ! Transfer the internal allocation to the target.
   !  
@@ -607,8 +606,8 @@ module psb_d_mat_mod
       class(psb_dspmat_type), intent(out)   :: b
       integer, intent(out)                   :: info
     end subroutine psb_dspmat_type_move
-  end interface
-  
+  end interface psb_move_alloc
+
   interface 
     subroutine psb_dspmat_clone(a,b,info)
       import :: psb_dspmat_type
@@ -661,8 +660,8 @@ module psb_d_mat_mod
       integer, intent(out)                 :: info
       character, optional, intent(in)      :: trans
     end subroutine psb_d_csmv_vect
-  end interface
-  
+  end interface psb_csmm
+
   interface psb_cssm
     subroutine psb_d_cssm(alpha,a,x,beta,y,info,trans,scale,d) 
       import :: psb_dspmat_type, psb_dpk_
@@ -693,8 +692,8 @@ module psb_d_mat_mod
       character, optional, intent(in)      :: trans, scale
       type(psb_d_vect_type), optional, intent(inout)   :: d
     end subroutine psb_d_cssv_vect
-  end interface
-  
+  end interface psb_cssm
+
   interface 
     function psb_d_maxval(a) result(res)
       import :: psb_dspmat_type, psb_dpk_
@@ -702,7 +701,7 @@ module psb_d_mat_mod
       real(psb_dpk_)         :: res
     end function psb_d_maxval
   end interface
-  
+
   interface 
     function psb_d_csnmi(a) result(res)
       import :: psb_dspmat_type, psb_dpk_
@@ -710,7 +709,7 @@ module psb_d_mat_mod
       real(psb_dpk_)         :: res
     end function psb_d_csnmi
   end interface
-  
+
   interface 
     function psb_d_csnm1(a) result(res)
       import :: psb_dspmat_type, psb_dpk_
@@ -736,7 +735,7 @@ module psb_d_mat_mod
       integer, intent(out)               :: info
     end subroutine psb_d_arwsum
   end interface
-  
+
   interface 
     subroutine psb_d_colsum(d,a,info) 
       import :: psb_dspmat_type, psb_dpk_
@@ -755,7 +754,7 @@ module psb_d_mat_mod
     end subroutine psb_d_aclsum
   end interface
 
-  
+
   interface 
     subroutine psb_d_get_diag(a,d,info)
       import :: psb_dspmat_type, psb_dpk_
@@ -764,7 +763,7 @@ module psb_d_mat_mod
       integer, intent(out)                 :: info
     end subroutine psb_d_get_diag
   end interface
-  
+
   interface psb_scal
     subroutine psb_d_scal(d,a,info)
       import :: psb_dspmat_type, psb_dpk_
@@ -778,7 +777,7 @@ module psb_d_mat_mod
       real(psb_dpk_), intent(in)             :: d
       integer, intent(out)                    :: info
     end subroutine psb_d_scals
-  end interface
+  end interface psb_scal
 
 
 contains 
@@ -796,17 +795,17 @@ contains
   !
   ! == ===================================
 
-  
+
   function psb_d_sizeof(a) result(res)
     implicit none 
     class(psb_dspmat_type), intent(in) :: a
     integer(psb_long_int_k_) :: res
-    
+
     res = 0
     if (allocated(a%a)) then 
       res = a%a%sizeof()
     end if
-    
+
   end function psb_d_sizeof
 
 
@@ -1015,7 +1014,7 @@ contains
     integer :: res
 
     res = 0
-    
+
     if (allocated(a%a)) res = a%a%get_nz_row(idx)
 
   end function psb_d_get_nz_row
