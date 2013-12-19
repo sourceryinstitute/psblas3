@@ -1205,7 +1205,12 @@ subroutine psb_d_cscnv(a,b,info,type,mold,upd,dupl)
       goto 9999
     end select
   else
-    allocate(psb_d_csr_sparse_mat :: altmp, stat=info) 
+!!$    allocate(psb_d_csr_sparse_mat :: altmp, stat=info) 
+#if defined(HAVE_MOLD)
+    allocate(altmp, mold=psb_d_base_sparse_mat_default_mold,stat=info) 
+#else
+    call psb_d_base_sparse_mat_default_mold%mold(altmp,info)
+#endif
   end if
 
   if (info /= psb_success_) then 
@@ -1313,7 +1318,12 @@ subroutine psb_d_cscnv_ip(a,info,type,mold,dupl)
       goto 9999
     end select
   else
-    allocate(psb_d_csr_sparse_mat :: altmp, stat=info) 
+!!$    allocate(psb_d_csr_sparse_mat :: altmp, stat=info) 
+#if defined(HAVE_MOLD)
+    allocate(altmp, mold=psb_d_base_sparse_mat_default_mold,stat=info) 
+#else
+    call psb_d_base_sparse_mat_default_mold%mold(altmp,info)
+#endif
   end if
 
   if (info /= psb_success_) then 

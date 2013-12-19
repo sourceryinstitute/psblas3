@@ -181,6 +181,8 @@ module psb_d_mat_mod
 
   end type psb_dspmat_type
 
+  class(psb_d_base_sparse_mat), allocatable :: psb_d_base_sparse_mat_default_mold
+
   private :: psb_d_get_nrows, psb_d_get_ncols, psb_d_get_nzeros, psb_d_get_size, &
        & psb_d_get_dupl, psb_d_is_null, psb_d_is_bld, &
        & psb_d_is_upd, psb_d_is_asb, psb_d_is_sorted, psb_d_is_upper, &
@@ -203,6 +205,10 @@ module psb_d_mat_mod
   !
   !
   ! == ===================================
+
+  interface psb_set_default_mat_mold
+    module procedure psb_d_set_default_mat_mold
+  end interface
 
 
   interface 
@@ -810,7 +816,16 @@ module psb_d_mat_mod
 
 
 contains 
+  
+  subroutine psb_d_set_default_mat_mold(amold)
+    implicit none 
+    class(psb_d_base_sparse_mat) :: amold
+    integer(psb_ipk_) :: info
 
+    call amold%mold(psb_d_base_sparse_mat_default_mold,info)
+  end subroutine psb_d_set_default_mat_mold
+  
+  
 
   ! == ===================================
   !

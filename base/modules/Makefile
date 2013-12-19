@@ -53,7 +53,7 @@ psb_realloc_mod.o:  psb_error_mod.o
 $(UTILS_MODS): $(BASIC_MODS)
 
 psb_string_mod.o psb_desc_const_mod.o psi_comm_buffers_mod.o: psb_const_mod.o
-psi_penv_mod.o: psi_comm_buffers_mod.o 
+psi_penv_mod.o: psi_comm_buffers_mod.o psb_serial_mod.o
 psi_bcast_mod.o psi_reduce_mod.o psi_p2p_mod.o: psi_penv_mod.o	
 
 
@@ -106,7 +106,7 @@ psb_base_linmap_mod.o: psb_desc_mod.o psb_serial_mod.o psb_comm_mod.o
 psb_comm_mod.o: psb_desc_mod.o psb_mat_mod.o 
 psb_check_mod.o: psb_desc_mod.o
 psb_s_serial_mod.o psb_d_serial_mod.o psb_c_serial_mod.o psb_z_serial_mod.o: psb_mat_mod.o psb_string_mod.o psb_sort_mod.o psi_serial_mod.o
-psb_serial_mod.o: psb_s_serial_mod.o psb_d_serial_mod.o psb_c_serial_mod.o psb_z_serial_mod.o 
+psb_serial_mod.o: psb_s_serial_mod.o psb_d_serial_mod.o psb_c_serial_mod.o psb_z_serial_mod.o  psb_d_mat_mod.o
 psb_i_vect_mod.o: psb_i_base_vect_mod.o
 psb_s_vect_mod.o: psb_s_base_vect_mod.o
 psb_d_vect_mod.o: psb_d_base_vect_mod.o

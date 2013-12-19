@@ -136,6 +136,7 @@ program ppde3d
   ! sparse matrix and preconditioner
   type(psb_dspmat_type) :: a
   type(psb_dprec_type)  :: prec
+  type(psb_d_csc_sparse_mat) :: adcsc
   ! descriptor
   type(psb_desc_type)   :: desc_a
   ! dense vectors
@@ -168,6 +169,7 @@ program ppde3d
   name='pde3d90'
   call psb_set_errverbosity(itwo)
   call psb_cd_set_large_threshold(itwo)
+  call psb_set_default_mat_mold(adcsc)
   !
   ! Hello world
   !
@@ -185,7 +187,7 @@ program ppde3d
   !
   call psb_barrier(ictxt)
   t1 = psb_wtime()
-  call psb_gen_pde3d(ictxt,idim,a,bv,xxv,desc_a,afmt,&
+  call psb_gen_pde3d(ictxt,idim,a,bv,xxv,desc_a,&
        & a1,a2,a3,b1,b2,b3,c,g,info)  
   call psb_barrier(ictxt)
   t2 = psb_wtime() - t1
@@ -253,9 +255,10 @@ program ppde3d
     write(psb_out_unit,'("Number of iterations          : ",i0)')iter
     write(psb_out_unit,'("Convergence indicator on exit : ",es12.5)')err
     write(psb_out_unit,'("Info  on exit                 : ",i0)')info
-    write(psb_out_unit,'("Total memory occupation for A:      ",i12)')amatsize
-    write(psb_out_unit,'("Total memory occupation for PREC:   ",i12)')precsize    
+    write(psb_out_unit,'("Total memory occupation for      A: ",i12)')amatsize
+    write(psb_out_unit,'("Total memory occupation for   PREC: ",i12)')precsize    
     write(psb_out_unit,'("Total memory occupation for DESC_A: ",i12)')descsize
+    write(psb_out_unit,'("Storage type for      A: ",a)') a%get_fmt()
     write(psb_out_unit,'("Storage type for DESC_A: ",a)') desc_a%get_fmt()
   end if
 

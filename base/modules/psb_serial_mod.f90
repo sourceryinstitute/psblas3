@@ -71,6 +71,33 @@ module psb_serial_mod
 
 contains
 
+  subroutine psi_get_sizes()
+    !    use psb_const_mod
+    implicit none 
+    real(psb_dpk_) :: dv(2) 
+    real(psb_spk_) :: sv(2) 
+    integer(psb_ipk_) :: iv(2)
+    integer(psb_long_int_k_) :: ilv(2)
+
+    call psi_c_diffadd(sv(1),sv(2),psb_sizeof_sp)
+    call psi_c_diffadd(dv(1),dv(2),psb_sizeof_dp)
+    call psi_c_diffadd(iv(1),iv(2),psb_sizeof_int)
+    call psi_c_diffadd(ilv(1),ilv(2),psb_sizeof_long_int)
+
+  end subroutine psi_get_sizes
+
+
+  subroutine psb_serial_init()
+    use psb_d_mat_mod, only : psb_d_csr_sparse_mat, psb_set_default_mat_mold
+    implicit none 
+    type(psb_d_csr_sparse_mat) :: adcsr
+    call psb_set_debug_unit(psb_err_unit)
+    call psi_get_sizes()
+    
+    call psb_set_default_mat_mold(adcsr)
+
+  end subroutine psb_serial_init
+
   elemental function psb_snrm1(x) result(res)
     real(psb_spk_), intent(in)  :: x
     real(psb_spk_)              :: res

@@ -117,20 +117,6 @@ contains
   !
   ! !!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine psi_get_sizes()
-    use psb_const_mod
-    real(psb_dpk_) :: dv(2) 
-    real(psb_spk_) :: sv(2) 
-    integer(psb_ipk_) :: iv(2)
-    integer(psb_long_int_k_) :: ilv(2)
-
-    call psi_c_diffadd(sv(1),sv(2),psb_sizeof_sp)
-    call psi_c_diffadd(dv(1),dv(2),psb_sizeof_dp)
-    call psi_c_diffadd(iv(1),iv(2),psb_sizeof_int)
-    call psi_c_diffadd(ilv(1),ilv(2),psb_sizeof_long_int)
-
-  end subroutine psi_get_sizes
-
   subroutine  psi_register_mpi_extras(info)
 #ifdef MPI_MOD
     use mpi
@@ -188,6 +174,7 @@ contains
 
 #if defined(LONG_INTEGERS)
   subroutine psb_init_ipk(ictxt,np,basectxt,ids)
+    implicit none 
     integer(psb_ipk_), intent(out) :: ictxt
     integer(psb_ipk_), intent(in), optional :: np, basectxt, ids(:)
 
@@ -267,6 +254,7 @@ contains
     use psi_comm_buffers_mod 
     use psb_const_mod
     use psb_error_mod
+    use psb_serial_mod
 ! !$    use psb_rsb_mod
 #ifdef MPI_MOD
     use mpi
@@ -285,14 +273,15 @@ contains
     integer(psb_mpik_) :: np_, npavail, iam, info, basecomm, basegroup, newgroup
     character(len=20), parameter :: name='psb_init'
     integer(psb_ipk_) :: iinfo
-    call psb_set_debug_unit(psb_err_unit)
+
+    call psb_serial_init()
+
 
 #if defined(SERIAL_MPI) 
     ictxt = nctxt
     nctxt = nctxt + 1
 
     call psi_register_mpi_extras(info)
-    call psi_get_sizes()
 
 #else    
     call mpi_initialized(initialized,info)
@@ -371,7 +360,6 @@ contains
       end if
     endif
     call psi_register_mpi_extras(info)
-    call psi_get_sizes()
     if (ictxt == mpi_comm_null) return 
 #endif
 

@@ -44,8 +44,8 @@ module psb_d_genpde_mod
   end interface 
 
   interface  psb_gen_pde3d
-    subroutine psb_d_gen_pde3d(ictxt,idim,a,bv,xv,desc_a,afmt, &
-         & a1,a2,a3,b1,b2,b3,c,g,info,f,amold,vmold,imold,nrl,iv)
+    subroutine psb_d_gen_pde3d(ictxt,idim,a,bv,xv,desc_a, &
+         & a1,a2,a3,b1,b2,b3,c,g,info,f,afmt,amold,vmold,imold,nrl,iv)
       !
       !   Discretizes the partial differential equation
       ! 
@@ -70,8 +70,8 @@ module psb_d_genpde_mod
       type(psb_d_vect_type) :: xv,bv
       type(psb_desc_type)   :: desc_a
       integer(psb_ipk_)     :: ictxt, info
-      character(len=*)      :: afmt
       procedure(d_func_3d), optional :: f
+      character(len=*), optional     :: afmt
       class(psb_d_base_sparse_mat), optional :: amold
       class(psb_d_base_vect_type), optional :: vmold
       class(psb_i_base_vect_type), optional :: imold
