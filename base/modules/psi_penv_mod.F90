@@ -122,10 +122,12 @@ contains
     real(psb_dpk_) :: dv(2) 
     real(psb_spk_) :: sv(2) 
     integer(psb_ipk_) :: iv(2)
+    integer(psb_sik_) :: siv(2)
     integer(psb_long_int_k_) :: ilv(2)
 
     call psi_c_diffadd(sv(1),sv(2),psb_sizeof_sp)
     call psi_c_diffadd(dv(1),dv(2),psb_sizeof_dp)
+    call psi_c_diffadd(siv(1),siv(2),psb_sizeof_short_int)
     call psi_c_diffadd(iv(1),iv(2),psb_sizeof_int)
     call psi_c_diffadd(ilv(1),ilv(2),psb_sizeof_long_int)
 

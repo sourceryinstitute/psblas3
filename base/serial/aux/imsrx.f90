@@ -80,3 +80,52 @@ subroutine imsrx(n,x,indx,idir,flag)
   endif
   return
 end subroutine imsrx
+
+subroutine ismsrx(n,x,indx,idir,flag)
+  use psb_serial_mod
+  use psb_ip_reord_mod
+  implicit none
+  integer(psb_ipk_) :: n,idir,flag
+  integer(psb_sik_) :: x(n)
+  integer(psb_ipk_) :: indx(n)
+
+  integer(psb_ipk_), allocatable :: iaux(:)
+
+  integer(psb_ipk_) :: iswap, iret, info, lp, k
+  integer(psb_ipk_) :: lswap, ixswap
+
+  if (n<0) then 
+    return
+  endif
+
+  if (n == 0) return
+
+  if (flag == psb_sort_ovw_idx_) then 
+    do k=1,n
+      indx(k) = k
+    enddo
+  end if
+
+  if (n == 1) return
+
+  allocate(iaux(0:n+1),stat=info)
+  if (info /= psb_success_) then 
+    call psb_errpush(psb_err_alloc_dealloc_,r_name='imsrx')
+    call psb_error()
+  endif
+
+  if (idir == psb_sort_up_) then 
+    call ismsort_up(n,x,iaux,iret)
+  else
+    call ismsort_dw(n,x,iaux,iret)
+  end if
+
+  if (iret == 0) call psb_ip_reord(n,x,indx,iaux)
+
+  deallocate(iaux,stat=info)
+  if (info /= psb_success_) then 
+    call psb_errpush(psb_err_alloc_dealloc_,r_name='imsrx')
+    call psb_error()
+  endif
+  return
+end subroutine ismsrx

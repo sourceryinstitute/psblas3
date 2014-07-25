@@ -40,10 +40,10 @@ module psb_ip_reord_mod
   use psb_const_mod
   
   interface psb_ip_reord
-    module procedure psb_ip_reord_i1,&
+    module procedure psb_ip_reord_i1, psb_ip_reord_si1,&
          & psb_ip_reord_s1, psb_ip_reord_d1,&
          & psb_ip_reord_c1, psb_ip_reord_z1,&
-         & psb_ip_reord_i1i1,&
+         & psb_ip_reord_i1i1, psb_ip_reord_si1i1,&
          & psb_ip_reord_s1i1, psb_ip_reord_d1i1,&
          & psb_ip_reord_c1i1, psb_ip_reord_z1i1,&
          & psb_ip_reord_s1i2, psb_ip_reord_d1i2,&
@@ -83,6 +83,34 @@ contains
     enddo
     return
   end subroutine psb_ip_reord_i1
+
+  subroutine psb_ip_reord_si1(n,x,iaux)
+    integer(psb_ipk_), intent(in) :: n
+    integer(psb_ipk_) :: iaux(0:*) 
+    integer(psb_sik_) :: x(*)
+    
+    integer(psb_ipk_) :: lswap, lp, k
+    integer(psb_sik_) :: swap
+
+    lp = iaux(0)
+    k  = 1
+    do 
+      if ((lp == 0).or.(k>n)) exit
+      do 
+        if (lp >= k) exit
+        lp = iaux(lp)
+      end do
+      swap     = x(lp)
+      x(lp)    = x(k)
+      x(k)     = swap
+      lswap    = iaux(lp)
+      iaux(lp) = iaux(k)
+      iaux(k)  = lp
+      lp = lswap 
+      k  = k + 1
+    enddo
+    return
+  end subroutine psb_ip_reord_si1
 
   
   subroutine psb_ip_reord_s1(n,x,iaux)
@@ -231,6 +259,39 @@ contains
     enddo
     return
   end subroutine psb_ip_reord_i1i1
+
+  
+  subroutine psb_ip_reord_si1i1(n,x,indx,iaux)
+    integer(psb_ipk_), intent(in) :: n
+    integer(psb_ipk_) :: iaux(0:*) 
+    integer(psb_sik_) :: x(*)
+    integer(psb_ipk_) :: indx(*) 
+    
+    integer(psb_ipk_) :: lswap, lp, k, ixswap
+    integer(psb_sik_) :: swap
+
+    lp = iaux(0)
+    k  = 1
+    do 
+      if ((lp == 0).or.(k>n)) exit
+      do 
+        if (lp >= k) exit
+        lp = iaux(lp)
+      end do
+      swap     = x(lp)
+      x(lp)    = x(k)
+      x(k)     = swap
+      ixswap   = indx(lp)
+      indx(lp) = indx(k)
+      indx(k)  = ixswap
+      lswap    = iaux(lp)
+      iaux(lp) = iaux(k)
+      iaux(k)  = lp
+      lp = lswap 
+      k  = k + 1
+    enddo
+    return
+  end subroutine psb_ip_reord_si1i1
 
   
   subroutine psb_ip_reord_s1i1(n,x,indx,iaux)

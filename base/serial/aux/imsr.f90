@@ -73,3 +73,45 @@ subroutine imsr(n,x,idir)
   endif
   return
 end subroutine imsr
+
+subroutine ismsr(n,x,idir)
+  use psb_serial_mod
+  use psb_ip_reord_mod
+  implicit none
+
+  integer(psb_ipk_) :: n, idir
+  integer(psb_sik_) :: x(n)
+  
+  
+  integer(psb_ipk_), allocatable :: iaux(:)
+  
+  integer(psb_ipk_) :: iswap, iret, info, lp, k
+  integer(psb_ipk_) :: lswap
+
+  if (n<0) then 
+    return
+  endif
+  
+  if (n<=1) return
+  
+  allocate(iaux(0:n+1),stat=info)
+  if (info /= psb_success_) then 
+    call psb_errpush(psb_err_alloc_dealloc_,r_name='imsr')
+    call psb_error()
+  endif
+  
+  if (idir == psb_sort_up_) then 
+    call ismsort_up(n,x,iaux,iret)
+  else
+    call ismsort_dw(n,x,iaux,iret)
+  end if
+  
+  if (iret == 0) call psb_ip_reord(n,x,iaux)
+
+  deallocate(iaux,stat=info)
+  if (info /= psb_success_) then 
+    call psb_errpush(psb_err_alloc_dealloc_,r_name='imsr')
+    call psb_error()
+  endif
+  return
+end subroutine ismsr

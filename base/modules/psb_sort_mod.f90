@@ -100,6 +100,18 @@ module psb_sort_mod
       integer(psb_ipk_) :: ipos, key, n
       integer(psb_ipk_) :: v(n)
     end function psb_ibsrch
+    function  psb_isibsrch(key,n,v) result(ipos)
+      import :: psb_ipk_, psb_sik_
+      integer(psb_ipk_) :: ipos, n
+      integer(psb_sik_) :: key
+      integer(psb_sik_) :: v(n)
+    end function psb_isibsrch
+    function  psb_iskbsrch(key,n,v) result(ipos)
+      import :: psb_ipk_, psb_sik_
+      integer(psb_ipk_) :: ipos, n
+      integer(psb_ipk_) :: key
+      integer(psb_sik_) :: v(n)
+    end function psb_iskbsrch
   end interface
 
   interface psb_issrch
@@ -121,6 +133,12 @@ module psb_sort_mod
 
 
   interface psb_msort
+    subroutine ismsort(x,ix,dir,flag)
+      import :: psb_ipk_, psb_sik_
+      integer(psb_sik_), intent(inout)           :: x(:) 
+      integer(psb_ipk_), optional, intent(in)    :: dir, flag
+      integer(psb_ipk_), optional, intent(inout) :: ix(:)
+    end subroutine ismsort
     subroutine imsort(x,ix,dir,flag)
       import :: psb_ipk_
       integer(psb_ipk_), intent(inout)           :: x(:) 

@@ -166,6 +166,60 @@ function  psb_ibsrch(key,n,v) result(ipos)
   return
 end function psb_ibsrch
 
+function  psb_isibsrch(key,n,v) result(ipos)
+  use psb_sort_mod, psb_protect_name => psb_isibsrch
+  implicit none
+  integer(psb_ipk_) :: ipos, n
+  integer(psb_sik_) :: key
+  integer(psb_sik_) :: v(n)
+
+  integer(psb_ipk_) :: lb, ub, m
+
+  lb = 1 
+  ub = n
+  ipos = -1 
+
+  do while (lb.le.ub) 
+    m = (lb+ub)/2
+    if (key.eq.v(m))  then
+      ipos = m 
+      lb   = ub + 1
+    else if (key < v(m))  then
+      ub = m-1
+    else 
+      lb = m + 1
+    end if
+  enddo
+  return
+end function psb_isibsrch
+
+function  psb_iskbsrch(key,n,v) result(ipos)
+  use psb_sort_mod, psb_protect_name => psb_iskbsrch
+  implicit none
+  integer(psb_ipk_) :: ipos, n
+  integer(psb_ipk_) :: key
+  integer(psb_sik_) :: v(n)
+
+  integer(psb_ipk_) :: lb, ub, m
+
+  lb = 1 
+  ub = n
+  ipos = -1 
+
+  do while (lb.le.ub) 
+    m = (lb+ub)/2
+    if (key.eq.v(m))  then
+      ipos = m 
+      lb   = ub + 1
+    else if (key < v(m))  then
+      ub = m-1
+    else 
+      lb = m + 1
+    end if
+  enddo
+  return
+end function psb_iskbsrch
+
 function psb_issrch(key,n,v) result(ipos)
   use psb_sort_mod, psb_protect_name => psb_issrch
   implicit none
@@ -249,6 +303,71 @@ subroutine imsort(x,ix,dir,flag)
     return
   end if
 end subroutine imsort
+
+
+subroutine ismsort(x,ix,dir,flag)
+  use psb_sort_mod, psb_protect_name => ismsort
+  use psb_error_mod
+  implicit none 
+  integer(psb_sik_), intent(inout)           :: x(:) 
+  integer(psb_ipk_), optional, intent(in)    :: dir, flag
+  integer(psb_ipk_), optional, intent(inout) :: ix(:)
+
+  integer(psb_ipk_) :: dir_, flag_, n, err_act
+
+  integer(psb_ipk_)  :: ierr(5)
+  character(len=20)  :: name
+
+  name='psb_msort'
+  call psb_erractionsave(err_act)
+
+  if (present(dir)) then 
+    dir_ = dir
+  else
+    dir_= psb_sort_up_
+  end if
+  select case(dir_) 
+  case( psb_sort_up_, psb_sort_down_)
+    ! OK keep going
+  case default
+    ierr(1) = 3; ierr(2) = dir_; 
+    call psb_errpush(psb_err_input_value_invalid_i_,name,i_err=ierr)
+    goto 9999
+  end select
+
+  n = size(x)
+
+  if (present(ix)) then 
+    if (size(ix) < n) then 
+      ierr(1) = 2; ierr(2) = size(ix); 
+      call psb_errpush(psb_err_input_asize_invalid_i_,name,i_err=ierr)
+      goto 9999
+    end if
+    if (present(flag)) then 
+      flag_ = flag
+    else 
+      flag_ = psb_sort_ovw_idx_
+    end if
+    select case(flag_) 
+    case( psb_sort_ovw_idx_, psb_sort_keep_idx_)
+      ! OK keep going
+    case default
+      ierr(1) = 4; ierr(2) = flag_; 
+      call psb_errpush(psb_err_input_value_invalid_i_,name,i_err=ierr)
+      goto 9999
+    end select
+
+    call ismsrx(n,x,ix,dir_,flag_)
+  else
+    call ismsr(n,x,dir_)
+  end if
+
+9999 continue 
+  if (err_act == psb_act_abort_) then
+    call psb_error()
+    return
+  end if
+end subroutine ismsort
 
 
 subroutine smsort(x,ix,dir,flag)

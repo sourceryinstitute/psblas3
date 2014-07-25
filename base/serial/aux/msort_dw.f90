@@ -170,3 +170,109 @@ subroutine msort_dw(n,k,l,iret)
   end do mergepass
 
 end subroutine msort_dw
+
+subroutine ismsort_dw(n,k,l,iret)
+  use psb_serial_mod
+  implicit none
+  integer(psb_ipk_) :: n, iret
+  integer(psb_sik_) :: k(n)
+  integer(psb_ipk_) :: l(0:n+1)
+  !
+  integer(psb_ipk_) :: p,q,s,t
+  !     ..
+  iret = 0
+  !  first step: we are preparing ordered sublists, exploiting
+  !  what order was already in the input data; negative links
+  !  mark the end of the sublists
+  l(0) = 1
+  t = n + 1
+  do  p = 1,n - 1
+    if (k(p) >= k(p+1)) then
+      l(p) = p + 1
+    else
+      l(t) = - (p+1)
+      t = p
+    end if
+  end do
+  l(t) = 0
+  l(n) = 0
+  ! see if the input was already sorted
+  if (l(n+1) == 0) then
+    iret = 1
+    return 
+  else
+    l(n+1) = abs(l(n+1))
+  end if
+
+  mergepass: do 
+    ! otherwise, begin a pass through the list.
+    ! throughout all the subroutine we have:
+    !  p, q: pointing to the sublists being merged
+    !  s: pointing to the most recently processed record
+    !  t: pointing to the end of previously completed sublist
+    s = 0
+    t = n + 1
+    p = l(s)
+    q = l(t)
+    if (q == 0) exit mergepass
+
+    outer: do 
+
+      if (k(p) < k(q)) then 
+
+        l(s) = sign(q,l(s))
+        s = q
+        q = l(q)
+        if (q > 0) then 
+          do 
+            if (k(p) >= k(q)) cycle outer
+            s = q
+            q = l(q)
+            if (q <= 0) exit
+          end do
+        end if
+        l(s) = p
+        s = t
+        do 
+          t = p
+          p = l(p)
+          if (p <= 0) exit
+        end do
+
+      else 
+
+        l(s) = sign(p,l(s))
+        s = p
+        p = l(p)
+        if (p>0) then 
+          do 
+            if (k(p) < k(q)) cycle outer 
+            s = p
+            p = l(p)
+            if (p <= 0) exit
+          end do
+        end if
+        !  otherwise, one sublist ended, and we append to it the rest
+        !  of the other one.
+        l(s) = q
+        s = t
+        do 
+          t = q
+          q = l(q)
+          if (q <= 0) exit
+        end do
+      end if
+
+      p = -p
+      q = -q
+      if (q == 0) then
+        l(s) = sign(p,l(s))
+        l(t) = 0
+        exit outer 
+      end if
+    end do outer
+  end do mergepass
+
+end subroutine ismsort_dw
+
+
