@@ -230,7 +230,7 @@ subroutine psb_dasbv(x, desc_a, info)
   call psb_halo(x,desc_a,info)
   if(info /= psb_success_) then
     info=psb_err_from_subroutine_
-    ch_err='f90_pshalo'
+    ch_err='psb_dhalo'
     call psb_errpush(info,name,a_err=ch_err)
     goto 9999
   end if
@@ -301,7 +301,9 @@ subroutine psb_dasb_vect(x, desc_a, info, mold,  scratch)
     call x%free(info)
     call x%bld(ncol,mold=mold)
   else
+!!$    write(0,*) me, '  Reallocating vect with ',ncol
     call x%asb(ncol,info)
+!!$    write(0,*) me, '  After Reallocating vect with ',ncol, x%get_nrows()
     ! ..update halo elements..
     call psb_halo(x,desc_a,info)
     if(info /= psb_success_) then

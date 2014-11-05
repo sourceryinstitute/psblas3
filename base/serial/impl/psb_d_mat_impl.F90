@@ -788,7 +788,7 @@ subroutine psb_d_csput_v(nz,ia,ja,val,a,imin,imax,jmin,jmax,info,gtl)
   integer(psb_ipk_), intent(in), optional   :: gtl(:)
 
   integer(psb_ipk_) :: err_act
-  character(len=20)  :: name='csput_a'
+  character(len=20)  :: name='csput_v'
   logical, parameter :: debug=.false.
 
   info = psb_success_

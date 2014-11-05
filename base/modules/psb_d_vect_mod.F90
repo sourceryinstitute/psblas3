@@ -560,8 +560,13 @@ contains
     class(psb_d_vect_type), intent(inout) :: x
     integer(psb_ipk_), intent(out)             :: info
 
-    if (allocated(x%v)) &
-         & call x%v%asb(n,info)
+!!$    write(0,*) 'd_vect_asb :',allocated(x%v)
+    if (allocated(x%v)) then 
+      call x%v%asb(n,info)
+    else
+      write(0,*) 'd_vect_asb : inconsistent state '
+      info = -1
+    end if
     
   end subroutine d_vect_asb
 

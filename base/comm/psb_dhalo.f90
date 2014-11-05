@@ -442,7 +442,7 @@ subroutine  psb_dhalo_vect(x,desc_a,info,alpha,work,tran,mode,data)
   character(len=20)         :: name, ch_err
   logical                   :: aliw
 
-  name='psb_dhalov'
+  name='psb_dhalo_v'
   if(psb_get_errstatus() /= 0) return 
   info=psb_success_
   call psb_erractionsave(err_act)
@@ -466,8 +466,8 @@ subroutine  psb_dhalo_vect(x,desc_a,info,alpha,work,tran,mode,data)
   ix = 1
   ijx = 1
 
-  m = desc_a%get_global_rows()
-  n = desc_a%get_global_cols()
+  m    = desc_a%get_global_rows()
+  n    = desc_a%get_global_cols()
   nrow = desc_a%get_local_rows()
 
   if (present(tran)) then     

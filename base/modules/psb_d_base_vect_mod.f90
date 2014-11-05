@@ -421,7 +421,7 @@ contains
     integer(psb_ipk_), intent(in)              :: n
     class(psb_d_base_vect_type), intent(inout) :: x
     integer(psb_ipk_), intent(out)             :: info
-    
+!!$    write(0,*) 'd_base_asb ',n
     info = 0
     if (x%get_nrows() < n) &
          & call psb_realloc(n,x%v,info)

@@ -1965,10 +1965,10 @@ end subroutine psb_s_csc_csgetrow
 
 
 
-subroutine psb_s_csc_csput(nz,ia,ja,val,a,imin,imax,jmin,jmax,info,gtl) 
+subroutine psb_s_csc_csput_a(nz,ia,ja,val,a,imin,imax,jmin,jmax,info,gtl) 
   use psb_error_mod
   use psb_realloc_mod
-  use psb_s_csc_mat_mod, psb_protect_name => psb_s_csc_csput
+  use psb_s_csc_mat_mod, psb_protect_name => psb_s_csc_csput_a
   implicit none 
 
   class(psb_s_csc_sparse_mat), intent(inout) :: a
@@ -2232,7 +2232,7 @@ contains
 
   end subroutine psb_s_csc_srch_upd
 
-end subroutine psb_s_csc_csput
+end subroutine psb_s_csc_csput_a
 
 
 
