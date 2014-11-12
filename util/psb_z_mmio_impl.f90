@@ -76,7 +76,7 @@ subroutine mm_zvet_read(b, info, iunit, filename)
 
   read(line,fmt=*)nrow,ncol
 
-  if ((psb_tolower(type) == 'real').and.(psb_tolower(sym) == 'general')) then
+  if ((psb_tolower(type) == 'complex').and.(psb_tolower(sym) == 'general')) then
     allocate(b(nrow),stat = ircode)
     if (ircode /= 0)   goto 993
     do i=1, nrow
@@ -149,7 +149,7 @@ subroutine mm_zvet2_read(b, info, iunit, filename)
 
   read(line,fmt=*)nrow,ncol
 
-  if ((psb_tolower(type) == 'real').and.(psb_tolower(sym) == 'general')) then
+  if ((psb_tolower(type) == 'complex').and.(psb_tolower(sym) == 'general')) then
     allocate(b(nrow,ncol),stat = ircode)
     if (ircode /= 0)   goto 993
     do j=1, ncol
@@ -210,14 +210,14 @@ subroutine mm_zvet2_write(b, header, info, iunit, filename)
     endif
   endif
 
-  write(outfile,'(a)') '%%MatrixMarket matrix array real general'
+  write(outfile,'(a)') '%%MatrixMarket matrix array complex general'
   write(outfile,'(a)') '% '//trim(header)
   write(outfile,'(a)') '% '
   nrow = size(b,1) 
   ncol = size(b,2) 
   write(outfile,*) nrow,ncol
 
-  write(outfile,fmt='(2(es26.18,1x))',end=902) ((b(i,j), i=1,nrow),j=1,ncol)
+  write(outfile,fmt='(2(es26.18,1x))') ((b(i,j), i=1,nrow),j=1,ncol)
 
   if (outfile /= 6) close(outfile)
 
