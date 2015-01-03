@@ -2810,9 +2810,7 @@ subroutine psb_d_cp_csr_from_coo(a,b,info)
     call psb_realloc(max(nr+1,nc+1),a%irp,info)
     call tmp%free()
   else
-    
-    if (info /= psb_success_) return
-    
+        
     nr  = b%get_nrows()
     nc  = b%get_ncols()
     nza = b%get_nzeros()
@@ -2821,11 +2819,12 @@ subroutine psb_d_cp_csr_from_coo(a,b,info)
     
     ! Dirty trick: call move_alloc to have the new data allocated just once.
     call psb_safe_ab_cpy(b%ia,itemp,info)
-    if (info /= psb_success_) call psb_safe_ab_cpy(b%ja,a%ja,info)
-    if (info /= psb_success_) call psb_safe_ab_cpy(b%val,a%val,info)
-    if (info /= psb_success_) call psb_realloc(max(nr+1,nc+1),a%irp,info)
+    if (info == psb_success_) call psb_safe_ab_cpy(b%ja,a%ja,info)
+    if (info == psb_success_) call psb_safe_ab_cpy(b%val,a%val,info)
+    if (info == psb_success_) call psb_realloc(max(nr+1,nc+1),a%irp,info)
     
   endif
+  if (info /= psb_success_) return
     
   if (nza <= 0) then 
     a%irp(:) = 1
