@@ -651,6 +651,7 @@ FINCLUDES
 CINCLUDES
 METIS_LIBS
 AMD_LIBS
+INSTALL_SAMPLESDIR
 INSTALL_DOCSDIR
 INSTALL_INCLUDEDIR
 INSTALL_LIBDIR
@@ -2141,8 +2142,12 @@ case $docsdir in
    \/* )   eval "INSTALL_DOCSDIR=$docsdir";;
    * ) eval "INSTALL_DOCSDIR=$INSTALL_DIR/docs";;
 esac
-{ $as_echo "$as_me:$LINENO: result: $INSTALL_DIR $INSTALL_INCLUDEDIR $INSTALL_LIBDIR $INSTALL_DOCSDIR" >&5
-$as_echo "$INSTALL_DIR $INSTALL_INCLUDEDIR $INSTALL_LIBDIR $INSTALL_DOCSDIR" >&6; }
+case $samplesdir in
+   \/* )   eval "INSTALL_SAMPLESDIR=$samplesdir";;
+   * ) eval "INSTALL_SAMPLESDIR=$INSTALL_DIR/samples";;
+esac
+{ $as_echo "$as_me:$LINENO: result: $INSTALL_DIR $INSTALL_INCLUDEDIR $INSTALL_LIBDIR $INSTALL_DOCSDIR $INSTALL_SAMPLESDIR" >&5
+$as_echo "$INSTALL_DIR $INSTALL_INCLUDEDIR $INSTALL_LIBDIR $INSTALL_DOCSDIR $INSTALL_SAMPLESDIR" >&6; }
 
 # Note that the following line won't save from troubles.
 ac_ext=${ac_fc_srcext-f}
@@ -9923,8 +9928,8 @@ if test "x$pac_metis_header_ok" == "xyes" ; then
       psblas_cv_metis_includes="$METIS_INCLUDES"
       METIS_LIBS="$psblas_cv_metis $METIS_LIBDIR"
       LIBS="$METIS_LIBS -lm $LIBS";
-      { $as_echo "$as_me:$LINENO: checking for METIS_PartGraphRecursive in $METIS_LIBS" >&5
-$as_echo_n "checking for METIS_PartGraphRecursive in $METIS_LIBS... " >&6; }
+      { $as_echo "$as_me:$LINENO: checking for METIS_PartGraphKway in $METIS_LIBS" >&5
+$as_echo_n "checking for METIS_PartGraphKway in $METIS_LIBS... " >&6; }
       cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -9938,11 +9943,11 @@ cat >>conftest.$ac_ext <<_ACEOF
 #ifdef __cplusplus
 extern "C"
 #endif
-char METIS_PartGraphRecursive ();
+char METIS_PartGraphKway ();
 int
 main ()
 {
-return METIS_PartGraphRecursive ();
+return METIS_PartGraphKway ();
   ;
   return 0;
 }
@@ -9986,8 +9991,8 @@ $as_echo "$pac_metis_lib_ok" >&6; }
         METIS_LIBS="$psblas_cv_metis $METIS_LIBDIR"
         LIBS="$METIS_LIBS -lm $SAVE_LIBS"
 
-      { $as_echo "$as_me:$LINENO: checking for METIS_PartGraphRecursive in $METIS_LIBS" >&5
-$as_echo_n "checking for METIS_PartGraphRecursive in $METIS_LIBS... " >&6; }
+      { $as_echo "$as_me:$LINENO: checking for METIS_PartGraphKway in $METIS_LIBS" >&5
+$as_echo_n "checking for METIS_PartGraphKway in $METIS_LIBS... " >&6; }
       cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -10001,11 +10006,11 @@ cat >>conftest.$ac_ext <<_ACEOF
 #ifdef __cplusplus
 extern "C"
 #endif
-char METIS_PartGraphRecursive ();
+char METIS_PartGraphKway ();
 int
 main ()
 {
-return METIS_PartGraphRecursive ();
+return METIS_PartGraphKway ();
   ;
   return 0;
 }
@@ -10049,8 +10054,8 @@ $as_echo "$pac_metis_lib_ok" >&6; }
                 METIS_LIBDIR="-L$psblas_cv_metisdir/METIS/Lib -L$psblas_cv_metisdir/METIS/Lib"
         METIS_LIBS="$psblas_cv_metis $METIS_LIBDIR"
         LIBS="$METIS_LIBS -lm $SAVE_LIBS"
-      { $as_echo "$as_me:$LINENO: checking for METIS_PartGraphRecursive in $METIS_LIBS" >&5
-$as_echo_n "checking for METIS_PartGraphRecursive in $METIS_LIBS... " >&6; }
+      { $as_echo "$as_me:$LINENO: checking for METIS_PartGraphKway in $METIS_LIBS" >&5
+$as_echo_n "checking for METIS_PartGraphKway in $METIS_LIBS... " >&6; }
       cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -10064,11 +10069,11 @@ cat >>conftest.$ac_ext <<_ACEOF
 #ifdef __cplusplus
 extern "C"
 #endif
-char METIS_PartGraphRecursive ();
+char METIS_PartGraphKway ();
 int
 main ()
 {
-return METIS_PartGraphRecursive ();
+return METIS_PartGraphKway ();
   ;
   return 0;
 }
@@ -10886,6 +10891,7 @@ UTILLIBNAME=libpsb_util.a
 ###############################################################################
 # Variable substitutions : the Make.inc.in will have these @VARIABLES@
 # substituted.
+
 
 
 

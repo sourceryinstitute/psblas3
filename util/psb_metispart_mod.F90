@@ -244,7 +244,7 @@ contains
 
 #if defined(HAVE_METIS)
     interface 
-      ! subroutine METIS_PartGraphRecursive(n,ixadj,iadj,ivwg,iajw,&
+      ! subroutine METIS_PartGraphKway(n,ixadj,iadj,ivwg,iajw,&
       !     & wgflag,numflag,nparts,weights,iopt,nedc,part) bind(c)
       !   use iso_c_binding
       !   integer(c_int) :: n,wgflag,numflag,nparts,nedc
@@ -252,10 +252,10 @@ contains
       !   real(c_float)  :: weights(*)
       !   !integer(psb_ipk_) :: n,wgflag,numflag,nparts,nedc
       !   !integer(psb_ipk_) :: ixadj(*),iadj(*),ivwg(*),iajw(*),iopt(*),part(*)
-      ! end subroutine METIS_PartGraphRecursive
+      ! end subroutine METIS_PartGraphKway
 
-      function METIS_PartGraphRecursive(n,ixadj,iadj,ivwg,iajw,&
-           & nparts,weights,part) bind(c,name="metis_PartGraphRecursive_C") result(res)
+      function METIS_PartGraphKway(n,ixadj,iadj,ivwg,iajw,&
+           & nparts,weights,part) bind(c,name="metis_PartGraphKway_C") result(res)
         use iso_c_binding
         integer(c_int) :: res
         integer(c_int) :: n,nparts
@@ -263,7 +263,7 @@ contains
         real(c_float)  :: weights(*)
         !integer(psb_ipk_) :: n,wgflag,numflag,nparts,nedc
         !integer(psb_ipk_) :: ixadj(*),iadj(*),ivwg(*),iajw(*),iopt(*),part(*)
-      end function METIS_PartGraphRecursive
+      end function METIS_PartGraphKway
     end interface
 
     call psb_realloc(n,graph_vect,info)
@@ -290,19 +290,19 @@ contains
         if(present(weights)) then
           if (size(weights) == nptl) then 
             write(*,*) 'weights present',weights
-            ! call METIS_PartGraphRecursive(n,irp,ja,idummy,jdummy,&
+            ! call METIS_PartGraphKway(n,irp,ja,idummy,jdummy,&
             !      & wgflag,numflag,nparts,weights,iopt,nedc,graph_vect)
-            info = METIS_PartGraphRecursive(nl,irpl,jal,idummy,jdummy,&
+            info = METIS_PartGraphKway(nl,irpl,jal,idummy,jdummy,&
                  & nptl,weights,gvl)
 
           else
             write(*,*) 'weights absent',wgh_
-            info = METIS_PartGraphRecursive(nl,irpl,jal,idummy,jdummy,&
+            info = METIS_PartGraphKway(nl,irpl,jal,idummy,jdummy,&
                  & nptl,wgh_,gvl)
           end if
         else
           write(*,*) 'weights absent',wgh_
-          info = METIS_PartGraphRecursive(nl,irpl,jal,idummy,jdummy,&
+          info = METIS_PartGraphKway(nl,irpl,jal,idummy,jdummy,&
                & nptl,wgh_,gvl)
         endif
         write(*,*) 'after allocation',info
