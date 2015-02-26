@@ -377,7 +377,7 @@ contains
           info = METIS_PartGraphKway(nl,irpl,jal,idummy,jdummy,&
                & nptl,wgh_,gvl)
         endif
-        write(*,*) 'after allocation',info
+!!$        write(*,*) 'after allocation',info
 
         do i=1, n
           graph_vect(i) = gvl(i) - 1 
