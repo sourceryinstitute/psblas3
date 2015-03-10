@@ -58,10 +58,14 @@ module psb_d_base_vect_mod
   !!  side. It is also meant to be encapsulated in an outer type, to allow
   !!  runtime switching as per the STATE design pattern, similar to the
   !!  sparse matrix types.
+  !! The vector also includes buffers for communication; again, they are
+  !! here to allow different implementations on GPUs. 
   !!
   type psb_d_base_vect_type
     !> Values. 
-    real(psb_dpk_), allocatable :: v(:)
+    real(psb_dpk_), allocatable    :: v(:)
+    real(psb_dpk_), allocatable    :: combuf(:) 
+    integer(psb_ipk_), allocatable :: comid(:,:)
   contains
     !
     !  Constructors/allocators
@@ -97,6 +101,16 @@ module psb_d_base_vect_mod
     procedure, pass(x) :: set_dev  => d_base_set_dev
     procedure, pass(x) :: set_sync => d_base_set_sync
 
+    !
+    ! These are for handling gather/scatter in new
+    ! comm internals implementation.
+    !
+    procedure, nopass  :: use_buffer   => d_base_use_buffer
+    procedure, pass(x) :: new_buffer   => d_base_new_buffer
+    procedure, nopass  :: device_wait  => d_base_device_wait
+    procedure, pass(x) :: free_buffer  => d_base_free_buffer
+    procedure, pass(x) :: new_comid    => d_base_new_comid
+    procedure, pass(x) :: free_comid   => d_base_free_comid
     !
     ! Basic info
     procedure, pass(x) :: get_nrows => d_base_get_nrows
@@ -145,10 +159,12 @@ module psb_d_base_vect_mod
     procedure, pass(x) :: gthab    => d_base_gthab
     procedure, pass(x) :: gthzv    => d_base_gthzv
     procedure, pass(x) :: gthzv_x  => d_base_gthzv_x
-    generic, public    :: gth      => gthab, gthzv, gthzv_x
+    procedure, pass(x) :: gthzbuf  => d_base_gthzbuf
+    generic, public    :: gth      => gthab, gthzv, gthzv_x, gthzbuf
     procedure, pass(y) :: sctb     => d_base_sctb
     procedure, pass(y) :: sctb_x   => d_base_sctb_x
-    generic, public    :: sct      => sctb, sctb_x
+    procedure, pass(y) :: sctb_buf => d_base_sctb_buf
+    generic, public    :: sct      => sctb, sctb_x, sctb_buf
   end type psb_d_base_vect_type
 
   public  :: psb_d_base_vect
@@ -448,6 +464,8 @@ contains
     
     info = 0
     if (allocated(x%v)) deallocate(x%v, stat=info)
+    if (info == 0) call x%free_buffer(info)
+    if (info == 0) call x%free_comid(info)
     if (info /= 0) call & 
          & psb_errpush(psb_err_alloc_dealloc_,'vect_free')
         
@@ -1095,6 +1113,99 @@ contains
     call x%gth(n,idx%v(i:),y)
 
   end subroutine d_base_gthzv_x
+
+  !
+  ! New comm internals impl. 
+  !
+  subroutine d_base_gthzbuf(i,n,idx,x)
+    use psi_serial_mod
+    integer(psb_ipk_) :: i,n
+    class(psb_i_base_vect_type) :: idx
+    class(psb_d_base_vect_type) :: x
+    
+    if (.not.allocated(x%combuf)) then 
+      call psb_errpush(psb_err_alloc_dealloc_,'gthzbuf')
+      return
+    end if
+    call x%gth(n,idx%v(i:),x%combuf(i:))
+
+  end subroutine d_base_gthzbuf
+
+  subroutine d_base_sctb_buf(i,n,idx,beta,y)
+    use psi_serial_mod
+    integer(psb_ipk_) :: i, n
+    class(psb_i_base_vect_type) :: idx
+    real(psb_dpk_) :: beta
+    class(psb_d_base_vect_type) :: y
+    
+    
+    if (.not.allocated(y%combuf)) then 
+      call psb_errpush(psb_err_alloc_dealloc_,'sctb_buf')
+      return
+    end if
+    call y%sct(n,idx%v(i:),y%combuf(i:),beta)
+
+  end subroutine d_base_sctb_buf
+
+  !
+  !> Function  base_device_wait:
+  !! \memberof  psb_d_base_vect_type
+  !! \brief device_wait: base version is a no-op.
+  !!           
+  !
+  subroutine d_base_device_wait()
+    implicit none 
+    
+  end subroutine d_base_device_wait
+
+  function d_base_use_buffer() result(res)
+    logical :: res
+    
+    res = .true.
+  end function d_base_use_buffer
+
+  subroutine d_base_new_buffer(n,x,info)
+    use psb_realloc_mod
+    implicit none 
+    class(psb_d_base_vect_type), intent(inout) :: x
+    integer(psb_ipk_), intent(in)              :: n
+    integer(psb_ipk_), intent(out)             :: info
+
+    call psb_realloc(n,x%combuf,info)
+  end subroutine d_base_new_buffer
+
+  subroutine d_base_new_comid(n,x,info)
+    use psb_realloc_mod
+    implicit none 
+    class(psb_d_base_vect_type), intent(inout) :: x
+    integer(psb_ipk_), intent(in)              :: n
+    integer(psb_ipk_), intent(out)             :: info
+
+    call psb_realloc(n,2,x%comid,info)
+  end subroutine d_base_new_comid
+
+
+  subroutine d_base_free_buffer(x,info)
+    use psb_realloc_mod
+    implicit none 
+    class(psb_d_base_vect_type), intent(inout) :: x
+    integer(psb_ipk_), intent(out)             :: info
+
+    if (allocated(x%combuf)) &
+         &  deallocate(x%combuf,stat=info)
+  end subroutine d_base_free_buffer
+
+  subroutine d_base_free_comid(x,info)
+    use psb_realloc_mod
+    implicit none 
+    class(psb_d_base_vect_type), intent(inout) :: x
+    integer(psb_ipk_), intent(out)             :: info
+
+    if (allocated(x%comid)) &
+         &  deallocate(x%comid,stat=info)
+  end subroutine d_base_free_comid
+
+
 
   !
   ! shortcut alpha=1 beta=0
