@@ -58,6 +58,7 @@ module psb_z_base_prec_mod
     procedure(psb_z_base_apply_vect), pass(prec), deferred :: z_apply_v  
     procedure(psb_z_base_apply), pass(prec), deferred :: z_apply    
     generic, public       :: apply     => z_apply, z_apply_v
+    generic, public       :: build     => precbld
     procedure(psb_z_base_precbld), pass(prec), deferred :: precbld    
     procedure(psb_z_base_sizeof), pass(prec), deferred :: sizeof     
     procedure(psb_z_base_precinit), pass(prec), deferred :: precinit   

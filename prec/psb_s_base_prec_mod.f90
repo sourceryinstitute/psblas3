@@ -58,6 +58,7 @@ module psb_s_base_prec_mod
     procedure(psb_s_base_apply_vect), pass(prec), deferred :: s_apply_v  
     procedure(psb_s_base_apply), pass(prec), deferred :: s_apply    
     generic, public       :: apply     => s_apply, s_apply_v
+    generic, public       :: build     => precbld
     procedure(psb_s_base_precbld), pass(prec), deferred :: precbld    
     procedure(psb_s_base_sizeof), pass(prec), deferred :: sizeof     
     procedure(psb_s_base_precinit), pass(prec), deferred :: precinit   

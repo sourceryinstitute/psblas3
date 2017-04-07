@@ -192,7 +192,8 @@ program psb_d_pde2d
 
   call psb_barrier(ictxt)
   t1 = psb_wtime()
-  call psb_precbld(a,desc_a,prec,info)
+  !call psb_precbld(a,desc_a,prec,info)
+  call prec%build(a,desc_a,info)
   if(info /= psb_success_) then
     info=psb_err_from_subroutine_
     ch_err='psb_precbld'

@@ -104,7 +104,7 @@ contains
     return
   end subroutine psb_d_null_precinit
 
-  subroutine psb_d_null_precbld(a,desc_a,prec,info,upd,amold,afmt,vmold)
+  subroutine psb_d_null_precbld(a,desc_a,prec,info,upd,amold,vmold,imold)
     
     Implicit None
     
@@ -113,9 +113,10 @@ contains
     class(psb_d_null_prec_type),intent(inout) :: prec
     integer(psb_ipk_), intent(out)                      :: info
     character, intent(in), optional           :: upd
-    character(len=*), intent(in), optional    :: afmt
+!    character(len=*), intent(in), optional    :: afmt
     class(psb_d_base_sparse_mat), intent(in), optional :: amold
     class(psb_d_base_vect_type), intent(in), optional  :: vmold
+    class(psb_i_base_vect_type), intent(in), optional  :: imold
     integer(psb_ipk_) :: err_act, nrow
     character(len=20)  :: name='d_null_precbld'
 

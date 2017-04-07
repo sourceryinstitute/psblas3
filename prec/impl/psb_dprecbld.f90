@@ -29,10 +29,10 @@
 !    POSSIBILITY OF SUCH DAMAGE.
 !   
 !    
-subroutine psb_dprecbld(a,desc_a,p,info,upd,amold,afmt,vmold)
+subroutine psb_dprecbld(a,desc_a,p,info,upd,amold,vmold,imold)
 
   use psb_base_mod
-  use psb_d_prec_type
+  use psb_d_prec_type, psb_protect_name => psb_dprecbld
   Implicit None
 
   type(psb_dspmat_type), intent(in), target  :: a
@@ -40,9 +40,10 @@ subroutine psb_dprecbld(a,desc_a,p,info,upd,amold,afmt,vmold)
   type(psb_dprec_type),intent(inout)         :: p
   integer(psb_ipk_), intent(out)               :: info
   character, intent(in), optional              :: upd
-  character(len=*), intent(in), optional       :: afmt
+  !character(len=*), intent(in), optional       :: afmt
   class(psb_d_base_sparse_mat), intent(in), optional :: amold
   class(psb_d_base_vect_type), intent(in), optional  :: vmold
+  class(psb_i_base_vect_type), intent(in), optional  :: imold
 
   ! Local scalars
   integer(psb_ipk_) :: ictxt, me,np
@@ -81,7 +82,7 @@ subroutine psb_dprecbld(a,desc_a,p,info,upd,amold,afmt,vmold)
   end if
 
   call p%prec%precbld(a,desc_a,info,upd=upd,&
-       & afmt=afmt,amold=amold,vmold=vmold)
+       & amold=amold,vmold=vmold,imold=imold)
 
   if (info /= psb_success_) goto 9999
 

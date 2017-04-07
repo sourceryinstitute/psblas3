@@ -50,10 +50,29 @@ module psb_d_prec_type
     procedure, pass(prec)               :: sizeof => psb_dprec_sizeof
     procedure, pass(prec)               :: clone  => psb_d_prec_clone
     procedure, pass(prec)               :: free   => psb_d_prec_free
+    procedure, pass(prec)               :: build  => psb_dprecbld
   end type psb_dprec_type
 
   interface psb_precfree
     module procedure psb_d_precfree
+  end interface
+
+  interface !psb_precbld
+    subroutine psb_dprecbld(a,desc_a,prec,info,upd,amold,vmold,imold)
+      import :: psb_ipk_, psb_desc_type, psb_dspmat_type,&
+           & psb_d_base_sparse_mat, psb_dpk_, psb_d_base_vect_type, &
+           & psb_dprec_type, psb_i_base_vect_type
+      implicit none
+      type(psb_dspmat_type), intent(in), target  :: a
+      type(psb_desc_type), intent(in), target    :: desc_a
+      class(psb_dprec_type), intent(inout)        :: prec
+      integer(psb_ipk_), intent(out)                       :: info
+      character, intent(in),optional             :: upd
+      !character(len=*), intent(in), optional     :: afmt
+      class(psb_d_base_sparse_mat), intent(in), optional :: amold
+      class(psb_d_base_vect_type), intent(in), optional  :: vmold
+      class(psb_i_base_vect_type), intent(in), optional  :: imold
+    end subroutine psb_dprecbld
   end interface
 
 

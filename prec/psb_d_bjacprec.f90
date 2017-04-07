@@ -106,17 +106,18 @@ module psb_d_bjacprec
   end interface
   
   interface
-    subroutine psb_d_bjac_precbld(a,desc_a,prec,info,upd,amold,afmt,vmold)
+    subroutine psb_d_bjac_precbld(a,desc_a,prec,info,upd,amold,vmold,imold)
       import :: psb_ipk_, psb_desc_type, psb_d_bjac_prec_type, psb_d_vect_type, psb_dpk_, &
-           & psb_dspmat_type, psb_d_base_sparse_mat, psb_d_base_vect_type
+           & psb_dspmat_type, psb_d_base_sparse_mat, psb_d_base_vect_type, psb_i_base_vect_type
       type(psb_dspmat_type), intent(in), target :: a
       type(psb_desc_type), intent(in), target   :: desc_a
       class(psb_d_bjac_prec_type),intent(inout) :: prec
       integer(psb_ipk_), intent(out)                      :: info
       character, intent(in), optional           :: upd
-      character(len=*), intent(in), optional    :: afmt
+      !character(len=*), intent(in), optional    :: afmt
       class(psb_d_base_sparse_mat), intent(in), optional :: amold
       class(psb_d_base_vect_type), intent(in), optional  :: vmold
+      class(psb_i_base_vect_type), intent(in), optional  :: imold
     end subroutine psb_d_bjac_precbld
   end interface
   
