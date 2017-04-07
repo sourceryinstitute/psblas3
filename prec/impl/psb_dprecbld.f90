@@ -29,7 +29,7 @@
 !    POSSIBILITY OF SUCH DAMAGE.
 !   
 !    
-subroutine psb_dprecbld(a,desc_a,p,info,upd,amold,vmold,imold)
+subroutine psb_dprecbld(a,desc_a,p,info,amold,vmold,imold)
 
   use psb_base_mod
   use psb_d_prec_type, psb_protect_name => psb_dprecbld
@@ -39,8 +39,6 @@ subroutine psb_dprecbld(a,desc_a,p,info,upd,amold,vmold,imold)
   type(psb_desc_type), intent(in), target      :: desc_a
   class(psb_dprec_type),intent(inout), target  :: p
   integer(psb_ipk_), intent(out)               :: info
-  character, intent(in), optional              :: upd
-  !character(len=*), intent(in), optional       :: afmt
   class(psb_d_base_sparse_mat), intent(in), optional :: amold
   class(psb_d_base_vect_type), intent(in), optional  :: vmold
   class(psb_i_base_vect_type), intent(in), optional  :: imold
@@ -49,7 +47,6 @@ subroutine psb_dprecbld(a,desc_a,p,info,upd,amold,vmold,imold)
   integer(psb_ipk_) :: ictxt, me,np
   integer(psb_ipk_) :: err, n_row, n_col,mglob, err_act
   integer(psb_ipk_) :: int_err(5)
-  character    :: upd_
 
   integer(psb_ipk_),parameter  :: iroot=psb_root_,iout=60,ilout=40
   character(len=20)   :: name, ch_err
@@ -81,7 +78,7 @@ subroutine psb_dprecbld(a,desc_a,p,info,upd,amold,vmold,imold)
     goto 9999
   end if
 
-  call p%prec%precbld(a,desc_a,info,upd=upd,&
+  call p%prec%precbld(a,desc_a,info,&
        & amold=amold,vmold=vmold,imold=imold)
 
   if (info /= psb_success_) goto 9999

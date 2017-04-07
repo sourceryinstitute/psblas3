@@ -407,7 +407,7 @@ subroutine psb_d_bjac_precinit(prec,info)
 end subroutine psb_d_bjac_precinit
 
 
-subroutine psb_d_bjac_precbld(a,desc_a,prec,info,upd,amold,vmold,imold)
+subroutine psb_d_bjac_precbld(a,desc_a,prec,info,amold,vmold,imold)
 
   use psb_base_mod
   use psb_prec_mod, only : psb_ilu_fct
@@ -418,8 +418,6 @@ subroutine psb_d_bjac_precbld(a,desc_a,prec,info,upd,amold,vmold,imold)
   type(psb_desc_type), intent(in), target   :: desc_a
   class(psb_d_bjac_prec_type),intent(inout) :: prec
   integer(psb_ipk_), intent(out)                      :: info
-  character, intent(in), optional           :: upd
-  !character(len=*), intent(in), optional    :: afmt
   class(psb_d_base_sparse_mat), intent(in), optional :: amold
   class(psb_d_base_vect_type), intent(in), optional  :: vmold
   class(psb_i_base_vect_type), intent(in), optional  :: imold

@@ -188,7 +188,7 @@ program psb_d_pde2d
   !  prepare the preconditioner.
   !  
   if(iam == psb_root_) write(psb_out_unit,'("Setting preconditioner to : ",a)')ptype
-  call psb_precinit(prec,ptype,info)
+  call prec%init(ptype,info)
 
   call psb_barrier(ictxt)
   t1 = psb_wtime()
@@ -207,6 +207,7 @@ program psb_d_pde2d
 
   if (iam == psb_root_) write(psb_out_unit,'("Preconditioner time : ",es12.5)')tprec
   if (iam == psb_root_) write(psb_out_unit,'(" ")')
+  call prec%descr()
   !
   ! iterative method parameters 
   !
@@ -254,7 +255,7 @@ program psb_d_pde2d
   call psb_gefree(bv,desc_a,info)
   call psb_gefree(xxv,desc_a,info)
   call psb_spfree(a,desc_a,info)
-  call psb_precfree(prec,info)
+  call prec%free(info)
   call psb_cdfree(desc_a,info)
   if(info /= psb_success_) then
     info=psb_err_from_subroutine_

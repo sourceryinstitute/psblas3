@@ -34,16 +34,6 @@ module psb_d_prec_mod
   use psb_d_prec_type
   use psb_d_base_prec_mod
 
-  interface psb_precinit
-    subroutine psb_dprecinit(prec,ptype,info)
-      import :: psb_ipk_, psb_desc_type, psb_dspmat_type, psb_dpk_, psb_dprec_type
-      implicit none
-      type(psb_dprec_type), intent(inout)    :: prec
-      character(len=*), intent(in)           :: ptype
-      integer(psb_ipk_), intent(out)                   :: info
-    end subroutine psb_dprecinit
-  end interface
-
   interface psb_precset
     subroutine psb_dprecseti(prec,what,val,info)
       import :: psb_ipk_, psb_desc_type, psb_dspmat_type, psb_dpk_, psb_dprec_type

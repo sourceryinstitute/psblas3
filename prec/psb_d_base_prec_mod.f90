@@ -59,6 +59,7 @@ module psb_d_base_prec_mod
     procedure(psb_d_base_apply), pass(prec), deferred :: d_apply    
     generic, public       :: apply     => d_apply, d_apply_v
     generic, public       :: build     => precbld
+    generic, public       :: descr     => precdescr
     procedure(psb_d_base_precbld), pass(prec), deferred :: precbld    
     procedure(psb_d_base_sizeof), pass(prec), deferred :: sizeof     
     procedure(psb_d_base_precinit), pass(prec), deferred :: precinit   
@@ -123,7 +124,7 @@ module psb_d_base_prec_mod
 
 
   abstract interface 
-    subroutine psb_d_base_precbld(a,desc_a,prec,info,upd,amold,vmold,imold)
+    subroutine psb_d_base_precbld(a,desc_a,prec,info,amold,vmold,imold)
       import psb_ipk_, psb_dpk_, psb_desc_type, psb_d_vect_type, &
            & psb_d_base_vect_type, psb_dspmat_type, psb_d_base_prec_type,&
            & psb_d_base_sparse_mat, psb_i_base_vect_type
@@ -133,12 +134,9 @@ module psb_d_base_prec_mod
       type(psb_desc_type), intent(in), target   :: desc_a
       class(psb_d_base_prec_type),intent(inout) :: prec
       integer(psb_ipk_), intent(out)                      :: info
-      character, intent(in), optional           :: upd
-      !character(len=*), intent(in), optional    :: afmt
       class(psb_d_base_sparse_mat), intent(in), optional :: amold
       class(psb_d_base_vect_type), intent(in), optional  :: vmold
       class(psb_i_base_vect_type), intent(in), optional  :: imold
-
     end subroutine psb_d_base_precbld
   end interface
 
