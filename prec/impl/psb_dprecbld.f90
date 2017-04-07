@@ -37,7 +37,7 @@ subroutine psb_dprecbld(a,desc_a,p,info,upd,amold,vmold,imold)
 
   type(psb_dspmat_type), intent(in), target  :: a
   type(psb_desc_type), intent(in), target      :: desc_a
-  type(psb_dprec_type),intent(inout)         :: p
+  class(psb_dprec_type),intent(inout), target  :: p
   integer(psb_ipk_), intent(out)               :: info
   character, intent(in), optional              :: upd
   !character(len=*), intent(in), optional       :: afmt
