@@ -57,13 +57,13 @@ AC_MSG_NOTICE([
 
 	Be sure to specify the library paths of your interest. Examples:
         ./configure --with-libs=-L/some/directory/LIB    <- will append to LIBS
-        FC=mpif90 F77=$FC CC=mpicc ./configure           <- will force FC,CC,F77
+        FC=mpif90 CC=mpicc ./configure           <- will force FC,CC
 
 	See ./configure --help=short fore more info.
 --------------------------------------------------------------------------------
 		])
 ###############################################################################
-# Compilers detection: FC,F77,CC should be set, if found.
+# Compilers detection: FC,CC should be set, if found.
 ###############################################################################
 #
 # Installation. 
@@ -96,7 +96,7 @@ AC_MSG_RESULT([$INSTALL_DIR $INSTALL_INCLUDEDIR $INSTALL_LIBDIR $INSTALL_DOCSDIR
 
 # Note that the following line won't save from troubles.
 AC_PROG_FC([ftn xlf2003_r xlf2003 xlf95_r xlf95 xlf90 xlf pgf95 pgf90 ifort ifc  nagfor gfortran])
-AC_PROG_F77([ftn xlf pgf77 ifort ifc nagfor gfortran])
+dnl AC_PROG_F77([ftn xlf pgf77 ifort ifc nagfor gfortran])
 AC_PROG_CC([xlc pgcc icc gcc cc ])
 dnl AC_PROG_CXX
 
@@ -124,7 +124,7 @@ PAC_ARG_SERIAL_MPI
 if test x"$pac_cv_serial_mpi" == x"yes" ; then
    FAKEMPI="fakempi.o";
    MPIFC="$FC";
-   MPIF77="$F77";
+dnl    MPIF77="$F77";
    MPICC="$CC";
 else 
 AC_LANG([C])
@@ -144,14 +144,14 @@ fi
 
 ACX_MPI([], [AC_MSG_ERROR([[Cannot find any suitable MPI implementation for Fortran]])])
 
-AC_LANG(Fortran 77)
-if test "X$MPIF77" = "X" ; then
-    # This is our MPIFC compiler preference: it will override ACX_MPI's first try.
-    AC_CHECK_PROGS([MPIF77],[mpxlf mpf77 mpif77 ftn])
-fi
-ACX_MPI([], [AC_MSG_ERROR([[Cannot find any suitable MPI implementation for Fortran 77]])])
+dnl AC_LANG(Fortran 77)
+dnl if test "X$MPIF77" = "X" ; then
+dnl     # This is our MPIFC compiler preference: it will override ACX_MPI's first try.
+dnl     AC_CHECK_PROGS([MPIF77],[mpxlf mpf77 mpif77 ftn])
+dnl fi
+dnl ACX_MPI([], [AC_MSG_ERROR([[Cannot find any suitable MPI implementation for Fortran 77]])])
+dnl F77="$MPIF77";
 FC="$MPIFC" ;
-F77="$MPIF77";
 CC="$MPICC";
 fi
 
@@ -250,7 +250,7 @@ if test x"$psblas_cv_fc" == "x" ; then
  elif eval "$MPIFC -v  2>&1 | grep NAG 2>/dev/null" ; then
    psblas_cv_fc="nag"
    FC="$MPIFC"
-   F77="$MPIFC"
+dnl    F77="$MPIFC"
  else
    psblas_cv_fc=""
   # unsupported MPI Fortran compiler
@@ -280,10 +280,10 @@ if test X"$ac_cv_sizeof_void_p" == X"8" ; then
   CDEFINES="-DPtr64Bits $CDEFINES"
 fi
 AC_LANG([Fortran])
-if test "X$psblas_cv_fc" == X"pg" ; then
-   save_FC=$FC
-   FC=$F77
-fi
+dnl if test "X$psblas_cv_fc" == X"pg" ; then
+dnl    save_FC=$FC
+dnl    FC=$F77
+dnl fi
 __AC_FC_NAME_MANGLING
 if test "X$psblas_cv_fc" == X"pg" ; then
    FC=$save_FC
@@ -453,23 +453,21 @@ fi
 # Compilers variables selection 
 ##############################################################################
 F90=${FC}
-MPF90=${MPIFC}
 FC=${FC}
-MPF77=${MPIFC}
+dnl MPF77=${MPIFC}
 CC=${CC}
-MPCC=${MPICC}
 
 
 
 ##############################################################################
 # Choice of our compilers, needed by Make.inc
 ##############################################################################
-if test "X$FLINK" == "X" ; then
-   FLINK=${MPF77}
-fi
+dnl if test "X$FLINK" == "X" ; then
+dnl    FLINK=${MPF77}
+dnl fi
 
-if test "X$F90LINK" == "X" ; then
-   F90LINK=${MPF90}
+if test "X$FLINK" == "X" ; then
+   FLINK=${MPF90}
 fi
 
 ##############################################################################
@@ -753,11 +751,11 @@ AC_SUBST(PRECMODNAME)
 AC_SUBST(METHDMODNAME)
 AC_SUBST(UTILMODNAME)
 AC_SUBST(BASELIBNAME)
-AC_SUBST(F90)
-AC_SUBST(F90COPT)
-AC_SUBST(MPF90)
-AC_SUBST(MPF77)
-AC_SUBST(MPCC)
+dnl AC_SUBST(F90)
+dnl AC_SUBST(F90COPT)
+AC_SUBST(MPIFC)
+dnl AC_SUBST(MPF77)
+AC_SUBST(MPICC)
 AC_SUBST(FCOPT)
 AC_SUBST(CCOPT)
 AC_SUBST(EXTRA_OPT)
@@ -765,9 +763,9 @@ AC_SUBST(FAKEMPI)
 AC_SUBST(FIFLAG)
 AC_SUBST(FMFLAG)
 AC_SUBST(MODEXT)
-AC_SUBST(MPIF77)
+dnl AC_SUBST(MPIF77)
 AC_SUBST(FLINK)
-AC_SUBST(F90LINK)
+dnl AC_SUBST(F90LINK)
 AC_SUBST(LIBS)
 AC_SUBST(AR)
 AC_SUBST(RANLIB)
@@ -800,14 +798,10 @@ FDEFINES=$(PSBFDEFINES)
 # These should be portable rules, arent they?
 .c.o:
 	$(CC) $(CCOPT) $(CINCLUDES) $(CDEFINES) -c $< -o $@
-.f.o:
-	$(FC) $(FCOPT) $(FINCLUDES)  -c $< -o $@
 .f90.o:
-	$(F90) $(F90COPT) $(FINCLUDES) -c $< -o $@
-.F.o:
-	$(FC)  $(FCOPT)   $(FINCLUDES) $(FDEFINES) -c $< -o $@
+	$(FC) $(FCOPT) $(FINCLUDES) -c $< -o $@
 .F90.o:
-	$(F90) $(F90COPT) $(FINCLUDES) $(FDEFINES) -c $< -o $@'
+	$(FC) $(FCOPT) $(FINCLUDES) $(FDEFINES) -c $< -o $@'
 
 
 AC_SUBST(PSBLASRULES)
@@ -830,9 +824,8 @@ dnl Please note that brackets around variable identifiers are absolutely needed 
 AC_MSG_NOTICE([
 	${PACKAGE_NAME} ${psblas_cv_version} has been configured as follows:
 
-   	MPF90                 : ${MPF90}
-	MPF77                 : ${MPF77}
-	MPCC                  : ${MPICC}
+   	MPIFC		      : ${MPIFC}
+	MPICC                 : ${MPICC}
 dnl	F90LINK               : ${F90LINK}
 	FLINK                 : ${FLINK}
 
