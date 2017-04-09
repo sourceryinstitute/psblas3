@@ -36,11 +36,11 @@ dnl NOTE : There is no cross compilation support.
 ###############################################################################
 
 # NOTE: the literal for version (the second argument to AC_INIT should be a literal!)
-AC_INIT([PSBLAS],3.4, salvatore.filippone@uniroma2.it)
+AC_INIT([PSBLAS],3.5, salvatore.filippone@cranfield.ac.uk)
 
 # VERSION is the file containing the PSBLAS version code
 # FIXME
-psblas_cv_version="3.4"
+psblas_cv_version="3.5"
 
 # A sample source file
 AC_CONFIG_SRCDIR([base/modules/psb_base_mod.f90])
@@ -254,10 +254,7 @@ PAC_HAVE_MODERN_GFORTRAN(
         [AC_MSG_ERROR([Bailing out.])]
 )
 fi
-# TODO : SEE _AC_PROG_FC_V
-# TODO : AC_MSG_ERROR(see "$ac_cv_prog_FC_fc")
-# AC_MSG_NOTICE( "ac_cv_prog_FC_fc : $ac_cv_prog_FC_fc")
-###############################################################################
+
 
 ###############################################################################
 #	Linking, symbol mangling, and misc tests
