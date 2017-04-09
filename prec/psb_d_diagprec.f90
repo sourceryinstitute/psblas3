@@ -86,14 +86,15 @@ module psb_d_diagprec
   interface
     subroutine psb_d_diag_precbld(a,desc_a,prec,info,amold,vmold,imold)
       import :: psb_ipk_, psb_desc_type, psb_d_diag_prec_type, psb_d_vect_type, psb_dpk_, &
-           & psb_dspmat_type, psb_d_base_sparse_mat, psb_d_base_vect_type, psb_i_base_vect_type
+           & psb_dspmat_type, psb_d_base_sparse_mat, psb_d_base_vect_type, &
+           & psb_i_base_vect_type
       type(psb_dspmat_type), intent(in), target :: a
-      type(psb_desc_type), intent(in), target   :: desc_a
+      type(psb_desc_type), intent(inout), target   :: desc_a
       class(psb_d_diag_prec_type),intent(inout) :: prec
       integer(psb_ipk_), intent(out)                      :: info
       class(psb_d_base_sparse_mat), intent(in), optional :: amold
       class(psb_d_base_vect_type), intent(in), optional  :: vmold
-  class(psb_i_base_vect_type), intent(in), optional  :: imold
+      class(psb_i_base_vect_type), intent(in), optional  :: imold
     end subroutine psb_d_diag_precbld
   end interface
 
@@ -159,18 +160,20 @@ contains
   end subroutine psb_d_diag_precfree
   
 
-  subroutine psb_d_diag_precdescr(prec,iout)
+  subroutine psb_d_diag_precdescr(prec,iout,root)
+    use psb_penv_mod
+    use psb_error_mod
     use psb_penv_mod
     use psb_error_mod
     Implicit None
 
     class(psb_d_diag_prec_type), intent(in) :: prec
     integer(psb_ipk_), intent(in), optional    :: iout
+    integer(psb_ipk_), intent(in), optional    :: root
 
     integer(psb_ipk_) :: err_act, nrow, info
     character(len=20)  :: name='d_diag_precdescr'
-
-    integer(psb_ipk_) :: iout_, ictxt, iam, np 
+    integer(psb_ipk_) :: iout_, ictxt, iam, np, root_
 
     call psb_erractionsave(err_act)
 
@@ -181,11 +184,20 @@ contains
     else
       iout_ = 6 
     end if
+    if (present(root)) then 
+      root_ = root
+    else
+      root_ = psb_root_
+    end if
+    
     ictxt = prec%ictxt
     call psb_info(ictxt,iam,np)
-
-    if (iam == psb_root_) &
-         & write(iout_,*) 'Diagonal scaling'
+  
+    if (root_ == -1) root_ = iam
+    
+    if (iam == root_) &
+         &  write(iout_,*) trim(prec%desc_prefix()),' ',&
+         & 'Diagonal scaling'
 
     call psb_erractionsave(err_act)
 
