@@ -15,7 +15,6 @@ FOBJS = psb_lsame.o psi_i_serial_impl.o \
 	psb_samax_s.o psb_damax_s.o psb_camax_s.o psb_zamax_s.o \
 	psb_sasum_s.o psb_dasum_s.o psb_casum_s.o psb_zasum_s.o 
 
-
 LIBDIR=..
 INCDIR=..
 MODDIR=../modules
@@ -29,18 +28,12 @@ lib: impld sortd lib1 $(FOBJS)
 
 lib1:	$(FOBJS)
 
-
-f77d:
-	cd f77 && $(MAKE) lib
 impld:
 	cd impl && $(MAKE) lib
-
 sortd:
 	cd sort && $(MAKE) lib
-
 clean:
 	/bin/rm -f $(FOBJS) *$(.mod)
-	(cd f77; $(MAKE) clean)
 	(cd impl; $(MAKE) clean)
 	(cd sort; $(MAKE) clean)
 
