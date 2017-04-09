@@ -2716,7 +2716,7 @@ esac
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $INSTALL_DIR $INSTALL_INCLUDEDIR $INSTALL_LIBDIR $INSTALL_DOCSDIR $INSTALL_SAMPLESDIR" >&5
 $as_echo "$INSTALL_DIR $INSTALL_INCLUDEDIR $INSTALL_LIBDIR $INSTALL_DOCSDIR $INSTALL_SAMPLESDIR" >&6; }
 
-# Note that the following line won't save from troubles.
+save_FCFLAGS="$FCFLAGS";
 ac_ext=${ac_fc_srcext-f}
 ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
 ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
@@ -3160,6 +3160,8 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+FCFLAGS="$save_FCFLAGS";
+save_CFLAGS="$CFLAGS";
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3569,6 +3571,7 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+CFLAGS="$save_CFLAGS";
 
 
 # Sanity checks, although redundant (useful when debugging this configure.ac)!
@@ -5899,8 +5902,10 @@ $as_echo " $pac_f_c_names " >&6; }
 ###############################################################################
 # 			Make.inc generation logic
 ###############################################################################
-#F90COPT="$FCOPT"
-
+# Honor CFLAGS if they were specified explicitly, but --with-ccopt take precedence
+if test "X$CCOPT" == "X" ; then
+  CCOPT="$CFLAGS";
+fi
 if test "X$CCOPT" == "X" ; then
  if test "X$psblas_cv_fc" == "Xgcc" ; then
  # note that no space should be placed around the equality symbol in assignements
@@ -5932,6 +5937,10 @@ if test "X$CCOPT" == "X" ; then
 fi
 #CFLAGS="${CCOPT}"
 
+# Honor FCFLAGS if they were specified explicitly, but --with-fcopt take precedence
+if test "X$FCOPT" == "X" ; then
+  FCOPT="$FCFLAGS";
+fi
 if test "X$FCOPT" == "X" ; then
  if test "X$psblas_cv_fc" == "Xgcc" ; then
  # note that no space should be placed around the equality symbol in assignations
@@ -5963,56 +5972,18 @@ if test "X$FCOPT" == "X" ; then
 fi
 if test "X$psblas_cv_fc" == X"nag" ; then
    # Add needed options
-   FCOPT="$FCOPT  -dcfuns -f2003 -wmismatch=mpi_scatterv,mpi_alltoallv,mpi_gatherv,mpi_allgatherv"
-fi
-#FFLAGS="${FCOPT}"
-
-if test "X$FCOPT" == "X" ; then
- if test "X$psblas_cv_fc" == "Xgcc" ; then
- # note that no space should be placed around the equality symbol in assignations
- # Note : 'native' is valid _only_ on GCC/x86  (32/64 bits)
-   FCOPT="-O3  $FCOPT"
- elif test "X$psblas_cv_fc" == X"xlf" ; then
-   # XL compiler : consider using -qarch=auto
-     FCOPT="-O3 -qarch=auto -qsuffix=f=f90:cpp=F90 -qlanglvl=extended $FCOPT"
- elif test "X$psblas_cv_fc" == X"ifc" ; then
-   # other compilers ..
-     FCOPT="-O3 $FCOPT"
- elif test "X$psblas_cv_fc" == X"pg" ; then
-   # other compilers ..
-     FCOPT="-fast $FCOPT"
- elif test "X$psblas_cv_fc" == X"sun" ; then
-     FCOPT="-fast $FCOPT"
- elif test "X$psblas_cv_fc" == X"cray" ; then
-     MPIFC="ftn"
-     FCOPT="-O3 -em $FCOPT"
- elif test "X$psblas_cv_fc" == X"nag" ; then
-   # NAG compiler
-     FCOPT="-O2"
- else
-   # other compilers ..
-     FCOPT="-O2 $FCOPT"
- fi
-else
- echo "Found FCFLAGS $FCOPT"
-  #FCOPT="${FCFLAGS}"
-fi
-if test "X$psblas_cv_fc" == X"nag" ; then
-   # Add needed options
      FCOPT="$FCOPT -dcfuns -f2003 -wmismatch=mpi_scatterv,mpi_alltoallv,mpi_gatherv,mpi_allgatherv"
      EXTRA_OPT="-mismatch_all"
 fi
 
-#FCFLAGS="${FCOPT}"
 
-# COPT,FCOPT are aliases for FFLAGS,CFLAGS,FCFLAGS .
+# COPT,FCOPT are aliases for CFLAGS,FCFLAGS .
 
 ##############################################################################
 # Compilers variables selection
 ##############################################################################
 FC=${FC}
 CC=${CC}
-
 
 
 ##############################################################################
@@ -9929,14 +9900,11 @@ fi
    	FCOPT                 : ${FCOPT}
    	CCOPT                 : ${CCOPT}
 
-
 	BLAS                  : ${BLAS_LIBS}
 
 	METIS detected        : ${psblas_cv_have_metis}
 	AMD detected          : ${psblas_cv_have_amd}
-
         LIBS                  : ${LIBS}
-
 	LDLIBS                : ${LDLIBS}
 
 	LIBRARYPATH           : ${LIBRARYPATH}
@@ -9960,14 +9928,11 @@ $as_echo "$as_me:
    	FCOPT                 : ${FCOPT}
    	CCOPT                 : ${CCOPT}
 
-
 	BLAS                  : ${BLAS_LIBS}
 
 	METIS detected        : ${psblas_cv_have_metis}
 	AMD detected          : ${psblas_cv_have_amd}
-
         LIBS                  : ${LIBS}
-
 	LDLIBS                : ${LDLIBS}
 
 	LIBRARYPATH           : ${LIBRARYPATH}

@@ -94,9 +94,16 @@ case $samplesdir in
 esac
 AC_MSG_RESULT([$INSTALL_DIR $INSTALL_INCLUDEDIR $INSTALL_LIBDIR $INSTALL_DOCSDIR $INSTALL_SAMPLESDIR])
 
-# Note that the following line won't save from troubles.
+dnl
+dnl We set our own FC flags, ignore those from AC_PROG_FC but not those from the
+dnl environment variable. Same for C
+dnl 
+save_FCFLAGS="$FCFLAGS";
 AC_PROG_FC([ftn xlf2003_r xlf2003 xlf95_r xlf95 xlf90 xlf pgf95 pgf90 ifort ifc  nagfor gfortran])
+FCFLAGS="$save_FCFLAGS";
+save_CFLAGS="$CFLAGS";
 AC_PROG_CC([xlc pgcc icc gcc cc ])
+CFLAGS="$save_CFLAGS";
 dnl AC_PROG_CXX
 
 dnl AC_PROG_F90 doesn't exist, at the time of writing this !
@@ -321,8 +328,10 @@ AC_MSG_RESULT([ $pac_f_c_names ])
 ###############################################################################
 # 			Make.inc generation logic
 ###############################################################################
-#F90COPT="$FCOPT"
-
+# Honor CFLAGS if they were specified explicitly, but --with-ccopt take precedence
+if test "X$CCOPT" == "X" ; then
+  CCOPT="$CFLAGS";
+fi	
 if test "X$CCOPT" == "X" ; then
  if test "X$psblas_cv_fc" == "Xgcc" ; then
  # note that no space should be placed around the equality symbol in assignements
@@ -354,6 +363,10 @@ if test "X$CCOPT" == "X" ; then
 fi
 #CFLAGS="${CCOPT}"
 
+# Honor FCFLAGS if they were specified explicitly, but --with-fcopt take precedence
+if test "X$FCOPT" == "X" ; then
+  FCOPT="$FCFLAGS";
+fi	
 if test "X$FCOPT" == "X" ; then
  if test "X$psblas_cv_fc" == "Xgcc" ; then
  # note that no space should be placed around the equality symbol in assignations
@@ -385,56 +398,18 @@ if test "X$FCOPT" == "X" ; then
 fi
 if test "X$psblas_cv_fc" == X"nag" ; then
    # Add needed options 
-   FCOPT="$FCOPT  -dcfuns -f2003 -wmismatch=mpi_scatterv,mpi_alltoallv,mpi_gatherv,mpi_allgatherv"
-fi
-#FFLAGS="${FCOPT}"
-
-if test "X$FCOPT" == "X" ; then
- if test "X$psblas_cv_fc" == "Xgcc" ; then
- # note that no space should be placed around the equality symbol in assignations
- # Note : 'native' is valid _only_ on GCC/x86  (32/64 bits)
-   FCOPT="-O3  $FCOPT"
- elif test "X$psblas_cv_fc" == X"xlf" ; then
-   # XL compiler : consider using -qarch=auto
-     FCOPT="-O3 -qarch=auto -qsuffix=f=f90:cpp=F90 -qlanglvl=extended $FCOPT"
- elif test "X$psblas_cv_fc" == X"ifc" ; then
-   # other compilers ..
-     FCOPT="-O3 $FCOPT"
- elif test "X$psblas_cv_fc" == X"pg" ; then
-   # other compilers ..
-     FCOPT="-fast $FCOPT"
- elif test "X$psblas_cv_fc" == X"sun" ; then
-     FCOPT="-fast $FCOPT"
- elif test "X$psblas_cv_fc" == X"cray" ; then
-     MPIFC="ftn"
-     FCOPT="-O3 -em $FCOPT"
- elif test "X$psblas_cv_fc" == X"nag" ; then
-   # NAG compiler
-     FCOPT="-O2"
- else 
-   # other compilers ..
-     FCOPT="-O2 $FCOPT"
- fi
-else
- echo "Found FCFLAGS $FCOPT"
-  #FCOPT="${FCFLAGS}"
-fi
-if test "X$psblas_cv_fc" == X"nag" ; then
-   # Add needed options 
      FCOPT="$FCOPT -dcfuns -f2003 -wmismatch=mpi_scatterv,mpi_alltoallv,mpi_gatherv,mpi_allgatherv"
      EXTRA_OPT="-mismatch_all"
 fi
 
-#FCFLAGS="${FCOPT}"
 
-# COPT,FCOPT are aliases for FFLAGS,CFLAGS,FCFLAGS .
+# COPT,FCOPT are aliases for CFLAGS,FCFLAGS .
 
 ##############################################################################
 # Compilers variables selection 
 ##############################################################################
 FC=${FC}
 CC=${CC}
-
 
 
 ##############################################################################
@@ -795,51 +770,20 @@ AC_MSG_NOTICE([
 
    	MPIFC		      : ${MPIFC}
 	MPICC                 : ${MPICC}
-dnl	F90LINK               : ${F90LINK}
 	FLINK                 : ${FLINK}
 
 	FDEFINES              : ${FDEFINES}
 	CDEFINES              : ${CDEFINES}
-dnl	CFLAGS                : ${CFLAGS}
-dnl	FFLAGS                : ${FFLAGS}
-dnl	FCFLAGS               : ${FCFLAGS}
 	MODEXT                : ${MODEXT}
 	FMFLAG                : ${FMFLAG}
    	FCOPT                 : ${FCOPT}
    	CCOPT                 : ${CCOPT}
 
-dnl	ESSL/PESSL            : ${psblas_cv_have_essl} / ${psblas_cv_have_pessl}
-
 	BLAS                  : ${BLAS_LIBS}
-dnl	BLACS                 : ${BLACS_LIBS}
 
 	METIS detected        : ${psblas_cv_have_metis}
 	AMD detected          : ${psblas_cv_have_amd}
-dnl	SuperLU detected      : ${psblas_cv_have_superlu}
-dnl	SuperLU_Dist detected : ${psblas_cv_have_superludist}
-dnl	UMFPack detected      : ${psblas_cv_have_umfpack}
-dnl	F90                   : ${F90}
-dnl	FC                    : ${FC}
-dnl	CC                    : ${CC}
-dnl	F77                   : ${F77}
-dnl	FMFLAG                : ${FMFLAG}
-dnl	FIFLAG                : ${FIFLAG}
-
-dnl 	MPICXX                : ${MPICXX}
-dnl	MPIF77                : ${MPIF77}
-dnl	MPIFC                 : ${MPIFC}
-dnl	MPIF90                : ${MPIF90}
-dnl	MPCC                  : ${MPCC}
-dnl	AR                    : ${AR}
-dnl	RANLIB                : ${RANLIB}
         LIBS                  : ${LIBS}
-dnl FIXME : CLIBS seems an useless variable..
-dnl FIXME : FLIBS seems an useless variable..
-dnl FIXME :  LIBS seems an useless variable..
-dnl	CLIBS                 : ${CLIBS}
-dnl	FLIBS                 : ${CLIBS}
-dnl	 LIBS                 : ${LIBS}
-
 dnl Note : we should use LDLIBS sooner or later!
 	LDLIBS                : ${LDLIBS}
 
