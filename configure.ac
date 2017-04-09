@@ -96,7 +96,6 @@ AC_MSG_RESULT([$INSTALL_DIR $INSTALL_INCLUDEDIR $INSTALL_LIBDIR $INSTALL_DOCSDIR
 
 # Note that the following line won't save from troubles.
 AC_PROG_FC([ftn xlf2003_r xlf2003 xlf95_r xlf95 xlf90 xlf pgf95 pgf90 ifort ifc  nagfor gfortran])
-dnl AC_PROG_F77([ftn xlf pgf77 ifort ifc nagfor gfortran])
 AC_PROG_CC([xlc pgcc icc gcc cc ])
 dnl AC_PROG_CXX
 
@@ -124,7 +123,6 @@ PAC_ARG_SERIAL_MPI
 if test x"$pac_cv_serial_mpi" == x"yes" ; then
    FAKEMPI="fakempi.o";
    MPIFC="$FC";
-dnl    MPIF77="$F77";
    MPICC="$CC";
 else 
 AC_LANG([C])
@@ -144,22 +142,13 @@ fi
 
 ACX_MPI([], [AC_MSG_ERROR([[Cannot find any suitable MPI implementation for Fortran]])])
 
-dnl AC_LANG(Fortran 77)
-dnl if test "X$MPIF77" = "X" ; then
-dnl     # This is our MPIFC compiler preference: it will override ACX_MPI's first try.
-dnl     AC_CHECK_PROGS([MPIF77],[mpxlf mpf77 mpif77 ftn])
-dnl fi
-dnl ACX_MPI([], [AC_MSG_ERROR([[Cannot find any suitable MPI implementation for Fortran 77]])])
-dnl F77="$MPIF77";
 FC="$MPIFC" ;
 CC="$MPICC";
 fi
 
-# We leave a default language for the next checks.
-dnl AC_LANG([Fortran 77])
 AC_LANG([C])
 
-dnl Now on, MPIFC should be set, as MPIF77 and MPICC
+dnl Now on, MPIFC should be set, and MPICC
 
 ###############################################################################
 # Sanity checks, although redundant (useful when debugging this configure.ac)!
@@ -180,8 +169,6 @@ fi
 dnl NOTE : no spaces before the comma, and no brackets before the second argument!
 PAC_ARG_WITH_FLAGS(ccopt,CCOPT)
 PAC_ARG_WITH_FLAGS(fcopt,FCOPT)
-#PAC_ARG_WITH_FLAGS(f90copt,F90COPT)
-#PAC_ARG_WITH_FLAGS(ldflags,LDFLAGS)
 PAC_ARG_WITH_LIBS
 PAC_ARG_WITH_FLAGS(clibs,CLIBS)
 PAC_ARG_WITH_FLAGS(flibs,FLIBS)
@@ -196,10 +183,8 @@ PAC_ARG_WITH_FLAGS(module-path,MODULE_PATH)
 ###############################################################################
 
 dnl  Library oriented Autotools facilities (we don't care about this for now)
-dnl AC_PROG_LIBTOOL
-dnl AM_MAINTAINER_MODE
+
 AC_PROG_RANLIB
-dnl system's ranlib will be found, too
 
 AM_INIT_AUTOMAKE
 dnl Specify required version of autoconf.
@@ -250,7 +235,6 @@ if test x"$psblas_cv_fc" == "x" ; then
  elif eval "$MPIFC -v  2>&1 | grep NAG 2>/dev/null" ; then
    psblas_cv_fc="nag"
    FC="$MPIFC"
-dnl    F77="$MPIFC"
  else
    psblas_cv_fc=""
   # unsupported MPI Fortran compiler
@@ -280,10 +264,6 @@ if test X"$ac_cv_sizeof_void_p" == X"8" ; then
   CDEFINES="-DPtr64Bits $CDEFINES"
 fi
 AC_LANG([Fortran])
-dnl if test "X$psblas_cv_fc" == X"pg" ; then
-dnl    save_FC=$FC
-dnl    FC=$F77
-dnl fi
 __AC_FC_NAME_MANGLING
 if test "X$psblas_cv_fc" == X"pg" ; then
    FC=$save_FC
@@ -341,7 +321,7 @@ AC_MSG_RESULT([ $pac_f_c_names ])
 ###############################################################################
 # 			Make.inc generation logic
 ###############################################################################
-F90COPT="$FCOPT"
+#F90COPT="$FCOPT"
 
 if test "X$CCOPT" == "X" ; then
  if test "X$psblas_cv_fc" == "Xgcc" ; then
@@ -409,52 +389,50 @@ if test "X$psblas_cv_fc" == X"nag" ; then
 fi
 #FFLAGS="${FCOPT}"
 
-if test "X$F90COPT" == "X" ; then
+if test "X$FCOPT" == "X" ; then
  if test "X$psblas_cv_fc" == "Xgcc" ; then
  # note that no space should be placed around the equality symbol in assignations
  # Note : 'native' is valid _only_ on GCC/x86  (32/64 bits)
-   F90COPT="-O3  $F90COPT"
+   FCOPT="-O3  $FCOPT"
  elif test "X$psblas_cv_fc" == X"xlf" ; then
    # XL compiler : consider using -qarch=auto
-     F90COPT="-O3 -qarch=auto -qsuffix=f=f90:cpp=F90 -qlanglvl=extended $F90COPT"
+     FCOPT="-O3 -qarch=auto -qsuffix=f=f90:cpp=F90 -qlanglvl=extended $FCOPT"
  elif test "X$psblas_cv_fc" == X"ifc" ; then
    # other compilers ..
-     F90COPT="-O3 $F90COPT"
+     FCOPT="-O3 $FCOPT"
  elif test "X$psblas_cv_fc" == X"pg" ; then
    # other compilers ..
-     F90COPT="-fast $F90COPT"
+     FCOPT="-fast $FCOPT"
  elif test "X$psblas_cv_fc" == X"sun" ; then
-     F90COPT="-fast $F90COPT"
+     FCOPT="-fast $FCOPT"
  elif test "X$psblas_cv_fc" == X"cray" ; then
      MPIFC="ftn"
-     F90COPT="-O3 -em $F90COPT"
+     FCOPT="-O3 -em $FCOPT"
  elif test "X$psblas_cv_fc" == X"nag" ; then
    # NAG compiler
-     F90COPT="-O2"
+     FCOPT="-O2"
  else 
    # other compilers ..
-     F90COPT="-O2 $F90COPT"
+     FCOPT="-O2 $FCOPT"
  fi
 else
- echo "Found FCFLAGS $F90COPT"
-  #F90COPT="${FCFLAGS}"
+ echo "Found FCFLAGS $FCOPT"
+  #FCOPT="${FCFLAGS}"
 fi
 if test "X$psblas_cv_fc" == X"nag" ; then
    # Add needed options 
-     F90COPT="$F90COPT -dcfuns -f2003 -wmismatch=mpi_scatterv,mpi_alltoallv,mpi_gatherv,mpi_allgatherv"
+     FCOPT="$FCOPT -dcfuns -f2003 -wmismatch=mpi_scatterv,mpi_alltoallv,mpi_gatherv,mpi_allgatherv"
      EXTRA_OPT="-mismatch_all"
 fi
 
-#FCFLAGS="${F90COPT}"
+#FCFLAGS="${FCOPT}"
 
-# COPT,FCOPT, F90COPT are aliases for FFLAGS,CFLAGS,FCFLAGS .
+# COPT,FCOPT are aliases for FFLAGS,CFLAGS,FCFLAGS .
 
 ##############################################################################
 # Compilers variables selection 
 ##############################################################################
-F90=${FC}
 FC=${FC}
-dnl MPF77=${MPIFC}
 CC=${CC}
 
 
@@ -462,10 +440,6 @@ CC=${CC}
 ##############################################################################
 # Choice of our compilers, needed by Make.inc
 ##############################################################################
-dnl if test "X$FLINK" == "X" ; then
-dnl    FLINK=${MPF77}
-dnl fi
-
 if test "X$FLINK" == "X" ; then
    FLINK=${MPF90}
 fi
@@ -751,10 +725,7 @@ AC_SUBST(PRECMODNAME)
 AC_SUBST(METHDMODNAME)
 AC_SUBST(UTILMODNAME)
 AC_SUBST(BASELIBNAME)
-dnl AC_SUBST(F90)
-dnl AC_SUBST(F90COPT)
 AC_SUBST(MPIFC)
-dnl AC_SUBST(MPF77)
 AC_SUBST(MPICC)
 AC_SUBST(FCOPT)
 AC_SUBST(CCOPT)
@@ -763,9 +734,7 @@ AC_SUBST(FAKEMPI)
 AC_SUBST(FIFLAG)
 AC_SUBST(FMFLAG)
 AC_SUBST(MODEXT)
-dnl AC_SUBST(MPIF77)
 AC_SUBST(FLINK)
-dnl AC_SUBST(F90LINK)
 AC_SUBST(LIBS)
 AC_SUBST(AR)
 AC_SUBST(RANLIB)
@@ -836,7 +805,6 @@ dnl	FFLAGS                : ${FFLAGS}
 dnl	FCFLAGS               : ${FCFLAGS}
 	MODEXT                : ${MODEXT}
 	FMFLAG                : ${FMFLAG}
-   	F90COPT               : ${F90COPT}
    	FCOPT                 : ${FCOPT}
    	CCOPT                 : ${CCOPT}
 

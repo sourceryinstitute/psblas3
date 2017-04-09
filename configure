@@ -4136,7 +4136,6 @@ FC="$MPIFC" ;
 CC="$MPICC";
 fi
 
-# We leave a default language for the next checks.
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -4197,8 +4196,6 @@ $as_echo "no" >&6; }
 fi
 
 
-#PAC_ARG_WITH_FLAGS(f90copt,F90COPT)
-#PAC_ARG_WITH_FLAGS(ldflags,LDFLAGS)
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether additional libraries are needed" >&5
 $as_echo_n "checking whether additional libraries are needed... " >&6; }
@@ -4313,6 +4310,7 @@ fi
 # we just gave the user the chance to append values to these variables
 
 ###############################################################################
+
 
 if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}ranlib", so it can be a program name with args.
@@ -5901,7 +5899,7 @@ $as_echo " $pac_f_c_names " >&6; }
 ###############################################################################
 # 			Make.inc generation logic
 ###############################################################################
-F90COPT="$FCOPT"
+#F90COPT="$FCOPT"
 
 if test "X$CCOPT" == "X" ; then
  if test "X$psblas_cv_fc" == "Xgcc" ; then
@@ -5969,50 +5967,49 @@ if test "X$psblas_cv_fc" == X"nag" ; then
 fi
 #FFLAGS="${FCOPT}"
 
-if test "X$F90COPT" == "X" ; then
+if test "X$FCOPT" == "X" ; then
  if test "X$psblas_cv_fc" == "Xgcc" ; then
  # note that no space should be placed around the equality symbol in assignations
  # Note : 'native' is valid _only_ on GCC/x86  (32/64 bits)
-   F90COPT="-O3  $F90COPT"
+   FCOPT="-O3  $FCOPT"
  elif test "X$psblas_cv_fc" == X"xlf" ; then
    # XL compiler : consider using -qarch=auto
-     F90COPT="-O3 -qarch=auto -qsuffix=f=f90:cpp=F90 -qlanglvl=extended $F90COPT"
+     FCOPT="-O3 -qarch=auto -qsuffix=f=f90:cpp=F90 -qlanglvl=extended $FCOPT"
  elif test "X$psblas_cv_fc" == X"ifc" ; then
    # other compilers ..
-     F90COPT="-O3 $F90COPT"
+     FCOPT="-O3 $FCOPT"
  elif test "X$psblas_cv_fc" == X"pg" ; then
    # other compilers ..
-     F90COPT="-fast $F90COPT"
+     FCOPT="-fast $FCOPT"
  elif test "X$psblas_cv_fc" == X"sun" ; then
-     F90COPT="-fast $F90COPT"
+     FCOPT="-fast $FCOPT"
  elif test "X$psblas_cv_fc" == X"cray" ; then
      MPIFC="ftn"
-     F90COPT="-O3 -em $F90COPT"
+     FCOPT="-O3 -em $FCOPT"
  elif test "X$psblas_cv_fc" == X"nag" ; then
    # NAG compiler
-     F90COPT="-O2"
+     FCOPT="-O2"
  else
    # other compilers ..
-     F90COPT="-O2 $F90COPT"
+     FCOPT="-O2 $FCOPT"
  fi
 else
- echo "Found FCFLAGS $F90COPT"
-  #F90COPT="${FCFLAGS}"
+ echo "Found FCFLAGS $FCOPT"
+  #FCOPT="${FCFLAGS}"
 fi
 if test "X$psblas_cv_fc" == X"nag" ; then
    # Add needed options
-     F90COPT="$F90COPT -dcfuns -f2003 -wmismatch=mpi_scatterv,mpi_alltoallv,mpi_gatherv,mpi_allgatherv"
+     FCOPT="$FCOPT -dcfuns -f2003 -wmismatch=mpi_scatterv,mpi_alltoallv,mpi_gatherv,mpi_allgatherv"
      EXTRA_OPT="-mismatch_all"
 fi
 
-#FCFLAGS="${F90COPT}"
+#FCFLAGS="${FCOPT}"
 
-# COPT,FCOPT, F90COPT are aliases for FFLAGS,CFLAGS,FCFLAGS .
+# COPT,FCOPT are aliases for FFLAGS,CFLAGS,FCFLAGS .
 
 ##############################################################################
 # Compilers variables selection
 ##############################################################################
-F90=${FC}
 FC=${FC}
 CC=${CC}
 
@@ -6021,7 +6018,6 @@ CC=${CC}
 ##############################################################################
 # Choice of our compilers, needed by Make.inc
 ##############################################################################
-
 if test "X$FLINK" == "X" ; then
    FLINK=${MPF90}
 fi
@@ -9930,7 +9926,6 @@ fi
 	CDEFINES              : ${CDEFINES}
 	MODEXT                : ${MODEXT}
 	FMFLAG                : ${FMFLAG}
-   	F90COPT               : ${F90COPT}
    	FCOPT                 : ${FCOPT}
    	CCOPT                 : ${CCOPT}
 
@@ -9962,7 +9957,6 @@ $as_echo "$as_me:
 	CDEFINES              : ${CDEFINES}
 	MODEXT                : ${MODEXT}
 	FMFLAG                : ${FMFLAG}
-   	F90COPT               : ${F90COPT}
    	FCOPT                 : ${FCOPT}
    	CCOPT                 : ${CCOPT}
 
