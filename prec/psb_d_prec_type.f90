@@ -196,7 +196,7 @@ contains
     use psb_base_mod
     implicit none 
     type(psb_dprec_type), intent(inout) :: p
-    integer(psb_ipk_), intent(out)      :: info
+    integer(psb_ipk_), intent(out)                :: info
     integer(psb_ipk_) :: me, err_act,i
     character(len=20)   :: name
     if(psb_get_errstatus() /= 0) return 
