@@ -31,3 +31,5 @@ codecov.yml export-ignore
 
 # Perform substitutions when `git export`ing these files
 .VERSION export-subst
+
+* text eol=lf
