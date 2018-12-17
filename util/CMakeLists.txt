@@ -1,0 +1,36 @@
+set(PSB_util_source_files
+  metis_int.c
+  psb_amd_order.c
+  psb_blockpart_mod.f90
+  psb_c_hbio_impl.f90
+  psb_c_mat_dist_impl.f90
+  psb_c_mat_dist_mod.f90
+  psb_c_mmio_impl.f90
+  psb_c_renum_impl.F90
+  psb_d_hbio_impl.f90
+  psb_d_mat_dist_impl.f90
+  psb_d_mat_dist_mod.f90
+  psb_d_mmio_impl.f90
+  psb_d_renum_impl.F90
+  psb_gps_mod.f90
+  psb_hbio_mod.f90
+  psb_i_mmio_impl.f90
+  psb_mat_dist_mod.f90
+  psb_metispart_mod.F90
+  psb_mmio_mod.F90
+  psb_renum_mod.f90
+  psb_s_hbio_impl.f90
+  psb_s_mat_dist_impl.f90
+  psb_s_mat_dist_mod.f90
+  psb_s_mmio_impl.f90
+  psb_s_renum_impl.F90
+  psb_util_mod.f90
+  psb_z_hbio_impl.f90
+  psb_z_mat_dist_impl.f90
+  psb_z_mat_dist_mod.f90
+  psb_z_mmio_impl.f90
+  psb_z_renum_impl.F90
+  )
+foreach(file IN LISTS PSB_util_source_files)
+  list(APPEND util_source_files ${CMAKE_CURRENT_LIST_DIR}/${file})
+endforeach()

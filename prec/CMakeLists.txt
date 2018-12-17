@@ -1,0 +1,66 @@
+
+set(PSB_prec_source_files
+  psb_prec_const_mod.f90
+  psb_c_prec_mod.f90
+  psb_c_base_prec_mod.f90
+  psb_d_bjacprec.f90
+  psb_z_base_prec_mod.f90
+  psb_d_diagprec.f90
+  impl/psb_dprecbld.f90
+  impl/psb_cprecinit.f90
+  impl/psb_dprecinit.f90
+  impl/psb_zilu_fct.f90
+  impl/psb_silu_fct.f90
+  impl/psb_cprecset.f90
+  impl/psb_s_prec_type_impl.f90
+  impl/psb_dilu_fct.f90
+  impl/psb_cprecbld.f90
+  impl/psb_c_diagprec_impl.f90
+  impl/psb_s_bjacprec_impl.f90
+  impl/psb_z_prec_type_impl.f90
+  impl/psb_d_nullprec_impl.f90
+  impl/psb_c_nullprec_impl.f90
+  impl/psb_d_diagprec_impl.f90
+  impl/psb_zprecinit.f90
+  impl/psb_d_prec_type_impl.f90
+  impl/psb_c_prec_type_impl.f90
+  impl/psb_s_nullprec_impl.f90
+  impl/psb_sprecinit.f90
+  impl/psb_z_bjacprec_impl.f90
+  impl/psb_d_bjacprec_impl.f90
+  impl/psb_z_nullprec_impl.f90
+  impl/psb_dprecset.f90
+  impl/psb_c_bjacprec_impl.f90
+  impl/psb_zprecset.f90
+  impl/psb_sprecbld.f90
+  impl/psb_cilu_fct.f90
+  impl/psb_z_diagprec_impl.f90
+  impl/psb_sprecset.f90
+  impl/psb_zprecbld.f90
+  impl/psb_s_diagprec_impl.f90
+  psb_s_base_prec_mod.f90
+  psb_s_bjacprec.f90
+  psb_c_prec_type.f90
+  psb_s_nullprec.f90
+  psb_d_nullprec.f90
+  psb_prec_mod.f90
+  psb_d_prec_type.f90
+  psb_z_prec_type.f90
+  psb_z_prec_mod.f90
+  psb_z_nullprec.f90
+  psb_c_diagprec.f90
+  psb_z_bjacprec.f90
+  psb_s_prec_type.f90
+  psb_c_nullprec.f90
+  psb_prec_type.f90
+  psb_d_prec_mod.f90
+  psb_s_diagprec.f90
+  psb_c_bjacprec.f90
+  psb_s_prec_mod.f90
+  psb_z_diagprec.f90
+  psb_d_base_prec_mod.f90
+  )
+
+foreach(file IN LISTS PSB_prec_source_files)
+  list(APPEND prec_source_files ${CMAKE_CURRENT_LIST_DIR}/${file})
+endforeach()
